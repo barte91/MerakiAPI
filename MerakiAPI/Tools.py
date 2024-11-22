@@ -189,8 +189,8 @@ def CreateSSID(URL, APIKEY, json_script_path, orgID, ntwID, selected_ssid_json):
         return {"error": "Il campo 'number' non è presente nel JSON."}
 
     # Salva il file JSON, se necessario
-    with open(os.path.join(json_script_path, 'SSID_to_create.json'), 'w', encoding='utf-8') as json_file:
-        json.dump(ssid_data, json_file, indent=4, ensure_ascii=False)
+    #with open(os.path.join(json_script_path, 'SSID_to_create.json'), 'w', encoding='utf-8') as json_file:
+    #    json.dump(ssid_data, json_file, indent=4, ensure_ascii=False)
 
     # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
     response = UpdateSSID(URL, APIKEY, ntwID, ssid_number, ssid_data)

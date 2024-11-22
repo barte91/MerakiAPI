@@ -78,6 +78,9 @@
                     const pre = document.createElement('pre');
                     pre.textContent = JSON.stringify(data, null, 4); // Formatta il JSON
                     jsonContainer.appendChild(pre);
+
+                    // Auto-inserimento del JSON completo nel campo textarea
+                    document.getElementById('selectedSSIDJson').value = JSON.stringify(data);
                 });
         }
     </script>
@@ -98,11 +101,15 @@
             <option value="">Seleziona prima l'organizzazione</option>
         </select><br>
 
+        <div id="ssidSettings">
+            <h2>Impostazioni SSID:</h2>
+            <pre id="ssidJsonOutput"></pre>
+        </div>
+
+        <label for="selectedSSIDJson">JSON da inviare:</label><br>
+        <textarea id="selectedSSIDJson" name="selectedSSIDJson" rows="10" cols="100" required></textarea><br>
+
         <input type="submit" value="Crea SSID">
     </form>
-
-    <div id="ssidSettings">
-        <!-- Spazio dove verrà mostrato il JSON delle impostazioni SSID -->
-    </div>
 </body>
 </html>

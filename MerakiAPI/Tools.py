@@ -174,33 +174,32 @@ def getJsonField(data, field):
 
 # FUNZIONI COMPLESSE
 
-def CreateSSID(URL,APIKEY,json_script_path, orgID, ntwID):
-    SSID_path= "SSID"
-    json_script_path=os.path.join(json_script_path,SSID_path)
-    PrintOrgID_Name(URL,APIKEY) # STAMPO LE ORGANIZATION CON I RELATIVIT ID
-    orgID=AskOrgIDToUser()
-    PrintNtwID_Name(URL,APIKEY,orgID) # STAMPO LE NETWORK CON I RELATIVIT ID
-    ntwID=AskNtwIDToUser()
-    Save_SSID_JSON(URL,APIKEY,orgID,ntwID, json_script_path) # SALVO IL FILE JSON IN \\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON\SSID
-    PrintSSID_Num_Name(URL,APIKEY,orgID,ntwID)  # STAMPO SSID CON I RELATIVIT NUMBER
-    
-    #Richiedo il file JSON da utilizzare - Quello che screiverà i dati
-    list_fn=getFileName(json_script_path)
-    fn = list_fn[0]  # Qui potresti voler selezionare un file specifico o personalizzare ulteriormente
-    json_input_path = os.path.join(json_script_path, fn)
-    data_json = ReadJSON(json_input_path)  # Leggi i dati dal file JSON
+def CreateSSID(URL, APIKEY, json_script_path, orgID, ntwID, selected_ssid_json):
+    SSID_path = "SSID"
+    json_script_path = os.path.join(json_script_path, SSID_path)
 
-    ssid_number= getJsonField(data_json, "number")
-    data_json.pop("number", None)  # Rimuovi il campo 'number' dal JSON da inviare (non necessario per l'API PUT)
+    # Converti il JSON string in un oggetto Python
+    ssid_data = json.loads(selected_ssid_json)  # Assicurati di importare json in cima al tuo file
 
-    response=UpdateSSID(URL,APIKEY,ntwID,ssid_number,data_json)
+    # Se desideri, puoi anche fare controlli qui sul contenuto del JSON
+    if 'number' in ssid_data:
+        ssid_number = ssid_data['number']
+        ssid_data.pop('number', None)  # Rimuovi 'number' se non necessario
+    else:
+        return {"error": "Il campo 'number' non è presente nel JSON."}
+
+    # Salva il file JSON, se necessario
+    with open(os.path.join(json_script_path, 'SSID_to_create.json'), 'w', encoding='utf-8') as json_file:
+        json.dump(ssid_data, json_file, indent=4, ensure_ascii=False)
+
+    # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
+    response = UpdateSSID(URL, APIKEY, ntwID, ssid_number, ssid_data)
+
     # Gestisci la risposta
     if response.status_code == 200:
-       print("Aggiornamento riuscito!")
-       print("Risposta:", response.json())
+        return {"success": True, "message": "Aggiornamento riuscito!", "data": response.json()}
     else:
-       print(f"Errore: {response.status_code}")
-       print("Messaggio:", response.text)
+        return {"error": response.status_code, "message": response.text}
 
 
     a=0

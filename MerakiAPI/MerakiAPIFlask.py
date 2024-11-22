@@ -56,10 +56,11 @@ def create_ssid():
     if request.method == 'POST':
         orgID = request.form['orgID']
         ntwID = request.form['ntwID']
+        selected_ssid_json = request.form['selectedSSIDJson']  # Ottieni il JSON inviato
         json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
 
         # Chiamata alla funzione CreateSSID e memorizza il risultato
-        json_output = CreateSSID(URL, APIKEY, json_script_path, orgID, ntwID)
+        json_output = CreateSSID(URL, APIKEY, json_script_path, orgID, ntwID, selected_ssid_json)
 
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
     organizations = getOrgID_Name(URL, APIKEY)

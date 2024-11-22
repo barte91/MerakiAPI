@@ -10,8 +10,8 @@ COPY . /app
 # Installa le dipendenze dal file requirements.txt
 RUN pip install --no-cache-dir -r env/requirements.txt
 
-# Comando di default per eseguire il tuo script
-CMD ["python", "MerakiAPI.py"]
+# Espone la porta su cui gira l'app
+EXPOSE 5000
 
-#Crea il TERM
-ENV TERM xterm
+# Comando di default per eseguire il tuo script
+CMD ["python", "MerakiAPIFlask.py"]

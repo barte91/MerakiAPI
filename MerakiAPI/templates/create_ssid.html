@@ -124,6 +124,12 @@
                     // document.getElementById('selectedSSIDJson').value = JSON.stringify(data);
                 });
         }
+
+        // Imposta il JSON di default quando la pagina viene caricata
+        window.onload = function () {
+            setDefaultJson();
+        };
+
     </script>
 </head>
 <body>

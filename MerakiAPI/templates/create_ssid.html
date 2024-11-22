@@ -51,6 +51,47 @@
         }
     </style>
     <script>
+        // JSON di default
+        const defaultSSIDJson = `{
+            "authMode": "psk",
+            "availabilityTags": [],
+            "availableOnAllAps": true,
+            "bandSelection": "Dual band operation",
+            "defaultVlanId": 304,
+            "dot11r": {
+                "adaptive": false,
+                "enabled": false
+            },
+            "dot11w": {
+                "enabled": false,
+                "required": false
+            },
+            "enabled": false,
+            "encryptionMode": "wpa",
+            "ipAssignmentMode": "Bridge mode",
+            "lanIsolationEnabled": false,
+            "mandatoryDhcpEnabled": false,
+            "minBitrate": 11,
+            "name": "ITLM-EMERGENCY",
+            "number": 0,
+            "perClientBandwidthLimitDown": 0,
+            "perClientBandwidthLimitUp": 0,
+            "perSsidBandwidthLimitDown": 0,
+            "perSsidBandwidthLimitUp": 0,
+            "psk": "goLqBaDZ!GQ8viQbhAMTePP-f",
+            "speedBurst": {
+                "enabled": false
+            },
+            "splashPage": "None",
+            "ssidAdminAccessible": false,
+            "useVlanTagging": true,
+            "visible": false,
+            "wpaEncryptionMode": "WPA2 only"
+        }`;
+
+        function setDefaultJson() {
+            document.getElementById('selectedSSIDJson').value = defaultSSIDJson;
+        }
         function fetchNetworks(orgID) {
             fetch(`/api/get_networks/${orgID}`)
                 .then(response => response.json())
@@ -80,7 +121,7 @@
                     jsonContainer.appendChild(pre);
 
                     // Auto-inserimento del JSON completo nel campo textarea
-                    document.getElementById('selectedSSIDJson').value = JSON.stringify(data);
+                    // document.getElementById('selectedSSIDJson').value = JSON.stringify(data);
                 });
         }
     </script>

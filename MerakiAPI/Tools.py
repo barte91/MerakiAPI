@@ -19,6 +19,16 @@ def getOrgID_Name(URL,APIKEY):
         for org in organizations:
             return [(org['id'], org['name']) for org in organizations]
 
+def Flask_getOrgID_Name(URL,APIKEY):
+    """Fetch the list of organizations for the authenticated user."""
+    queryURL = f'{URL}/organizations'
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        organizations = response.json()
+        return [(org['id'], org['name']) for org in organizations]
+    else:
+        return []
+
 ## ORG - PRINT
 
 def PrintOrgID_Name(URL,APIKEY):
@@ -39,6 +49,15 @@ def getNtwID_Name(URL,APIKEY,orgID):
         # Stampa ID e Nome delle organizzazioni
         for ntw in networks:
             return [(ntw['id'], ntw['name']) for ntw in networks]
+
+def Flask_getNtwID_Name(URL, APIKEY, orgID):
+    queryURL = URL + f"/organizations/{orgID}/networks"
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        networks = response.json()
+        return [(ntw['id'], ntw['name']) for ntw in networks]
+    else:
+        return []
 
 ## NETWORK - PRINT
 
@@ -63,6 +82,16 @@ def getSSID_Num_Name(URL,APIKEY,orgID,ntwID):
         # Stampa number e Nome delle ssids
         for ssid in ssids:
             return [(ssid['number'], ssid['name']) for ssid in ssids]
+
+def Flask_getSSID_Num_Name(URL, APIKEY, orgID, ntwID):
+    queryURL = URL + f"/networks/{ntwID}/wireless/ssids"
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        ssids = response.json()
+        return ssids  # Restituisci direttamente i dettagli SSID
+    else:
+        return {"error": response.status_code, "message": response.text}
 
 
 ## SSID - SAVE
@@ -145,7 +174,7 @@ def getJsonField(data, field):
 
 # FUNZIONI COMPLESSE
 
-def CreateSSID(URL,APIKEY,json_script_path):
+def CreateSSID(URL,APIKEY,json_script_path, orgID, ntwID):
     SSID_path= "SSID"
     json_script_path=os.path.join(json_script_path,SSID_path)
     PrintOrgID_Name(URL,APIKEY) # STAMPO LE ORGANIZATION CON I RELATIVIT ID
@@ -154,13 +183,16 @@ def CreateSSID(URL,APIKEY,json_script_path):
     ntwID=AskNtwIDToUser()
     Save_SSID_JSON(URL,APIKEY,orgID,ntwID, json_script_path) # SALVO IL FILE JSON IN \\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON\SSID
     PrintSSID_Num_Name(URL,APIKEY,orgID,ntwID)  # STAMPO SSID CON I RELATIVIT NUMBER
+    
     #Richiedo il file JSON da utilizzare - Quello che screiverà i dati
     list_fn=getFileName(json_script_path)
-    fn=AskFileName(list_fn)
-    json_input_path=os.path.join(json_script_path,fn)
-    data_json=ReadJSON(json_input_path) # SALVO DATI LETTI DAL FILE JSON
+    fn = list_fn[0]  # Qui potresti voler selezionare un file specifico o personalizzare ulteriormente
+    json_input_path = os.path.join(json_script_path, fn)
+    data_json = ReadJSON(json_input_path)  # Leggi i dati dal file JSON
+
     ssid_number= getJsonField(data_json, "number")
     data_json.pop("number", None)  # Rimuovi il campo 'number' dal JSON da inviare (non necessario per l'API PUT)
+
     response=UpdateSSID(URL,APIKEY,ntwID,ssid_number,data_json)
     # Gestisci la risposta
     if response.status_code == 200:

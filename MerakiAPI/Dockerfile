@@ -8,7 +8,10 @@ WORKDIR /app
 COPY . /app
 
 # Installa le dipendenze dal file requirements.txt
-RUN pip install --no-cache-dir -r requirements.txt
+RUN pip install --no-cache-dir -r env/requirements.txt
 
 # Comando di default per eseguire il tuo script
 CMD ["python", "MerakiAPI.py"]
+
+#Crea il TERM
+ENV TERM xterm

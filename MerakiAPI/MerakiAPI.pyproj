@@ -4,7 +4,7 @@
     <SchemaVersion>2.0</SchemaVersion>
     <ProjectGuid>922034bc-3c5c-4a83-8b08-3fcc818ef824</ProjectGuid>
     <ProjectHome>.</ProjectHome>
-    <StartupFile>MerakiAPI.py</StartupFile>
+    <StartupFile>MerakiAPIFlask.py</StartupFile>
     <SearchPath>
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
@@ -29,6 +29,9 @@
     <Compile Include="ChangeIP.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="MerakiAPIFlask.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Tools.py">
       <SubType>Code</SubType>
     </Compile>
@@ -47,6 +50,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="Dockerfile" />
+    <Content Include="templates\create_ssid.html" />
+    <Content Include="templates\index.html" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="templates\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

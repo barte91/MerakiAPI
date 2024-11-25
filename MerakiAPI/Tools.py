@@ -174,10 +174,11 @@ def getJsonField(data, field):
 
 # FUNZIONI COMPLESSE
 
-def CreateSSID(URL, APIKEY, json_script_path, orgID, ntwID, selected_ssid_json):
+def CreateSSID(URL, APIKEY, json_script_path, orgID, selected_ssid_json,ntwType):
     SSID_path = "SSID"
     json_script_path = os.path.join(json_script_path, SSID_path)
 
+    #ntwID = network_type.get('ID')
     # Converti il JSON string in un oggetto Python
     ssid_data = json.loads(selected_ssid_json)  # Assicurati di importare json in cima al tuo file
 
@@ -191,15 +192,16 @@ def CreateSSID(URL, APIKEY, json_script_path, orgID, ntwID, selected_ssid_json):
     # Salva il file JSON, se necessario
     #with open(os.path.join(json_script_path, 'SSID_to_create.json'), 'w', encoding='utf-8') as json_file:
     #    json.dump(ssid_data, json_file, indent=4, ensure_ascii=False)
-
-    # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
-    response = UpdateSSID(URL, APIKEY, ntwID, ssid_number, ssid_data)
+    
+    for ntwID, name in ntwType:
+        # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
+        response = UpdateSSID(URL, APIKEY, ntwID, ssid_number, ssid_data)
 
     # Gestisci la risposta
-    if response.status_code == 200:
-        return {"success": True, "message": "Aggiornamento riuscito!", "data": response.json()}
-    else:
-        return {"error": response.status_code, "message": response.text}
+    #if response.status_code == 200:
+    #    return {"success": True, "message": "Aggiornamento riuscito!", "data": response.json()}
+    #else:
+    #    return {"error": response.status_code, "message": response.text}
 
 
     a=0

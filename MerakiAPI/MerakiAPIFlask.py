@@ -56,20 +56,67 @@ def create_ssid():
     if request.method == 'POST':
         orgID = request.form['orgID']
         ntwID = request.form['ntwID']
+        #modification_type = request.form['ModifynetworkType']  # Ottieni il valore da ModificationType
+        selected_ntwtype = request.form['networkType']
+        # Ottieni i network filtrati chiamando get_networks
+        selected_ntwtype = get_networks_ID(orgID,selected_ntwtype)
         selected_ssid_json = request.form['selectedSSIDJson']  # Ottieni il JSON inviato
         json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
 
         # Chiamata alla funzione CreateSSID e memorizza il risultato
-        json_output = CreateSSID(URL, APIKEY, json_script_path, orgID, ntwID, selected_ssid_json)
+        json_output = CreateSSID(URL, APIKEY, json_script_path, orgID, selected_ssid_json,selected_ntwtype)
 
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
     organizations = getOrgID_Name(URL, APIKEY)
     return render_template('create_ssid.html', organizations=organizations, json_output=json_output)
 
-@app.route('/api/get_networks/<orgID>', methods=['GET'])
+@app.route('/api/get_networks/<orgID>')
 def get_networks(orgID):
-    networks = Flask_getNtwID_Name(URL, APIKEY, orgID)  # Ottieni le reti per l'organizzazione selezionata
-    return jsonify(networks)  # Restituisce un JSON con le reti
+    network_type = request.args.get('type')
+    networks = getNtwID_Name(URL, APIKEY, orgID)  # Recupera tutte le reti
+    #Creo Array Network
+    filtered_networks = []
+    # Filtrare le reti in base al tipo selezionato
+    for ntw in networks:
+        #if network_type == "SINGLE_NTW" and ntw[1].startswith("SNI"):
+        #    filtered_networks.append(ntw)
+        if network_type == "SNIPER" and ntw[1].startswith("SNI"):
+            filtered_networks.append(ntw)
+        elif network_type == "NEGOZIO" and ntw[1].startswith("MAG"):
+            filtered_networks.append(ntw)
+        elif network_type == "DEPOSITO" and ntw[1].startswith("ENT"):
+            filtered_networks.append(ntw)
+        elif network_type == "SRM" and ntw[1].startswith("SRM"):
+            filtered_networks.append(ntw)
+        elif network_type == "HQ" and ntw[1].startswith("HQ"):
+            filtered_networks.append(ntw)
+        elif network_type == "TUTTE":  # Non applico alcuna condizione
+            filtered_networks.append(ntw)
+    #return valore convertito in JSON
+    return jsonify(filtered_networks)
+
+def get_networks_ID(orgID,network_type):
+    networks = getNtwID_Name(URL, APIKEY, orgID)  # Recupera tutte le reti
+    #Creo Array Network
+    filtered_networks = []
+    # Filtrare le reti in base al tipo selezionato
+    for ntw in networks:
+        #if network_type == "SINGLE_NTW" and ntw[1].startswith("SNI"):
+        #    filtered_networks.append(ntw)
+        if network_type == "SNIPER" and ntw[1].startswith("SNI"):
+            filtered_networks.append(ntw)
+        elif network_type == "NEGOZIO" and ntw[1].startswith("MAG"):
+            filtered_networks.append(ntw)
+        elif network_type == "DEPOSITO" and ntw[1].startswith("ENT"):
+            filtered_networks.append(ntw)
+        elif network_type == "SRM" and ntw[1].startswith("SRM"):
+            filtered_networks.append(ntw)
+        elif network_type == "HQ" and ntw[1].startswith("HQ"):
+            filtered_networks.append(ntw)
+        elif network_type == "TUTTE":  # Non applico alcuna condizione
+            filtered_networks.append(ntw)
+    #return valore convertito in JSON
+    return filtered_networks
 
 @app.route('/api/get_ssid_settings/<ntwID>')
 def get_ssid_settings(ntwID):

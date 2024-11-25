@@ -53,47 +53,48 @@
     <script>
         // JSON di default
         const defaultSSIDJson = `{
-            "authMode": "psk",
-            "availabilityTags": [],
-            "availableOnAllAps": true,
-            "bandSelection": "Dual band operation",
-            "defaultVlanId": 304,
-            "dot11r": {
-                "adaptive": false,
-                "enabled": false
-            },
-            "dot11w": {
-                "enabled": false,
-                "required": false
-            },
-            "enabled": false,
-            "encryptionMode": "wpa",
-            "ipAssignmentMode": "Bridge mode",
-            "lanIsolationEnabled": false,
-            "mandatoryDhcpEnabled": false,
-            "minBitrate": 11,
-            "name": "ITLM-EMERGENCY",
-            "number": 0,
-            "perClientBandwidthLimitDown": 0,
-            "perClientBandwidthLimitUp": 0,
-            "perSsidBandwidthLimitDown": 0,
-            "perSsidBandwidthLimitUp": 0,
-            "psk": "goLqBaDZ!GQ8viQbhAMTePP-f",
-            "speedBurst": {
-                "enabled": false
-            },
-            "splashPage": "None",
-            "ssidAdminAccessible": false,
-            "useVlanTagging": true,
-            "visible": false,
-            "wpaEncryptionMode": "WPA2 only"
-        }`;
+                    "authMode": "psk",
+                    "availabilityTags": [],
+                    "availableOnAllAps": true,
+                    "bandSelection": "Dual band operation",
+                    "defaultVlanId": 304,
+                    "dot11r": {
+                        "adaptive": false,
+                        "enabled": false
+                    },
+                    "dot11w": {
+                        "enabled": false,
+                        "required": false
+                    },
+                    "enabled": false,
+                    "encryptionMode": "wpa",
+                    "ipAssignmentMode": "Bridge mode",
+                    "lanIsolationEnabled": false,
+                    "mandatoryDhcpEnabled": false,
+                    "minBitrate": 11,
+                    "name": "ITLM-EMERGENCY",
+                    "number": 0,
+                    "perClientBandwidthLimitDown": 0,
+                    "perClientBandwidthLimitUp": 0,
+                    "perSsidBandwidthLimitDown": 0,
+                    "perSsidBandwidthLimitUp": 0,
+                    "psk": "goLqBaDZ!GQ8viQbhAMTePP-f",
+                    "speedBurst": {
+                        "enabled": false
+                    },
+                    "splashPage": "None",
+                    "ssidAdminAccessible": false,
+                    "useVlanTagging": true,
+                    "visible": false,
+                    "wpaEncryptionMode": "WPA2 only"
+                }`;
 
         function setDefaultJson() {
             document.getElementById('selectedSSIDJson').value = defaultSSIDJson;
         }
-        function fetchNetworks(orgID) {
-            fetch(`/api/get_networks/${orgID}`)
+
+        function fetchNetworks(orgID, type) {
+            fetch(`/api/get_networks/${orgID}?type=${type}`)
                 .then(response => response.json())
                 .then(data => {
                     const ntwSelect = document.getElementById('ntwID');
@@ -108,6 +109,12 @@
                 });
         }
 
+        function onNetworkTypeChange() {
+            const orgID = document.getElementById('orgID').value;
+            const type = document.getElementById('networkType').value;
+            fetchNetworks(orgID, type);
+        }
+
         function fetchSSIDSettings(ntwID) {
             const orgID = document.getElementById('orgID').value;  // Assume che l'orgID sia selezionato
             fetch(`/api/get_ssid_settings/${ntwID}`)
@@ -120,27 +127,38 @@
                     pre.textContent = JSON.stringify(data, null, 4); // Formatta il JSON
                     jsonContainer.appendChild(pre);
 
-                    // Auto-inserimento del JSON completo nel campo textarea
+                    // Auto-inserimento del JSON completo nel campo textarea per il submit
                     // document.getElementById('selectedSSIDJson').value = JSON.stringify(data);
-                });
+                })
+                .catch(err => console.error('Error fetching SSID settings:', err)); // Aggiungi gestione degli errori
         }
 
         // Imposta il JSON di default quando la pagina viene caricata
         window.onload = function () {
             setDefaultJson();
         };
-
     </script>
 </head>
 <body>
     <h1>Crea SSID</h1>
     <form action="/api/create_ssid" method="POST">
         <label for="orgID">Seleziona ID Organizzazione:</label><br>
-        <select id="orgID" name="orgID" required onchange="fetchNetworks(this.value)">
+        <select id="orgID" name="orgID" required onchange="fetchNetworks(this.value, document.getElementById('networkType').value)">
             <option value="">Seleziona un'organizzazione</option>
             {% for org in organizations %}
             <option value="{{ org[0] }}">{{ org[1] }} (ID: {{ org[0] }})</option>
             {% endfor %}
+        </select><br>
+
+        <label for="networkType">Seleziona Tipo di Rete:</label><br>
+        <select id="networkType" name="networkType" required onchange="onNetworkTypeChange()">
+            <option value="">Seleziona un tipo di rete</option>
+            <option value="SNIPER">SNIPER</option>
+            <option value="NEGOZIO">NEGOZIO</option>
+            <option value="DEPOSITO">DEPOSITO</option>
+            <option value="SRM">SRM</option>
+            <option value="HQ">HQ</option>
+            <option value="TUTTE">TUTTE</option>
         </select><br>
 
         <label for="ntwID">Seleziona ID Network:</label><br>
@@ -155,7 +173,7 @@
 
         <label for="selectedSSIDJson">JSON da inviare:</label><br>
         <textarea id="selectedSSIDJson" name="selectedSSIDJson" rows="10" cols="100" required></textarea><br>
-
+        
         <input type="submit" value="Crea SSID">
     </form>
 </body>

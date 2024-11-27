@@ -24,7 +24,7 @@
             font-weight: bold;
         }
 
-        input[type="text"], select {
+        input[type="text"], select, textarea {
             margin-bottom: 10px;
             padding: 8px;
             width: 100%;
@@ -37,6 +37,7 @@
             border: none;
             padding: 10px 20px;
             cursor: pointer;
+            transition: background-color 0.3s;
         }
 
             input[type="submit"]:hover {
@@ -49,45 +50,15 @@
             border: 1px solid #ddd;
             overflow-x: auto;
         }
+
+        .error {
+            color: red;
+        }
     </style>
     <script>
-        // JSON di default
         const defaultSSIDJson = `{
-                    "authMode": "psk",
-                    "availabilityTags": [],
-                    "availableOnAllAps": true,
-                    "bandSelection": "Dual band operation",
-                    "defaultVlanId": 304,
-                    "dot11r": {
-                        "adaptive": false,
-                        "enabled": false
-                    },
-                    "dot11w": {
-                        "enabled": false,
-                        "required": false
-                    },
-                    "enabled": false,
-                    "encryptionMode": "wpa",
-                    "ipAssignmentMode": "Bridge mode",
-                    "lanIsolationEnabled": false,
-                    "mandatoryDhcpEnabled": false,
-                    "minBitrate": 11,
-                    "name": "ITLM-EMERGENCY",
-                    "number": 0,
-                    "perClientBandwidthLimitDown": 0,
-                    "perClientBandwidthLimitUp": 0,
-                    "perSsidBandwidthLimitDown": 0,
-                    "perSsidBandwidthLimitUp": 0,
-                    "psk": "goLqBaDZ!GQ8viQbhAMTePP-f",
-                    "speedBurst": {
-                        "enabled": false
-                    },
-                    "splashPage": "None",
-                    "ssidAdminAccessible": false,
-                    "useVlanTagging": true,
-                    "visible": false,
-                    "wpaEncryptionMode": "WPA2 only"
-                }`;
+                ...
+            }`;
 
         function setDefaultJson() {
             document.getElementById('selectedSSIDJson').value = defaultSSIDJson;
@@ -98,11 +69,10 @@
                 .then(response => response.json())
                 .then(data => {
                     const ntwSelect = document.getElementById('ntwID');
-                    ntwSelect.innerHTML = "";  // Pulisce le reti precedenti
-
+                    ntwSelect.innerHTML = "";
                     data.forEach(network => {
                         const option = document.createElement('option');
-                        option.value = network[0];  // ID della rete
+                        option.value = network[0];
                         option.textContent = `${network[1]} (ID: ${network[0]})`;
                         ntwSelect.appendChild(option);
                     });
@@ -116,26 +86,58 @@
         }
 
         function fetchSSIDSettings(ntwID) {
-            const orgID = document.getElementById('orgID').value;  // Assume che l'orgID sia selezionato
+            const orgID = document.getElementById('orgID').value;
             fetch(`/api/get_ssid_settings/${ntwID}`)
                 .then(response => response.json())
                 .then(data => {
+                    const ssidSelect = document.getElementById('ssidSelect');
+                    ssidSelect.innerHTML = ""; // Pulisce le SSID precedenti
+
+                    data.forEach(ssid => {
+                        const option = document.createElement('option');
+                        option.value = ssid.number;
+                        option.textContent = `${ssid.name} (NUMBER: ${ssid.number})`;
+                        ssidSelect.appendChild(option);
+                    });
+
+                    // Recupera le impostazioni SSID per la prima SSID per fornire una visualizzazione iniziale
+                    if (data.length > 0) {
+                        fetchSSIDData(ntwID, data[0].number);
+                    }
+                })
+                .catch(err => console.error('Error fetching SSID settings:', err));
+        }
+
+        function fetchSSIDData(ntwID, ssidNumber) {
+            fetch(`/api/get_ssid_settings/${ntwID}/${ssidNumber}`) // Aggiorna endpoint per includere il numero
+                .then(response => response.json())
+                .then(data => {
                     const jsonContainer = document.getElementById('ssidSettings');
-                    jsonContainer.innerHTML = "";  // Pulisce il contenuto precedente
+                    jsonContainer.innerHTML = ""; // Pulisce il contenuto precedente
 
                     const pre = document.createElement('pre');
                     pre.textContent = JSON.stringify(data, null, 4); // Formatta il JSON
                     jsonContainer.appendChild(pre);
-
-                    // Auto-inserimento del JSON completo nel campo textarea per il submit
-                    // document.getElementById('selectedSSIDJson').value = JSON.stringify(data);
+                    document.getElementById('selectedSSIDJson').value = JSON.stringify(data); // Aggiorna il campo JSON da inviare
                 })
-                .catch(err => console.error('Error fetching SSID settings:', err)); // Aggiungi gestione degli errori
+                .catch(err => console.error('Error fetching SSID data:', err));
+        }
+
+        // Funzione per gestire il cambiamento di SSID selezionato
+        function onSSIDChange() {
+            const ntwID = document.getElementById('ntwID').value;
+            const ssidSelect = document.getElementById('ssidSelect');
+            const selectedSsidNumber = ssidSelect.value; // Ottieni il numero SSID selezionato
+            if (selectedSsidNumber) {
+                fetchSSIDData(ntwID, selectedSsidNumber);
+            }
         }
 
         // Imposta il JSON di default quando la pagina viene caricata
         window.onload = function () {
             setDefaultJson();
+            const ssidSelect = document.getElementById('ssidSelect');
+            ssidSelect.addEventListener('change', onSSIDChange); // Aggiungi ascoltatore per il cambiamento SSID
         };
     </script>
 </head>
@@ -152,7 +154,8 @@
 
         <label for="networkType">Seleziona Tipo di Rete:</label><br>
         <select id="networkType" name="networkType" required onchange="onNetworkTypeChange()">
-            <option value="">Seleziona un tipo di rete</option>
+            <option value="">Seleziona il tipo di rete su cui vuoi effettuare la modifica</option>
+            <option value="SINGLE">SINGOLA NETWORK</option>
             <option value="SNIPER">SNIPER</option>
             <option value="NEGOZIO">NEGOZIO</option>
             <option value="DEPOSITO">DEPOSITO</option>
@@ -166,6 +169,11 @@
             <option value="">Seleziona prima l'organizzazione</option>
         </select><br>
 
+        <label for="ssidSelect">Seleziona SSID:</label><br>
+        <select id="ssidSelect" name="ssidSelect">
+            <option value="">Seleziona prima una rete</option>
+        </select><br>
+
         <div id="ssidSettings">
             <h2>Impostazioni SSID:</h2>
             <pre id="ssidJsonOutput"></pre>
@@ -173,7 +181,7 @@
 
         <label for="selectedSSIDJson">JSON da inviare:</label><br>
         <textarea id="selectedSSIDJson" name="selectedSSIDJson" rows="10" cols="100" required></textarea><br>
-        
+
         <input type="submit" value="Crea SSID">
     </form>
 </body>

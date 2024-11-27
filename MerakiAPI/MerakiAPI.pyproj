@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Func_AppRoute.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="MerakiAPI.py" />
     <Compile Include="Inventario.py">
       <SubType>Code</SubType>
@@ -49,6 +52,7 @@
     </Interpreter>
   </ItemGroup>
   <ItemGroup>
+    <Content Include=".editorconfig" />
     <Content Include="Dockerfile" />
     <Content Include="templates\create_ssid.html" />
     <Content Include="templates\index.html" />

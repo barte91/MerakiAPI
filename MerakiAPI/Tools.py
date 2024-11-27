@@ -93,6 +93,16 @@ def Flask_getSSID_Num_Name(URL, APIKEY, orgID, ntwID):
     else:
         return {"error": response.status_code, "message": response.text}
 
+def Flask_getSSID_Num_Name_By_NumberSSID(URL, APIKEY, orgID, ntwID,ssidNumber):
+    queryURL = URL + f"/networks/{ntwID}/wireless/ssids/{ssidNumber}"
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        ssids = response.json()
+        return ssids  # Restituisci direttamente i dettagli SSID
+    else:
+        return {"error": response.status_code, "message": response.text}
+
 
 ## SSID - SAVE
 
@@ -174,7 +184,7 @@ def getJsonField(data, field):
 
 # FUNZIONI COMPLESSE
 
-def CreateSSID(URL, APIKEY, json_script_path, orgID, selected_ssid_json,ntwType):
+def CreateSSID(URL, APIKEY, json_script_path, orgID, selected_ssid_json,ListNtw,ntwType):
     SSID_path = "SSID"
     json_script_path = os.path.join(json_script_path, SSID_path)
 
@@ -192,10 +202,15 @@ def CreateSSID(URL, APIKEY, json_script_path, orgID, selected_ssid_json,ntwType)
     # Salva il file JSON, se necessario
     #with open(os.path.join(json_script_path, 'SSID_to_create.json'), 'w', encoding='utf-8') as json_file:
     #    json.dump(ssid_data, json_file, indent=4, ensure_ascii=False)
-    
-    for ntwID, name in ntwType:
-        # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
+    #se abbiamo selezionato la singola rete allora passo ID della rete selezioanta
+    if ntwType == "SINGLE":    
+        ntwID=ListNtw
         response = UpdateSSID(URL, APIKEY, ntwID, ssid_number, ssid_data)
+    #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
+    else:
+        for ntwID, name in ListNtw:
+            # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
+            response = UpdateSSID(URL, APIKEY, ntwID, ssid_number, ssid_data)
 
     # Gestisci la risposta
     #if response.status_code == 200:

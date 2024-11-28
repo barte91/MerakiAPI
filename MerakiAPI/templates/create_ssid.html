@@ -31,7 +31,7 @@
             box-sizing: border-box;
         }
 
-        input[type="submit"] {
+        input[type="submit"], input[type="button"] {
             background-color: #4CAF50;
             color: white;
             border: none;
@@ -40,7 +40,7 @@
             transition: background-color 0.3s;
         }
 
-            input[type="submit"]:hover {
+            input[type="submit"]:hover, input[type="button"]:hover {
                 background-color: #45a049;
             }
 
@@ -56,7 +56,7 @@
         }
     </style>
     <!-- Utilizza il percorso static per importare il tuo file JS -->
-    <script src="{{ url_for('static', filename='Func_JS.js') }}"></script>
+    <script src="{{ url_for('static', filename='Func_JS_SSID.js') }}"></script>
 </head>
 <body>
     <h1>Crea SSID</h1>
@@ -87,7 +87,7 @@
         </select><br>
 
         <label for="ssidSelect">Seleziona SSID:</label><br>
-        <select id="ssidSelect" name="ssidSelect">
+        <select id="ssidSelect" name="ssidSelect" onchange="onSSIDChange()">
             <option value="">Seleziona prima una rete</option>
         </select><br>
 
@@ -100,6 +100,8 @@
         <textarea id="selectedSSIDJson" name="selectedSSIDJson" rows="10" cols="100" required></textarea><br>
 
         <input type="submit" value="Crea SSID">
+        <input type="button" value="Scarica JSON" onclick="promptDownloadJSON(document.getElementsByTagName('pre')[0].innerHTML)"> <!-- Pulsante per scaricare il JSON -->
+
     </form>
 </body>
 </html>

@@ -54,7 +54,7 @@
   <ItemGroup>
     <Content Include=".editorconfig" />
     <Content Include="Dockerfile" />
-    <Content Include="static\Func_JS.js" />
+    <Content Include="static\Func_JS_SSID.js" />
     <Content Include="templates\create_ssid.html" />
     <Content Include="templates\index.html" />
   </ItemGroup>

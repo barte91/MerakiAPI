@@ -50,6 +50,7 @@ function fetchSSIDSettings(ntwID) {
         .catch(err => console.error('Error fetching SSID settings:', err));
 }
 
+// Funzione che restituisce il JSON del SSID
 function fetchSSIDData(ntwID, ssidNumber) {
     fetch(`/api/get_ssid_settings/${ntwID}/${ssidNumber}`) // Aggiorna endpoint per includere il numero
         .then(response => response.json())
@@ -72,6 +73,27 @@ function onSSIDChange() {
     const selectedSsidNumber = ssidSelect.value; // Ottieni il numero SSID selezionato
     if (selectedSsidNumber) {
         fetchSSIDData(ntwID, selectedSsidNumber);
+    }
+}
+
+function downloadJson(jsonData) {
+    const blob = new Blob([jsonData], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'SSiD-Settings.json'; // Nome del file scaricato
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url); // Libera l'oggetto URL
+}
+
+// Funzione per chiedere conferma e scaricare il JSON
+function promptDownloadJSON(jsonOutput) {
+    //const jsonOutput = document.getElementsByTagName('pre')[0].innerHTML; // Ottieni il contenuto JSON
+    const confirmation = confirm("Vuoi scaricare il JSON di output?");
+    if (confirmation) {
+        downloadJson(jsonOutput); // Chiama la funzione di download
     }
 }
 

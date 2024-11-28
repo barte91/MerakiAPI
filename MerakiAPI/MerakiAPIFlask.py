@@ -133,10 +133,25 @@ def get_ssid_settings(ntwID):
     ssid_settings = Flask_getSSID_Num_Name(URL, APIKEY, orgID, ntwID)  
     return jsonify(ssid_settings)
 
+#-------old - funzionante-------------
 @app.route('/api/get_ssid_settings/<ntwID>/<ssidNumber>')
 def get_ssid_settingsByNumber(ntwID,ssidNumber):
-    ssid_settings = Flask_getSSID_Num_Name_By_NumberSSID(URL, APIKEY, orgID, ntwID,ssidNumber) 
+    ssid_settings = Flask_getSSID_Num_Name_By_NumberSSID(URL, APIKEY, orgID, ntwID,ssidNumber)
     return jsonify(ssid_settings)
+#-------old - funzionante-------------
+
+#-------TEST-------------
+@app.route('/download_json/<ntwID>/<ssidNumber>', methods=['GET'])
+def download_json(ntwID,ssidNumber):
+    ssid_settings = Flask_getSSID_Num_Name_By_NumberSSID(URL, APIKEY, orgID, ntwID,ssidNumber)
+    return jsonify(ssid_settings)
+#-------TEST-------------
+
+# Route per il download del JSON
+#@app.route('/download_json', methods=['GET'])
+#def download_json():
+#    json_path = '/path/to/your/output.json' # Assicurati di aggiornare il percorso
+#    return send_file(json_path, as_attachment=True)
 
 @app.route('/api/test')
 def test():

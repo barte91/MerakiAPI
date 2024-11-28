@@ -1,4 +1,4 @@
-from flask import Flask, jsonify, render_template, request
+from flask import Flask, jsonify, render_template, request, send_from_directory, send_file
 from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem
 from Inventario import *
@@ -20,6 +20,10 @@ json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
 @app.route('/')
 def home():
     return render_template('index.html')
+
+#@app.route('/templates/<path:filename>')
+#def send_js(filename):
+#    return send_from_directory('static', filename)
 
 @app.route('/api/inventario_by_org')
 def inventario_by_org():

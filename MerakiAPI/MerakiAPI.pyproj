@@ -54,10 +54,12 @@
   <ItemGroup>
     <Content Include=".editorconfig" />
     <Content Include="Dockerfile" />
+    <Content Include="static\Func_JS.js" />
     <Content Include="templates\create_ssid.html" />
     <Content Include="templates\index.html" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="static\" />
     <Folder Include="templates\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

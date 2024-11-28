@@ -55,6 +55,8 @@
     <Content Include=".editorconfig" />
     <Content Include="Dockerfile" />
     <Content Include="static\Func_JS_SSID.js" />
+    <Content Include="static\SSID-Style.css" />
+    <Content Include="static\Main-Style.css" />
     <Content Include="templates\create_ssid.html" />
     <Content Include="templates\index.html" />
   </ItemGroup>

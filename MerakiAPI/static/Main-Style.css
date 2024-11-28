@@ -1,0 +1,56 @@
+body {
+    font-family: 'Arial', sans-serif; /* Mantenere il font esistente */
+    margin: 0;
+    padding: 20px;
+    background-color: #f9f9f9; /* Aggiunta di un colore di sfondo chiaro */
+}
+
+h1 {
+    color: #2E8B57; /* Colore verde per il titolo */
+    text-align: center; /* Centra il titolo */
+    margin-bottom: 20px; /* Spazio sotto il titolo */
+}
+
+ul {
+    list-style-type: none; /* Rimuove i punti elenco */
+    padding: 0; /* Rimuove il padding predefinito */
+    max-width: 600px; /* Limita la larghezza della lista */
+    margin: 0 auto; /* Centra la lista */
+    background-color: #ffffff; /* Sfondo bianco per la lista */
+    border-radius: 8px; /* Angoli arrotondati */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Aggiunge un'ombra leggera */
+}
+
+li {
+    margin: 15px 0; /* Margine verticali tra gli elementi della lista */
+    padding: 10px; /* Padding per il contenuto degli elenchi */
+    border-bottom: 1px solid #eee; /* Bordi inferiore leggeri */
+    transition: background-color 0.3s ease; /* Transizione per hover */
+}
+
+    li:hover {
+        background-color: #f0f8f0; /* Cambiare colore di sfondo al passaggio del mouse */
+    }
+
+form {
+    margin: 20px auto; /* Margine per centrare il formulario */
+    padding: 20px; /* Padding per il contenuto del formulario */
+    background-color: #ffffff; /* Sfondo bianco per il formulario */
+    border-radius: 8px; /* Angoli arrotondati */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1); /* Ombra leggera per il formulario */
+}
+
+/* Stili per i bottoni */
+input[type="submit"], input[type="button"] {
+    background-color: #4CAF50; /* Colore verde */
+    color: white; /* Colore del testo bianco */
+    border: none; /* Rimuove il bordo predefinito */
+    padding: 10px 16px; /* Padding del bottone */
+    border-radius: 5px; /* Angoli arrotondati per il bottone */
+    cursor: pointer; /* Cambia il cursore quando si passa sopra al bottone */
+    transition: background-color 0.3s ease; /* Effetto di transizione */
+}
+
+    input[type="submit"]:hover, input[type="button"]:hover {
+        background-color: #45a049; /* Colore più scuro al passaggio del mouse */
+    }

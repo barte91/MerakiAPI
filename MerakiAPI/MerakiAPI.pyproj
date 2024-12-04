@@ -54,11 +54,15 @@
   <ItemGroup>
     <Content Include=".editorconfig" />
     <Content Include="Dockerfile" />
-    <Content Include="static\Func_JS_SSID.js" />
-    <Content Include="static\SSID-Style.css" />
+    <Content Include="static\Func_JS-HTML-Form.js" />
+    <Content Include="static\Func_JS-Meraki-API-General.js" />
+    <Content Include="static\Func_JS-SSID.js" />
+    <Content Include="static\Func_JS-RadioProfile.js" />
+    <Content Include="static\MerakiFunciotn-Style.css" />
     <Content Include="static\Main-Style.css" />
-    <Content Include="templates\create_ssid.html" />
+    <Content Include="templates\API-SSID.html" />
     <Content Include="templates\index.html" />
+    <Content Include="templates\API-RadioProfile.html" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="static\" />

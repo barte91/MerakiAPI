@@ -68,6 +68,19 @@ def PrintNtwID_Name(URL,APIKEY,orgID):
             print(f"\tNome: {ntw_name},\n\tID:{ntw_id}\n")
             
 
+# MERAKI - API -GENERALIZZATE
+
+## GET
+
+def Flask_get_Generic(APIKEY, queryURL):
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        data = response.json()
+        return data  # Restituisci direttamente i dettagli SSID
+    else:
+        return {"error": response.status_code, "message": response.text}
+
 # MERAKI API - SSID
 
 ## SSID - GET
@@ -131,10 +144,10 @@ def PrintSSID_Num_Name(URL,APIKEY,orgID,ntwID):
 
 ## SSID - PUT (PDATE)
 
-def UpdateSSID(URL,APIKEY,ntwID,ssid_number,data_json):
-    queryURL = URL + f"/networks/{ntwID}/wireless/ssids/{ssid_number}"
+def UpdateSSID(request_url,APIKEY,data_json):
+    #queryURL = URL + f"/networks/{ntwID}/wireless/ssids/{ssid_number}"
     response = requests.put(
-        queryURL,headers=APIKEY, json=data_json)
+        request_url,headers=APIKEY, json=data_json)
         #headers={
         #"Content-Type": "application/json",
         #"Authorization": f"Bearer {APIKEY}"
@@ -142,6 +155,8 @@ def UpdateSSID(URL,APIKEY,ntwID,ssid_number,data_json):
         #json=data_json
         #)
     return response
+
+
 
 
 # FUNZIONI ITERAZIONE CON UTENTE
@@ -184,40 +199,48 @@ def getJsonField(data, field):
 
 # FUNZIONI COMPLESSE
 
-def CreateSSID(URL, APIKEY, json_script_path, orgID, selected_ssid_json,ListNtw,ntwType):
-    SSID_path = "SSID"
-    json_script_path = os.path.join(json_script_path, SSID_path)
+#ButtonApplyMod - EX CreateSSID
+def ButtonApplyMod(req_url, APIKEY, json_data, ListNtw, ntwType):
+
+    if ntwType == "SINGLE":    
+        ntwID=ListNtw
+        response = UpdateJsonData(req_url, APIKEY, json_data)
+    #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
+    else:
+        for ntwID, name in ListNtw:
+            # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
+            response = UpdateJsonData(req_url, APIKEY, json_data)
+
+
+
+    #Invia dati nel JSON tramite API a Meraki
+def UpdateJsonData(request_url,APIKEY,data_json):
+    response = requests.put(request_url,headers=APIKEY, json=data_json)
+    return response
+
+# FUNZIONI VARIE UNUSED - SOLO SCOPO DIDATTICO
+
+    #SSID_path = "SSID"
+    #json_script_path = os.path.join(json_script_path, SSID_path)
 
     #ntwID = network_type.get('ID')
     # Converti il JSON string in un oggetto Python
-    ssid_data = json.loads(selected_ssid_json)  # Assicurati di importare json in cima al tuo file
+    #json_data = json.loads(modify_json)  # Assicurati di importare json in cima al tuo file
 
     # Se desideri, puoi anche fare controlli qui sul contenuto del JSON
-    if 'number' in ssid_data:
-        ssid_number = ssid_data['number']
-        ssid_data.pop('number', None)  # Rimuovi 'number' se non necessario
-    else:
-        return {"error": "Il campo 'number' non è presente nel JSON."}
+    #if 'number' in ssid_data:
+    #    ssid_number = ssid_data['number']
+    #    ssid_data.pop('number', None)  # Rimuovi 'number' se non necessario
+    #else:
+    #    return {"error": "Il campo 'number' non è presente nel JSON."}
 
     # Salva il file JSON, se necessario
     #with open(os.path.join(json_script_path, 'SSID_to_create.json'), 'w', encoding='utf-8') as json_file:
     #    json.dump(ssid_data, json_file, indent=4, ensure_ascii=False)
     #se abbiamo selezionato la singola rete allora passo ID della rete selezioanta
-    if ntwType == "SINGLE":    
-        ntwID=ListNtw
-        response = UpdateSSID(URL, APIKEY, ntwID, ssid_number, ssid_data)
-    #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
-    else:
-        for ntwID, name in ListNtw:
-            # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
-            response = UpdateSSID(URL, APIKEY, ntwID, ssid_number, ssid_data)
 
     # Gestisci la risposta
     #if response.status_code == 200:
     #    return {"success": True, "message": "Aggiornamento riuscito!", "data": response.json()}
     #else:
     #    return {"error": response.status_code, "message": response.text}
-
-
-    a=0
-

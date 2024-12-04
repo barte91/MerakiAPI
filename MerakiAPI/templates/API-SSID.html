@@ -3,23 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creazione SSID</title>
+    <title>MERAKI API - Operazioni su SSID</title>
     <!-- Utilizza il percorso static per importare il tuo file CSS -->
-    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='SSID-Style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='MerakiFunciotn-Style.css') }}">
     <!-- Utilizza il percorso static per importare il tuo file JS -->
-    <script src="{{ url_for('static', filename='Func_JS_SSID.js') }}"></script>
+    <script src="{{ url_for('static', filename='Func_JS-Meraki-API-General.js') }}"></script>
+    <script src="{{ url_for('static', filename='Func_JS-HTML-Form.js') }}"></script>
 </head>
 <body>
-    <h1>Crea SSID</h1>
-    <form action="/api/create_ssid" method="POST">
+    <h1>API - OPERAZIONI SU SSID</h1>
+    <form action="/api/API-SSID" method="POST">
+        <!-- SELEZIONE ORGANIZZAZIONE -->
         <label for="orgID">Seleziona ID Organizzazione:</label><br>
-        <select id="orgID" name="orgID" required onchange="fetchNetworks(this.value, document.getElementById('networkType').value)">
+        <select id="orgID" name="orgID" required onchange="fetchGeneric(`/api/get_networks/${this.value}?type=${document.getElementById('networkType').value}`, 'ntwID')">
             <option value="">Seleziona un'organizzazione</option>
             {% for org in organizations %}
             <option value="{{ org[0] }}">{{ org[1] }} (ID: {{ org[0] }})</option>
             {% endfor %}
         </select><br>
 
+        <!-- NETWOROK TYPE -->
         <label for="networkType">Seleziona Tipo di Rete:</label><br>
         <select id="networkType" name="networkType" required onchange="onNetworkTypeChange()">
             <option value="">Seleziona il tipo di rete su cui vuoi effettuare la modifica</option>
@@ -32,26 +35,29 @@
             <option value="TUTTE">TUTTE</option>
         </select><br>
 
+        <!-- SELEZIONE NETWORK -->
         <label for="ntwID">Seleziona ID Network:</label><br>
-        <select id="ntwID" name="ntwID" required onchange="fetchSSIDSettings(this.value)">
+        <select id="ntwID" name="ntwID" required onchange="fetch_Settings(this.value,'/api/get_ssid_settings/','ssidSelect','ModifyJson','number')">
             <option value="">Seleziona prima l'organizzazione</option>
         </select><br>
 
         <label for="ssidSelect">Seleziona SSID:</label><br>
-        <select id="ssidSelect" name="ssidSelect" onchange="onSSIDChange()">
+        <select id="ssidSelect" name="ssidSelect" onchange="onElementChange('ntwID','ssidSelect','CurrentSettings','ModifyJson','/api/get_ssid_settings/')">
             <option value="">Seleziona prima una rete</option>
         </select><br>
 
-        <div id="ssidSettings">
+        <!-- OUTPUT IN JSON DELLE IMPOSTAZIONI ATTUALI -->
+        <div id="CurrentSettings">
             <h2>Impostazioni SSID:</h2>
-            <pre id="ssidJsonOutput"></pre>
+            <pre id="CurrentSettingsJsonOutput"></pre>
         </div>
 
-        <label for="selectedSSIDJson">JSON da inviare:</label><br>
-        <textarea id="selectedSSIDJson" name="selectedSSIDJson" rows="10" cols="100" required></textarea><br>
+        <!-- JSON DOVE INSERIRE LE MODICHE DESIDERATE -->
+        <label for="ModifyJson">JSON da inviare:</label><br>
+        <textarea id="ModifyJson" name="ModifyJson" rows="10" cols="100" required></textarea><br>
 
-        <input type="submit" value="Crea SSID">
-        <input type="button" value="Scarica JSON" onclick="promptDownloadJSON(document.getElementsByTagName('pre')[0].innerHTML)"> <!-- Pulsante per scaricare il JSON -->
+        <input type="submit" value="Update Data - SSID">
+        <input type="button" value="Scarica JSON" onclick="promptDownloadJSON(document.getElementsByTagName('pre')[0].innerHTML,'SSID-Settings.json')"> <!-- Pulsante per scaricare il JSON -->
 
     </form>
 </body>

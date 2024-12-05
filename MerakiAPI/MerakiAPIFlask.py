@@ -219,6 +219,18 @@ def get_rf_settingsByNumber(ntwID,rfID):
     rf_settings=Flask_get_Generic(APIKEY, request_url)
     return jsonify(rf_settings)
 
+@app.route('/api/post_rf_profiles/<ntwID>', methods=['POST'])
+def POST_rf_profiles(ntwID):
+    # Recupera il JSON inviato nel corpo della richiesta
+    json_data = request.get_json()
+    request_url = f"{URL}/networks/{ntwID}/wireless/rfProfiles"  # URL per creare un nuovo RF Profile
+    response = Flask_POST_Generic(request_url, APIKEY, json_data)  # Funzione per inviare una richiesta POST
+    # Controlla il codice di stato della risposta
+    if response.status_code in (200, 201):
+        return jsonify(response.json())  # Restituisce i dati della risposta come JSON
+    else:
+        return jsonify({"error": response.status_code, "message": response.text}), response.status_code  # Restituisce errore con il codice di stato
+
 
 @app.route('/api/test')
 def test():

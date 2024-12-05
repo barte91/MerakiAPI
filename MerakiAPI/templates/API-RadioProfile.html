@@ -24,16 +24,16 @@
 
         <!-- NETWOROK TYPE -->
         <label for="networkType">Seleziona Tipo di Rete:</label><br>
-        <select id="networkType" name="networkType" required onchange="onNetworkTypeChange()" >
-        <!--<select id="networkType" name="networkType" required onchange="onElementChange('orgId','networkType' field_visual_output, field_modify_output, `/api/get_networks/${orgID}?type=${type}`)">-->
-        <option value="">Seleziona il tipo di rete su cui vuoi effettuare la modifica</option>
-        <option value="SINGLE">SINGOLA NETWORK</option>
-        <option value="SNIPER">SNIPER</option>
-        <option value="NEGOZIO">NEGOZIO</option>
-        <option value="DEPOSITO">DEPOSITO</option>
-        <option value="SRM">SRM</option>
-        <option value="HQ">HQ</option>
-        <option value="TUTTE">TUTTE</option>
+        <select id="networkType" name="networkType" required onchange="onNetworkTypeChange()">
+            <!--<select id="networkType" name="networkType" required onchange="onElementChange('orgId','networkType' field_visual_output, field_modify_output, `/api/get_networks/${orgID}?type=${type}`)">-->
+            <option value="">Seleziona il tipo di rete su cui vuoi effettuare la modifica</option>
+            <option value="SINGLE">SINGOLA NETWORK</option>
+            <option value="SNIPER">SNIPER</option>
+            <option value="NEGOZIO">NEGOZIO</option>
+            <option value="DEPOSITO">DEPOSITO</option>
+            <option value="SRM">SRM</option>
+            <option value="HQ">HQ</option>
+            <option value="TUTTE">TUTTE</option>
         </select><br>
 
         <!-- SELEZIONE NETWORK -->
@@ -59,6 +59,7 @@
         <textarea id="ModifyJson" name="ModifyJson" rows="10" cols="100" required></textarea><br>
 
         <input type="submit" value="Update Data - RF">
+        <input type="button" value="Crea Nuovo RF Profile" onclick="POST_fetchNetworksID('/api/post_rf_profiles', 'ModifyJson')">
         <input type="button" value="Scarica JSON" onclick="promptDownloadJSON(document.getElementsByTagName('pre')[0].innerHTML,'RF-Profile-Settings.json')"> <!-- Pulsante per scaricare il JSON -->
 
     </form>

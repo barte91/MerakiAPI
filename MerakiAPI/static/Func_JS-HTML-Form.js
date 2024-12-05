@@ -133,3 +133,35 @@ function fetchElementData(ntwID, el_id, request_url,el_settings,el_JSON) {
         })
         .catch(err => console.error('Error fetching Elements data:', err));
 }
+
+function POST_fetchNetworksID(requestUrl, field_modify_output) {
+    const json_data = JSON.parse(document.getElementById(field_modify_output).value); // Assicurati che il campo JSON sia valorizzato
+    const ntwID = document.getElementById('ntwID').value;
+    const orgID = document.getElementById('orgID').value;
+    const selected_ntwtype = document.getElementById('networkType').value;
+
+    // Se il tipo di rete è "SINGLE", fai modifica solo sulla singola rete
+    if (selected_ntwtype === "SINGLE") // se la network selezionata è "SINGOLA NETWORK faccio la modifica solo sulla rete selezioanata, else su tutte le reti facenti parte del type
+        POST_API_General(requestUrl, ntwID, json_data);
+    else {
+    // Ottieni i network filtrati chiamando get_networks
+    fetch(`/api/get_networks/${orgID}?type=${selected_ntwtype}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Errore nel recupero delle reti');
+            }
+            return response.json();
+        })
+        .then(ListNtw => {
+            // Applica POST_API_General per ogni network ID ricevuto
+            ListNtw.forEach(network => {
+                // Supponiamo che network abbia la forma [ID, Nome]
+                POST_API_General(requestUrl, network[0], json_data); // Usa solo l'ID della rete
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching networks:', error);
+            alert("Si è verificato un errore durante il recupero delle reti.");
+        });
+}
+}

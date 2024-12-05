@@ -213,9 +213,14 @@ def ButtonApplyMod(req_url, APIKEY, json_data, ListNtw, ntwType):
 
 
 
-    #Invia dati nel JSON tramite API a Meraki
+#Invia dati nel JSON tramite API a Meraki - Method PUT
 def UpdateJsonData(request_url,APIKEY,data_json):
     response = requests.put(request_url,headers=APIKEY, json=data_json)
+    return response
+
+#Invia dati nel JSON tramite API a Meraki - Method PUT
+def Flask_POST_Generic(request_url,APIKEY,data_json):
+    response = requests.post(request_url,headers=APIKEY, json=data_json)
     return response
 
 # FUNZIONI VARIE UNUSED - SOLO SCOPO DIDATTICO

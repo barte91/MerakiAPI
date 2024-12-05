@@ -56,8 +56,8 @@
     <Content Include="Dockerfile" />
     <Content Include="static\Func_JS-HTML-Form.js" />
     <Content Include="static\Func_JS-Meraki-API-General.js" />
-    <Content Include="static\Func_JS-SSID.js" />
-    <Content Include="static\Func_JS-RadioProfile.js" />
+    <Content Include="static\UNUSED\Func_JS-SSID.js" />
+    <Content Include="static\UNUSED\Func_JS-RadioProfile.js" />
     <Content Include="static\MerakiFunciotn-Style.css" />
     <Content Include="static\Main-Style.css" />
     <Content Include="templates\API-SSID.html" />
@@ -66,6 +66,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="static\" />
+    <Folder Include="static\UNUSED\" />
     <Folder Include="templates\" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />

@@ -23,17 +23,7 @@
         </select><br>
 
         <!-- NETWOROK TYPE -->
-        <label for="networkType">Seleziona Tipo di Rete:</label><br>
-        <select id="networkType" name="networkType" required onchange="onNetworkTypeChange()">
-            <option value="">Seleziona il tipo di rete su cui vuoi effettuare la modifica</option>
-            <option value="SINGLE">SINGOLA NETWORK</option>
-            <option value="SNIPER">SNIPER</option>
-            <option value="NEGOZIO">NEGOZIO</option>
-            <option value="DEPOSITO">DEPOSITO</option>
-            <option value="SRM">SRM</option>
-            <option value="HQ">HQ</option>
-            <option value="TUTTE">TUTTE</option>
-        </select><br>
+        {% include 'MenuNtwType.html' %}
 
         <!-- SELEZIONE NETWORK -->
         <label for="ntwID">Seleziona ID Network:</label><br>

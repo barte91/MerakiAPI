@@ -7,6 +7,11 @@ function fetchNetworks(orgID, type) {
         .then(data => {
             const ntwSelect = document.getElementById('ntwID');
             ntwSelect.innerHTML = "";
+            //Primo elemento vuoto
+            const EmptyOpt = document.createElement('option');
+            EmptyOpt.value = "";
+            EmptyOpt.textContent = "";
+            ntwSelect.appendChild(EmptyOpt);
             data.forEach(network => {
                 const option = document.createElement('option');
                 option.value = network[0];

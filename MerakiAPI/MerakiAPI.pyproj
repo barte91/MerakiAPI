@@ -63,6 +63,7 @@
     <Content Include="templates\API-SSID.html" />
     <Content Include="templates\index.html" />
     <Content Include="templates\API-RadioProfile.html" />
+    <Content Include="templates\MenuNtwType.html" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="static\" />

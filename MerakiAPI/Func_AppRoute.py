@@ -3,7 +3,7 @@ from Inventario import *
 from UpdatePorts import *
 from ChangeIP import *
 from Tools import *
-from MerakiAPIFlask import *
+from MerakiAPIFlask import URL,APIKEY
 
 #Get Netwrok per @app.route
 def get_networks(orgID):
@@ -11,6 +11,7 @@ def get_networks(orgID):
     try:
         networks = getNtwID_Name(URL, APIKEY, orgID)  # Recupera tutte le reti
     except Exception as e:
+        print(f"Errore: {e}")  # Stampa l'errore per il debug
         return jsonify({"error": "Errore nel recupero delle reti.", "message": str(e)}), 500
     #Creo Array Network
     filtered_networks = []

@@ -60,6 +60,7 @@
     <Content Include="static\UNUSED\Func_JS-RadioProfile.js" />
     <Content Include="static\MerakiFunciotn-Style.css" />
     <Content Include="static\Main-Style.css" />
+    <Content Include="templates\Port-Down-Meraki.html" />
     <Content Include="templates\API-SSID.html" />
     <Content Include="templates\index.html" />
     <Content Include="templates\API-RadioProfile.html" />

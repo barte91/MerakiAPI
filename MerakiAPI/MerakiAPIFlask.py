@@ -193,6 +193,36 @@ def POST_rf_profiles(ntwID):
     else:
         return jsonify({"error": response.status_code, "message": response.text}), response.status_code  # Restituisce errore con il codice di stato
 
+###### PAGINA - Port Donw Meraki
+@app.route('/api/Port-Down-Meraki', methods=['GET', 'POST'])
+def PortDownMeraki():
+    json_output = None
+    if request.method == 'POST':
+        orgID = request.form['orgID']
+        ntwID = request.form['ntwID']
+        pkey='id'
+        #modification_type = request.form['ModifynetworkType']  # Ottieni il valore da ModificationType
+        selected_ntwtype = request.form['networkType']
+        if selected_ntwtype == "SINGLE": # se la network selezionata è "SINGOLA NETWORK faccio la modifica solo sulla rete selezioanata, else su tutte le reti facenti parte del type
+            ListNtw = request.form['ntwID']
+        else:
+            # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
+            ListNtw = get_networks_ID(orgID,selected_ntwtype)
+        modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
+        #json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
+
+        # Converti il JSON string in un oggetto Python
+        json_data = json.loads(modify_json)  # Assicurati di importare json in cima al tuo file
+        json_value_pkey = json_data[pkey]
+        
+        request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles/{json_value_pkey}"
+        # Chiamata alla funzione CreateSSID e memorizza il risultato
+        json_output = ButtonApplyMod(request_url, APIKEY, json_data, ListNtw, selected_ntwtype)
+
+    # Se la richiesta è GET, mostra l'elenco delle organizzazioni
+    organizations = getOrgID_Name(URL, APIKEY)
+    return render_template('Port-Down-Meraki.html', organizations=organizations, json_output=json_output)
+
 
 @app.route('/api/test')
 def test():

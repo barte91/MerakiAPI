@@ -8,7 +8,10 @@ from MerakiAPIFlask import *
 #Get Netwrok per @app.route
 def get_networks(orgID):
     network_type = request.args.get('type')
-    networks = getNtwID_Name(URL, APIKEY, orgID)  # Recupera tutte le reti
+    try:
+        networks = getNtwID_Name(URL, APIKEY, orgID)  # Recupera tutte le reti
+    except Exception as e:
+        return jsonify({"error": "Errore nel recupero delle reti.", "message": str(e)}), 500
     #Creo Array Network
     filtered_networks = []
     # Filtrare le reti in base al tipo selezionato

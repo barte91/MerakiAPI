@@ -23,7 +23,7 @@ function fetchNetworks(orgID, type) {
 
 // Recuepra Generic by URL for 2 elements
 function fetchGeneric(requestUrl, FieldOutput) {
-    console.log('^^^^^^^^URL^^^^^',requestUrl)
+    //console.log('^^^^^^^^URL^^^^^',requestUrl)
     fetch(requestUrl)
         .then(response => response.json())
         .then(data => {

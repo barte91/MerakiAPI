@@ -57,5 +57,7 @@ def get_networks_ID(orgID,network_type):
             filtered_networks.append(ntw)
         elif network_type == "TUTTE":  # Non applico alcuna condizione
             filtered_networks.append(ntw)
+        elif network_type == "SINGLE":  # Non applico alcuna condizione
+            filtered_networks.append(ntw)
     #return valore convertito in JSON
     return filtered_networks

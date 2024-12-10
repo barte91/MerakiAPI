@@ -35,6 +35,9 @@
     <Compile Include="MerakiAPIFlask.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="config.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Tools.py">
       <SubType>Code</SubType>
     </Compile>

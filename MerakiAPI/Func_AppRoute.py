@@ -4,6 +4,7 @@ from UpdatePorts import *
 from ChangeIP import *
 from Tools import *
 from MerakiAPIFlask import *
+from config import URL,APIKEY
 
 #Get Netwrok per @app.route
 def get_networks(orgID):

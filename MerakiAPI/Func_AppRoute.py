@@ -62,7 +62,18 @@ def get_networks_ID(orgID,network_type):
             filtered_networks.append(ntw)
         elif network_type == "TUTTE":  # Non applico alcuna condizione
             filtered_networks.append(ntw)
-        elif network_type == "SINGLE":  # Non applico alcuna condizione
-            filtered_networks.append(ntw)
+        #elif network_type == "SINGLE":  # Non applico alcuna condizione
+        #   filtered_networks.append(ntw)
     #return valore convertito in JSON
     return filtered_networks
+
+# FUNZIONE GET - API GENERIC @app.route
+
+def get_APIgeneric( queryURL):
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        data = response.json()
+        return data  # Restituisci direttamente i dettagli SSID
+    else:
+        return {"error": response.status_code, "message": response.text}

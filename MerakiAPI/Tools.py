@@ -1,6 +1,7 @@
 import os
 import requests,json,openpyxl,pandas as pd, os
 from openpyxl import load_workbook
+from config import URL,APIKEY
 import meraki
 
 
@@ -8,7 +9,7 @@ import meraki
 
 ## ORG - GET
 
-def getOrgID_Name(URL,APIKEY):
+def getOrgID_Name():
     """Fetch the list of organizations for the authenticated user."""
     queryURL = f'{URL}/organizations'
     response = requests.get(queryURL, headers=APIKEY)
@@ -72,7 +73,21 @@ def PrintNtwID_Name(URL,APIKEY,orgID):
 
 ## GET
 
-def Flask_get_Generic(APIKEY, queryURL):
+def Flask_get_Generic(queryURL,col1,col2):
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        data = response.json()
+        return data
+        # Stampa ID e Nome delle organizzazioni
+        #for d in data:
+        #    return [(d[col2], d[col1]) for d in data]
+        #return data  # Restituisci direttamente i dettagli SSID
+    else:
+        return {"error": response.status_code, "message": response.text}
+
+"""
+def Flask_get_Generic_old( queryURL):
     response = requests.get(queryURL, headers=APIKEY)
     if response.status_code == 200:
         # Ottieni i dati JSON dalla risposta
@@ -80,7 +95,11 @@ def Flask_get_Generic(APIKEY, queryURL):
         return data  # Restituisci direttamente i dettagli SSID
     else:
         return {"error": response.status_code, "message": response.text}
+"""
 
+def Flask_extractDataGeneric(data):
+        for d in data:
+            return [(d[0], d[1]) for d in data]
 # MERAKI API - SSID
 
 ## SSID - GET
@@ -157,6 +176,10 @@ def UpdateSSID(request_url,APIKEY,data_json):
     return response
 
 
+## PORTS - GET
+
+def GetSwPorts():
+    a=0
 
 
 # FUNZIONI ITERAZIONE CON UTENTE
@@ -174,6 +197,29 @@ def AskFileName(list_fn):
     print(*list_fn, sep = "\n")
     fn=input("Digitare il nome del file: ")
     return fn
+
+# FUNZIONI SU LIST-DICT-TUPLE
+
+def FilterListNtwDev(data,col1,col2,filter_param,filter_col):
+    # Filtra i dati per switch se richiesto
+    filtered_data = []
+    for d in data:
+        if filter_param == 'switch' and d.get(filter_col) and d[filter_col].startswith('MS'):
+            #filtered_data.append((d[col1], d[col2]))
+            filtered_data.append(d)
+        if filter_param == 'ap' and d.get(filter_col) and d[filter_col].startswith('MR'):
+            #filtered_data.append((d[col1], d[col2]))
+            filtered_data.append(d)
+        if filter_param == 'nofilter':
+            #filtered_data.append((d[col1], d[col2]))
+            filtered_data.append(d)
+    return filtered_data  # Restituisce le porte filtrate
+
+def Add_ListElement(list,primary_key,secondary_key,primary_key_value,secondary_key_value):
+    addElement={primary_key: primary_key_value, secondary_key: secondary_key_value }
+    list.append(addElement)
+    return list
+
 
 # FUNZIONI SU SISTEMA WINDOWS
 
@@ -200,21 +246,20 @@ def getJsonField(data, field):
 # FUNZIONI COMPLESSE
 
 #ButtonApplyMod - EX CreateSSID
-def ButtonApplyMod(req_url, APIKEY, json_data, ListNtw, ntwType):
-
+def ButtonApplyMod(req_url, json_data, ListNtw, ntwType):
     if ntwType == "SINGLE":    
         ntwID=ListNtw
-        response = UpdateJsonData(req_url, APIKEY, json_data)
+        response = UpdateJsonData(req_url, json_data)
     #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
     else:
         for ntwID, name in ListNtw:
             # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
-            response = UpdateJsonData(req_url, APIKEY, json_data)
+            response = UpdateJsonData(req_url, json_data)
 
 
 
 #Invia dati nel JSON tramite API a Meraki - Method PUT
-def UpdateJsonData(request_url,APIKEY,data_json):
+def UpdateJsonData(request_url,data_json):
     response = requests.put(request_url,headers=APIKEY, json=data_json)
     return response
 

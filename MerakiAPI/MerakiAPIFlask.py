@@ -80,12 +80,23 @@ def API_SSID():
         json_data = json.loads(modify_json)  # Assicurati di importare json in cima al tuo file
         json_value_pkey = json_data[pkey]
         
-        request_url=URL + f"/networks/{ntwID}/wireless/ssids/{json_value_pkey}"
+        #Chiamata per fare Update DATA
+        if selected_ntwtype == "SINGLE":    
+            ntwID=ListNtw
+            request_url=URL + f"/networks/{ntwID}/wireless/ssids/{json_value_pkey}"
+            json_output = UpdateJsonData(request_url, json_data)
+        #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
+        else:
+            for ntwID, name in ListNtw:
+                # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
+                request_url=URL + f"/networks/{ntwID}/wireless/ssids/{json_value_pkey}"
+                json_output = UpdateJsonData(request_url, json_data)
+
         # Chiamata alla funzione CreateSSID e memorizza il risultato
-        json_output = ButtonApplyMod(request_url, APIKEY, json_data, ListNtw, selected_ntwtype)
+        #json_output = ButtonApplyMod(request_url, json_data, ListNtw, selected_ntwtype)
 
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
-    organizations = getOrgID_Name(URL, APIKEY)
+    organizations = getOrgID_Name()
     return render_template('API-SSID.html', organizations=organizations, json_output=json_output)
 
 ###### --------- INIZIO --- FUNZIONI-PAGINA - API - SSID
@@ -100,6 +111,16 @@ def get_networks_ID_endpoint(orgID,network_type):
     #return valore della funzione get_networks in Func_AppRoute.py
     return get_networks_ID(orgID,network_type)
 
+### - FUNZIONE GENERALE GET SWITCHES
+@app.route('/api/get_switches/<ntwID>')
+def get_generic_endpoint(ntwID):
+    request_url=URL + f"/networks/{ntwID}/devices"
+    #return valore della funzione get_networks in Func_AppRoute.py
+    ntwDev=get_APIgeneric(request_url)
+    ntwDev=FilterListNtwDev(ntwDev,'name','serial','switch','model')
+    ntwDev=Add_ListElement(ntwDev,'serial','name','ALL','ALL')
+    return ntwDev
+
 
 #@app.route('/api/get_ssid_settings/<ntwID>')
 #def get_ssid_settings(ntwID):
@@ -111,17 +132,34 @@ def get_networks_ID_endpoint(orgID,network_type):
 #    ssid_settings = Flask_getSSID_Num_Name_By_NumberSSID(URL, APIKEY, orgID, ntwID,ssidNumber)
 #    return jsonify(ssid_settings)
 
+
+
+#@app.route('/api/get_ssid_settings/<ntwID>')
+#def get_ssid_settings(ntwID):
+#    request_url=URL + f"/networks/{ntwID}/wireless/ssids/"
+#    data=get_APIgeneric(request_url,'number','name','nofilter','nofilter')
+#    ssid_settings = Flask_extractDataGeneric(data)
+#    a=jsonify(ssid_settings)
+#    return jsonify(ssid_settings)
+
+#@app.route('/api/get_ssid_settings/<ntwID>/<ssidNumber>')
+#def get_ssid_settingsByNumber(ntwID,ssidNumber):
+#    request_url=URL + f"/networks/{ntwID}/wireless/ssids/{ssidNumber}"
+#    data=get_APIgeneric(request_url,'number','name','nofilter','nofilter')
+#    ssid_settings=Flask_extractDataGeneric(data)
+#    return jsonify(ssid_settings)
+
 @app.route('/api/get_ssid_settings/<ntwID>')
 def get_ssid_settings(ntwID):
     request_url=URL + f"/networks/{ntwID}/wireless/ssids/"
-    ssid_settings = Flask_get_Generic(APIKEY,request_url)  
-    return jsonify(ssid_settings)
+    ssid_data = get_APIgeneric(request_url) 
+    return jsonify(ssid_data)
 
 @app.route('/api/get_ssid_settings/<ntwID>/<ssidNumber>')
 def get_ssid_settingsByNumber(ntwID,ssidNumber):
     request_url=URL + f"/networks/{ntwID}/wireless/ssids/{ssidNumber}"
-    ssid_settings=Flask_get_Generic(APIKEY, request_url)
-    return jsonify(ssid_settings)
+    ssid_data=get_APIgeneric(request_url)
+    return jsonify(ssid_data)
 
 
 #@app.route('/download_json/<ntwID>/<ssidNumber>', methods=['GET'])
@@ -151,28 +189,34 @@ def API_RadioProfile():
         # Converti il JSON string in un oggetto Python
         json_data = json.loads(modify_json)  # Assicurati di importare json in cima al tuo file
         json_value_pkey = json_data[pkey]
-        
-        request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles/{json_value_pkey}"
-        # Chiamata alla funzione CreateSSID e memorizza il risultato
-        json_output = ButtonApplyMod(request_url, APIKEY, json_data, ListNtw, selected_ntwtype)
+
+        #Chiamata per fare Update DATA
+        if selected_ntwtype == "SINGLE":    
+            ntwID=ListNtw
+            request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles/{json_value_pkey}"
+            json_output = UpdateJsonData(request_url, json_data)
+        #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
+        else:
+            for ntwID, name in ListNtw:
+                # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
+                request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles/{json_value_pkey}"
+                json_output = UpdateJsonData(request_url, json_data)
 
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
-    organizations = getOrgID_Name(URL, APIKEY)
+    organizations = getOrgID_Name()
     return render_template('API-RadioProfile.html', organizations=organizations, json_output=json_output)
 
 @app.route('/api/get_rf_settings/<ntwID>')
 def get_rf_settings(ntwID):
-    #rf_settings = Flask_getRF_Num_Name(URL, APIKEY, orgID, ntwID)
     request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles"
-    rf_settings = Flask_get_Generic(APIKEY,request_url)  
-    return jsonify(rf_settings)
+    rf_data = get_APIgeneric(request_url) 
+    return jsonify(rf_data)
 
 @app.route('/api/get_rf_settings/<ntwID>/<rfID>')
 def get_rf_settingsByNumber(ntwID,rfID):
-    #rf_settings = Flask_getRF_Num_Name_By_NumberRF(URL, APIKEY, orgID, ntwID,rfID)
     request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles/{rfID}"
-    rf_settings=Flask_get_Generic(APIKEY, request_url)
-    return jsonify(rf_settings)
+    rf_data=get_APIgeneric(request_url)
+    return jsonify(rf_data)
 
 @app.route('/api/post_rf_profiles/<ntwID>', methods=['POST'])
 def POST_rf_profiles(ntwID):
@@ -187,7 +231,7 @@ def POST_rf_profiles(ntwID):
         return jsonify({"error": response.status_code, "message": response.text}), response.status_code  # Restituisce errore con il codice di stato
 
 ###### PAGINA - Port Donw Meraki
-@app.route('/api/Port-Down-Meraki', methods=['GET', 'POST'])
+@app.route('/api/API-PortDown', methods=['GET', 'POST'])
 def PortDownMeraki():
     json_output = None
     if request.method == 'POST':
@@ -201,20 +245,17 @@ def PortDownMeraki():
         else:
             # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
             ListNtw = get_networks_ID(orgID,selected_ntwtype)
-        modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
+        #modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
         #json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
 
-        # Converti il JSON string in un oggetto Python
-        json_data = json.loads(modify_json)  # Assicurati di importare json in cima al tuo file
-        json_value_pkey = json_data[pkey]
-        
-        request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles/{json_value_pkey}"
-        # Chiamata alla funzione CreateSSID e memorizza il risultato
-        json_output = ButtonApplyMod(request_url, APIKEY, json_data, ListNtw, selected_ntwtype)
-
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
-    organizations = getOrgID_Name(URL, APIKEY)
-    return render_template('Port-Down-Meraki.html', organizations=organizations, json_output=json_output)
+    organizations = getOrgID_Name()
+    return render_template('API-PortDown.html', organizations=organizations)
+
+@app.route('/api/get_ports_down', methods=['GET'])
+def get_ports_down():
+    down_ports = GetSwPorts()  # Funzione che recupera i dati richiesti
+    return jsonify(down_ports)
 
 
 @app.route('/api/test')

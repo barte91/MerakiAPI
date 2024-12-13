@@ -93,7 +93,14 @@ function onElementChange(field1, field2, field_visual_output, field_modify_outpu
 }
 
 //Recupera le info data NtwID e OrgID del parametro richiesto
-function fetch_Settings(ntwID, request_url, el_select, el_JSON,pkey) {
+function fetch_Settings(ntwID, request_url, el_select, el_JSON, primary_key, secondary_key) {
+    request_url_full = request_url + ntwID
+    data=fetchGeneric(request_url_full, el_select, primary_key, secondary_key)
+}
+
+/*
+//Recupera le info data NtwID e OrgID del parametro richiesto
+function OLD_fetch_Settings(ntwID, request_url, el_select, el_JSON, pkey) {
     request_url_full = request_url + ntwID
     fetch(request_url_full)
         .then(response => response.json())
@@ -115,6 +122,7 @@ function fetch_Settings(ntwID, request_url, el_select, el_JSON,pkey) {
         })
         .catch(err => console.error('Error fetching Elements settings:', err));
 }
+*/
 
 // Funzione che restituisce il JSON del SSID
 function fetchElementData(ntwID, el_id, request_url,el_settings,el_JSON) {

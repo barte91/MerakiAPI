@@ -22,7 +22,7 @@ function fetchNetworks(orgID, type) {
 }
 
 // Recuepra Generic by URL for 2 elements
-function fetchGeneric(requestUrl, FieldOutput) {
+function DELETE_fetchGeneric(requestUrl, FieldOutput) {
     //console.log('^^^^^^^^URL^^^^^',requestUrl)
     fetch(requestUrl)
         .then(response => response.json())
@@ -33,6 +33,23 @@ function fetchGeneric(requestUrl, FieldOutput) {
                 const option = document.createElement('option');
                 option.value = element[0];
                 option.textContent = `${element[1]} (ID: ${element[0]})`;
+                FieldSelect.appendChild(option);
+            });
+        });
+}
+
+// Recuepra Generic by URL for 2 elements
+function fetchGeneric(requestUrl, FieldOutput,primary_key,secondary_key) {
+    //console.log('^^^^^^^^URL^^^^^',requestUrl)
+    fetch(requestUrl)
+        .then(response => response.json())
+        .then(data => {
+            const FieldSelect = document.getElementById(FieldOutput);
+            FieldSelect.innerHTML = "";
+            data.forEach(element => {
+                const option = document.createElement('option');
+                option.value = element[primary_key];
+                option.textContent = `${element[secondary_key]} (${primary_key}: ${element[primary_key]})`;
                 FieldSelect.appendChild(option);
             });
         });

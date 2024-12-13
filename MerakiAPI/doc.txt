@@ -1,0 +1,18 @@
+-----PAGINA API-SSID
+su tasto di selezione della network chiama @app.route @app.route('/api/get_ssid_settings/<ntwID>')
+	--> che chiama Flask_get_generic_old
+		-->restituisce List(dict)
+
+
+-----PAGINA API-PortDown
+su tasto di selezione della network chiama @app.route @app.route('/api/get_switches/<ntwID>')
+	--> che chiama Flask_get_generic_old
+		-->restituisce List(tuple) -- già filtrata, solo 2 campi
+
+
+GENERALIZZATO
+TUTTE LE PAGINE
+su tasto di selezione della network chiama @app.route @app.route(url-necessario)
+	--> che chiama get_APIgeneric(request_url) (Func-AppRoute.py)
+			--> restituisce List(dict)
+			Dove serve poi viene chiamata funzione FilterListNtwDev (Tools.py) che filtra e restituisce List(dict)

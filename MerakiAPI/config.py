@@ -14,4 +14,8 @@ db_pwd='bgX)Hj@5]8D6eF@T'
 db_name='glpi'
 
 #VARIBAILI NOMI FILE EXCEL
-InveManu_path="InveManu.xlsx"
+InveManu_nameFile="InveManu.xlsx"
+
+#COLORI EXCEL
+ExOrange='FFFFA500'
+ExBlack='FF000000'

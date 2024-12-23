@@ -40,6 +40,12 @@
     <Compile Include="Function\FuncGLPI\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Function\FuncMatrix\Func_PY_Matrix.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncMatrix\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Func_AppRoute.py">
       <SubType>Code</SubType>
     </Compile>
@@ -96,6 +102,7 @@
     <Folder Include="Function\FuncDB\" />
     <Folder Include="Function\FuncExcel\" />
     <Folder Include="Function\" />
+    <Folder Include="Function\FuncMatrix\" />
     <Folder Include="static\" />
     <Folder Include="static\UNUSED\" />
     <Folder Include="templates\" />

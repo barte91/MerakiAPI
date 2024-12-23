@@ -2,14 +2,14 @@ from flask import Flask, jsonify, render_template, request, send_from_directory,
 from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem
 import os
-from config import URL,APIKEY, InveManu_path
+from config import URL,APIKEY, InveManu_nameFile
 from Inventario import *
 from UpdatePorts import *
 from ChangeIP import *
 from Tools import *
 from Func_AppRoute import *
-from Function.FuncGLPI.Func_PY_GLPI import *
-from Function.FuncDB.Func_PY_DB import *
+from Function.FuncGLPI import Func_PY_GLPI as FuncGLPI
+from Function.FuncDB import Func_PY_DB as FuncDB
 
 app = Flask(__name__)
 
@@ -268,15 +268,15 @@ def GLPI_INVE_MANU():
         negoID = request.form['negoID']
         List_states = request.form['statesSelect']
         #Chiama funzione di Func_PY_GLPI.py
-        result_path=APP_GLPI_InveManu(entID,negoID,List_states)
+        result_path=FuncGLPI.APP_GLPI_InveManu(entID,negoID,List_states)
         #Crea richiesta per downlod del file
         response=send_file(result_path, as_attachment=True)
         return response
 
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
     #Innazitutto cancella eventuale file InveManu - fatto in GET altrimenti dava errori di accesso
-    if os.path.exists(InveManu_path):
-        os.remove (InveManu_path)
+    if os.path.exists(InveManu_nameFile):
+        os.remove (InveManu_nameFile)
     entities = fetch_Settings_GLPI(" SELECT * FROM glpi_entities",1,0)
     states = fetch_Settings_GLPI("SELECT * FROM glpi_states",1,0)
     return render_template('API-GLPI-InveManu.html', entities=entities, states=states)
@@ -284,7 +284,7 @@ def GLPI_INVE_MANU():
 @app.route ('/fetch_glpi_locations/<entID>', methods=['GET'])
 def get_glpi_locations(entID):
     query='SELECT * FROM glpi_locations WHERE entities_id=' + entID
-    return CopiaCampiDB(query,3,0)
+    return FuncDB.CopiaCampiDB(query,3,0)
 
 
 @app.route('/api/test')

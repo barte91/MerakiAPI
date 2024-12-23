@@ -2,7 +2,7 @@ from flask import Flask, jsonify, render_template, request, send_from_directory,
 from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem
 import os
-from config import URL,APIKEY
+from config import URL,APIKEY, InveManu_path
 from Inventario import *
 from UpdatePorts import *
 from ChangeIP import *
@@ -269,20 +269,14 @@ def GLPI_INVE_MANU():
         List_states = request.form['statesSelect']
         #Chiama funzione di Func_PY_GLPI.py
         result_path=APP_GLPI_InveManu(entID,negoID,List_states)
-        try:
-            #Crea richiesta per download file
-            response=send_file(result_path, as_attachment=True)
-            # Ritardo di 100 millisecondi
-            time.sleep(0.1)  
-        finally:
-            #Blocco per eliminare il file creato dal server
-            try:
-                os.remove(result_path)
-            except Exception as e:
-                print(f"Errore durante la rimozione del file: {e}")  # Log dell'errore
+        #Crea richiesta per downlod del file
+        response=send_file(result_path, as_attachment=True)
         return response
 
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
+    #Innazitutto cancella eventuale file InveManu - fatto in GET altrimenti dava errori di accesso
+    if os.path.exists(InveManu_path):
+        os.remove (InveManu_path)
     entities = fetch_Settings_GLPI(" SELECT * FROM glpi_entities",1,0)
     states = fetch_Settings_GLPI("SELECT * FROM glpi_states",1,0)
     return render_template('API-GLPI-InveManu.html', entities=entities, states=states)

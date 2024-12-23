@@ -1,4 +1,4 @@
-//****TUTTE LE FUNZIONI CHE SI RIFERISCONO A 
+//****TUTTE LE FUNZIONI CHE SI RIFERISCONO A
 
 //Funzione SPECIFICA--Recupera tipo Network quando si cambia dal menù
 function onNetworkTypeChange() {
@@ -172,4 +172,27 @@ function POST_fetchNetworksID(requestUrl, field_modify_output) {
             alert("Si è verificato un errore durante il recupero delle reti.");
         });
 }
+}
+
+// FUNCTION - CALL PYTHON FUNCTION USANDO @app.route
+
+function Call_AppRoute_URL(url) {
+    fetch(url)
+        .then(response => response.json())
+        .then(data => {
+            return data
+            // console.log(data); // Qui puoi stampare i dati o utilizzarli nel tuo codice
+            // Aggiungi logica per aggiornare il tuo DOM con i dati ricevuti
+        })
+        .catch(error => {
+            console.error('Errore:', error);
+        });
+}
+
+// FUNCTION - GLPI - INVENTARIO
+
+//Connessione a DB GLPI e fetch della lista richiesta
+function JS_fetch_Settings_GLPI(query, index_primary_key, index_secondary_key) {
+    arrData = CopiaCampiDB(query, index_secondary_key, index_primary_key)
+    return arrData
 }

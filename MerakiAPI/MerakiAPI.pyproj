@@ -22,6 +22,24 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Function\FuncDB\Func_PY_DB.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncDB\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncExcel\Func_PY_Excel.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncExcel\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncGLPI\Func_PY_GLPI.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncGLPI\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Func_AppRoute.py">
       <SubType>Code</SubType>
     </Compile>
@@ -58,6 +76,8 @@
     <Content Include=".editorconfig" />
     <Content Include="doc.txt" />
     <Content Include="Dockerfile" />
+    <Content Include="Function\FuncGLPI\Old-Func.txt" />
+    <Content Include="static\Func_JS-GLPI-Inventario.js" />
     <Content Include="static\Func_JS-HTML-Form.js" />
     <Content Include="static\Func_JS-Meraki-API-General.js" />
     <Content Include="static\UNUSED\Func_JS-SSID.js" />
@@ -65,12 +85,17 @@
     <Content Include="static\MerakiFunciotn-Style.css" />
     <Content Include="static\Main-Style.css" />
     <Content Include="templates\API-PortDown.html" />
+    <Content Include="templates\API-GLPI-InveManu.html" />
     <Content Include="templates\API-SSID.html" />
     <Content Include="templates\index.html" />
     <Content Include="templates\API-RadioProfile.html" />
     <Content Include="templates\MenuNtwType.html" />
   </ItemGroup>
   <ItemGroup>
+    <Folder Include="Function\FuncGLPI\" />
+    <Folder Include="Function\FuncDB\" />
+    <Folder Include="Function\FuncExcel\" />
+    <Folder Include="Function\" />
     <Folder Include="static\" />
     <Folder Include="static\UNUSED\" />
     <Folder Include="templates\" />

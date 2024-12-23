@@ -40,7 +40,7 @@ function DELETE_fetchGeneric(requestUrl, FieldOutput) {
 
 // Recuepra Generic by URL for 2 elements
 function fetchGeneric(requestUrl, FieldOutput,primary_key,secondary_key) {
-    //console.log('^^^^^^^^URL^^^^^',requestUrl)
+    console.log('^^^^^^^^URL^^^^^',requestUrl)
     fetch(requestUrl)
         .then(response => response.json())
         .then(data => {
@@ -52,6 +52,7 @@ function fetchGeneric(requestUrl, FieldOutput,primary_key,secondary_key) {
                 option.textContent = `${element[secondary_key]} (${primary_key}: ${element[primary_key]})`;
                 FieldSelect.appendChild(option);
             });
+            console.log('^^^^^^^^data^^^^^', data)
         });
 }
 

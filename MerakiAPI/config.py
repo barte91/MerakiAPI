@@ -5,3 +5,10 @@ xls_path_inv = "C:\\MerakiAPI\\IntToShutInv_"
 xls_path_chgIP = "C:\\MerakiAPI\\ChangeIP"
 xls_path = "C:\\MerakiAPI"
 json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
+
+# VARIABLE DB
+db_host='netglpi'
+db_port=3306
+db_user='netapp'
+db_pwd='bgX)Hj@5]8D6eF@T'
+db_name='glpi'

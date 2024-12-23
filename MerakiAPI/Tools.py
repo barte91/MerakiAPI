@@ -3,6 +3,8 @@ import requests,json,openpyxl,pandas as pd, os
 from openpyxl import load_workbook
 from config import URL,APIKEY
 import meraki
+from Function.FuncGLPI.Func_PY_GLPI import *
+from Function.FuncDB.Func_PY_DB import *
 
 
 # MERAKI API - ORGANIZATION
@@ -267,6 +269,13 @@ def UpdateJsonData(request_url,data_json):
 def Flask_POST_Generic(request_url,APIKEY,data_json):
     response = requests.post(request_url,headers=APIKEY, json=data_json)
     return response
+
+# FUNZIONI DB - GLPI
+
+def fetch_Settings_GLPI(query, index_primary_key, index_secondary_key):
+    arrData = CopiaCampiDB(query, index_secondary_key, index_primary_key)
+    return arrData
+
 
 # FUNZIONI VARIE UNUSED - SOLO SCOPO DIDATTICO
 

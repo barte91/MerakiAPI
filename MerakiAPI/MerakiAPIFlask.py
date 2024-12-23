@@ -7,6 +7,8 @@ from UpdatePorts import *
 from ChangeIP import *
 from Tools import *
 from Func_AppRoute import *
+from Function.FuncGLPI.Func_PY_GLPI import *
+from Function.FuncDB.Func_PY_DB import *
 
 app = Flask(__name__)
 
@@ -256,6 +258,24 @@ def PortDownMeraki():
 def get_ports_down():
     down_ports = GetSwPorts()  # Funzione che recupera i dati richiesti
     return jsonify(down_ports)
+
+###### PAGINA - API - GLPI INVENTARIO
+@app.route('/api/GLPI-InveManu', methods=['GET', 'POST'])
+def GLPI_INVE_MANU():
+    if request.method == 'POST':
+        entID = request.form['entID']
+        negoID = request.form['negoID']
+        List_states = request.form['statesSelect']
+        result=APP_GLPI_InveManu(entID,negoID,List_states)
+    # Se la richiesta è GET, mostra l'elenco delle organizzazioni
+    entities = fetch_Settings_GLPI(" SELECT * FROM glpi_entities",1,0)
+    states = fetch_Settings_GLPI("SELECT * FROM glpi_states",1,0)
+    return render_template('API-GLPI-InveManu.html', entities=entities, states=states)
+
+@app.route ('/fetch_glpi_locations/<entID>', methods=['GET'])
+def get_glpi_locations(entID):
+    query='SELECT * FROM glpi_locations WHERE entities_id=' + entID
+    return CopiaCampiDB(query,3,0)
 
 
 @app.route('/api/test')

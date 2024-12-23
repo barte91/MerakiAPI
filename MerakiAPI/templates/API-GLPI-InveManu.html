@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MERAKI GLPI - INVENTARIO MANUTENZIONE</title>
+    <!-- Utilizza il percorso static per importare il tuo file CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='MerakiFunciotn-Style.css') }}">
+    <!-- Utilizza il percorso static per importare il tuo file JS -->
+    <script src="{{ url_for('static', filename='Func_JS-GLPI-Inventario.js') }}"></script>
+    <script src="{{ url_for('static', filename='Func_JS-Meraki-API-General.js') }}"></script>
+    <script src="{{ url_for('static', filename='Func_JS-HTML-Form.js') }}"></script>
+</head>
+<body>
+    <h1>GLPI - INVENTARIO MANUTENZIONE</h1>
+    <form action="/api/GLPI-InveManu" method="POST">
+        <!-- SELEZIONE ENTITA' -->
+        <label for="entID">Seleziona Entità:</label><br>
+        <!-- onchange chiama funzione in Func_JS-HTML-Form; a sua volta chiama un url che da MerakiAPIFlask chiama Funzione Python-->
+        <select id="entID" name="entID" required onchange="fetchGeneric(`/fetch_glpi_locations/${this.value}`,'negoID',1,0)">
+            <option value="">Entità</option>
+            {% for ent in entities %}
+            <option value="{{ ent[1] }}">{{ ent[0] }} (PKEY: {{ ent[1] }})</option>
+            {% endfor %}
+        </select><br>
+
+        <!-- SELEZIONE NEGOZI -->
+        <label for="negoID">Seleziona Negozi:</label><br>
+        <select id="negoID" name="negoID">
+            <option value="1">Seleziona prima l'entità</option>
+        </select><br>
+
+        <!-- SELEZIONE STATI -->
+        <label for="statesSelect">Seleziona stati:</label><br>
+        <select id="statesSelect">
+            <option value="">Stati</option>
+            {% for state in states %}
+            <option value="{{ state[1] }}">{{ state[0] }} (PKEY: {{ state[1] }})</option>
+            {% endfor %}
+        </select><br>
+
+        <input type="submit" value="Esegui">
+
+    </form>
+</body>
+</html>

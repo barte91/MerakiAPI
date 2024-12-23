@@ -1,0 +1,137 @@
+"""
+def Main_App_GLPI_InveManu(location,entities,state):
+    #declare variables
+    exc_save_filename=r'\App1-Manu_Inve.xlsx'
+    exc_path=r'\\NetSrv-file1\NetApp\ManuInveAPP'
+    arrRisQuery=[[],[],[],[],[],[],[],[],[]]
+    matrixModels=[[],[]]
+    matrixModelsUnique=[[],[]]
+    matrixLocations=[[],[]]
+    matrixLocationsUnique=[[],[]]
+    arrStateName=[]
+    arrEntSelected=[]
+    wb1=Workbook()
+    orange='FFFFA500'
+    black='FF000000'
+    #Set style Variable
+    sTitle1= NamedStyle(name="sTitle1")
+    sTitle2= NamedStyle(name="sTitle2")
+    sType= NamedStyle(name="sType")
+    sModel= NamedStyle(name="sModel")
+    sTotali= NamedStyle(name="sTotali")
+    sLocation= NamedStyle(name="sLocation")
+    sText=NamedStyle(name="sText")
+    sBorder=NamedStyle(name="sBorder")
+    #Set propriety to style of font border etc
+    #style to Title (big size)
+    sTitle1.font=styles.Font(size=20,bold=True)
+    sTitle1.alignment=styles.alignment.Alignment(horizontal='center',vertical='center')
+    sTitle1.fill=styles.fills.PatternFill(start_color=orange, end_color=orange, fill_type='solid')
+    sTitle1.border=styles.borders.Border(left=Side(style='medium',color=black,border_style='medium'),
+                                         right=Side(style='medium',color=black,border_style='medium'),
+                                         top=Side(style='medium',color=black,border_style='medium'),
+                                         bottom=Side(style='medium',color=black,border_style='medium'))
+    #style to 2nd level title (more small than Title)
+    sTitle2.font=styles.Font(size=14,bold=True)
+    sTitle2.alignment=styles.alignment.Alignment(horizontal='center',vertical='center')
+    sTitle2.fill=styles.fills.PatternFill(start_color=orange, end_color=orange, fill_type='solid')
+    sTitle2.border=styles.borders.Border(left=Side(style='medium',color=black,border_style='medium'),
+                                         right=Side(style='medium',color=black,border_style='medium'),
+                                         top=Side(style='medium',color=black,border_style='medium'),
+                                         bottom=Side(style='medium',color=black,border_style='medium'))
+    #Style to row 2 Type
+    sType.font=styles.Font(size=14,bold=True) 
+    sType.alignment=styles.alignment.Alignment(horizontal='center',vertical='center')
+    sType.border=styles.borders.Border(left=Side(style='medium',color=black,border_style='medium'),
+                                         right=Side(style='medium',color=black,border_style='medium'),
+                                         top=Side(style='medium',color=black,border_style='medium'),
+                                         bottom=Side(style='medium',color=black,border_style='medium'))
+    #Style to row 3 Models
+    sModel.font=styles.Font(size=14,bold=True) 
+    sModel.alignment=styles.alignment.Alignment(horizontal='center',vertical='center',textRotation=90)
+    sModel.border=styles.borders.Border(left=Side(style='thin',color=black,border_style='thin'),
+                                         right=Side(style='thin',color=black,border_style='thin'),
+                                         top=Side(style='thin',color=black,border_style='thin'),
+                                         bottom=Side(style='thin',color=black,border_style='thin'))
+    #Style to row 4 'Totali'
+    sTotali.font=styles.Font(size=14,bold=True)
+    sTotali.alignment=styles.alignment.Alignment(horizontal='center',vertical='center')
+    sTotali.border=styles.borders.Border(left=Side(style='medium',color=black,border_style='medium'),
+                                         right=Side(style='medium',color=black,border_style='medium'),
+                                         top=Side(style='medium',color=black,border_style='medium'),
+                                         bottom=Side(style='medium',color=black,border_style='medium'))
+    #Style of column Location Name
+    sLocation.font=styles.Font(size=12,bold=True)
+    sLocation.alignment=styles.alignment.Alignment(vertical='center')
+    sLocation.fill=styles.fills.PatternFill(start_color=orange, end_color=orange, fill_type='solid')
+    sLocation.border=styles.borders.Border(left=Side(style='thin',color=black,border_style='thin'),
+                                         right=Side(style='thin',color=black,border_style='thin'),
+                                         top=Side(style='thin',color=black,border_style='thin'),
+                                         bottom=Side(style='thin',color=black,border_style='thin'))
+    #Style of other cell
+    sText.font=styles.Font(size=12,bold=False)
+    sText.alignment=styles.alignment.Alignment(horizontal='center',vertical='center')
+    sText.border=styles.borders.Border(left=Side(style='thin',color=black,border_style='thin'),
+                                         right=Side(style='thin',color=black,border_style='medium'),
+                                         top=Side(style='thin',color=black,border_style='thin'),
+                                         bottom=Side(style='thin',color=black,border_style='thin'))
+    #Style for set border
+    #sBorder.border=styles.borders.Border(left=Side(style='medium',color=black,border_style='medium'),
+    #                                     right=Side(style='medium',color=black,border_style='medium'),
+    #                                     top=Side(style='medium',color=black,border_style='medium'),
+    #                                     bottom=Side(style='medium',color=black,border_style='medium'))
+
+    #Read Variable passed on form
+    #user_loc=sys.argv[1]
+    user_location=location
+    user_entities=entities
+    user_state=state
+    #Extract array from query on GLPI DB
+    arrEntities=funzioniDB.CopiaCampiDB("SELECT * FROM glpi_entities",1,0)
+    arrLocations=funzioniDB.CopiaCampiDB("SELECT * FROM glpi_locations",3,0)
+    arrNetweqTypes=funzioniDB.CopiaCampiDB("SELECT * FROM glpi_networkequipmenttypes",1,0)
+    arrNetweqModels=funzioniDB.CopiaCampiDB("SELECT * FROM glpi_networkequipmentmodels",1,0)
+    arrVendors=funzioniDB.CopiaCampiDB("SELECT * FROM glpi_manufacturers",1,0)
+    arrStates=funzioniDB.CopiaCampiDB("SELECT * FROM glpi_states",1,0)             
+    arrIPAddresses=funzioniDB.CopiaCampiDB("SELECT * FROM glpi_ipaddresses",5,12)
+    arrMACAddresses=funzioniDB.CopiaCampiDB("SELECT * FROM glpi_networkports",8,1)
+    arrPropHW=funzioniDB.CopiaCampiDB("SELECT * FROM glpi_plugin_fields_proprietariohwfielddropdowns",1,0)             #da Plugin - Proprietario HW 
+    arrMaintSuppl=funzioniDB.CopiaCampiDB("SELECT * FROM glpi_plugin_fields_maintenancesupplierfielddropdowns",1,0)    #da Plugin - Maintenance Supplier
+
+    #ATTENZIONE!!!!!-------ATTUALMENTE DISPONIBILE SOLO VERSIONE CON SCELTA ENTITA'------------
+    if((user_location==['empty']) and (user_entities!=[])):       #user selected the entities
+        #cod_ent=int(user_entities[0])       #read Value selected from user and convert it to a Integer
+        arrEntSelected=funzioniMatrix.ConvertArray(user_entities,arrEntities)
+        queryAdd=funzioniDB.CreateAddQuery(arrEntSelected)
+        #Find Name from code Entities
+        #ent=FindElemMatrix(arrEntities,cod_ent,0,1)
+        #query1="SELECT * FROM glpi_networkequipments INNER JOIN glpi_entities ON glpi_networkequipments.entities_id=glpi_entities.id WHERE glpi_entities.name LIKE '%" + ent + "%' AND glpi_networkequipments.is_template='0'"
+        query1="SELECT * FROM glpi_networkequipments \
+        INNER JOIN glpi_entities ON glpi_networkequipments.entities_id=glpi_entities.id \
+        WHERE ("+queryAdd+") AND glpi_networkequipments.is_template='0'"
+        arrRisQuery=funzioniDB.CopiaRisQuery_14_filed(query1,0,13,3,23,15,17,16,1,arrLocations,arrStates,arrNetweqTypes,arrVendors,arrNetweqModels,arrEntities)    #create matrix with all info necessary
+    #LL=len(arrRisQuery)
+    arrStateName=funzioniMatrix.ConvertArray(user_state,arrStates)                     #extract Name from state selected from user
+    matrixModels=funzioniMatrix.ExtractMatrix_2_index(arrRisQuery,7,11)                #extract type_name and model_name from arrRisQuery
+    matrixModelsUnique=funzioniMatrix.DeleteDuplicateMatrix(matrixModels,1,0)          #delete duplicated element from matrixModels
+    matrixLocations=funzioniMatrix.ExtractMatrix_2_index(arrRisQuery,1,2)              #extract locations_id and locations_name from arrRisQuery
+    matrixLocationsUnique=funzioniMatrix.DeleteDuplicateMatrix(matrixLocations,1,0)    #delete duplicated element from matrixLocations
+    #create sheet with correctb style
+    sheetManu=funzioniExcel.createSheetManu(wb1,matrixModelsUnique,matrixLocationsUnique,arrRisQuery,sTitle1,sTitle2,sType,sModel,sTotali,sLocation,sText)
+    #exc_save_filename="\\Manu_InveTEST1.xlsx"
+    #saveExcel(exc_path,exc_save_filename,wb1)
+    #count the number of device
+    funzioniExcel.countDevice(sheetManu,arrRisQuery,arrStateName)
+
+    funzioniExcel.SumDevice(sheetManu)
+    breakpoint=0 #solo per mettere i breakpoint, Variable useless
+    #operation on GLPI DB
+    #myDB=funzioni.connetti_db()                | TEST INSTRUCTION
+    #query="SELECT * FROM glpi_apiclients"      | TEST INSTRUCTION
+    #output=funzioni.exec_query(myDB,query)     | TEST INSTRUCTION
+
+    #operation on EXC file
+    
+
+    funzioniOS.saveExcel(exc_path,exc_save_filename,wb1)
+"""

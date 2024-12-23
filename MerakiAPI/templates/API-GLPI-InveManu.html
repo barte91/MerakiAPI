@@ -32,7 +32,7 @@
 
         <!-- SELEZIONE STATI -->
         <label for="statesSelect">Seleziona stati:</label><br>
-        <select id="statesSelect">
+        <select id="statesSelect" name="statesSelect">
             <option value="">Stati</option>
             {% for state in states %}
             <option value="{{ state[1] }}">{{ state[0] }} (PKEY: {{ state[1] }})</option>

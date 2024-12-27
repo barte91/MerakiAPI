@@ -266,7 +266,7 @@ def GLPI_INVE_MANU():
     if request.method == 'POST':
         entID = request.form['entID']
         negoID = request.form['negoID']
-        List_states = request.form['statesSelect']
+        List_states = json.loads(request.form['statesSelect'])
         #Chiama funzione di Func_PY_GLPI.py
         result_path=FuncGLPI.APP_GLPI_InveManu(entID,negoID,List_states)
         #Crea richiesta per downlod del file

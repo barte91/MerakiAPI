@@ -87,3 +87,17 @@ def SearchElemArray(elem,array):
     found=0
     return found
 
+# FUNZIONE SEARCH
+#-----deprecated----
+def SearchElemArrayNew(elem,array):
+
+    # Verifica se l'elemento è presente
+    if elem in array:
+        # Trova l'indice dell'elemento
+        index = array.index(elem)
+        # Restituisci l'elemento con indice 0
+        cod = array[index - 1]  # Torna l'elemento alla sua sinistra (indice 0)
+        return 1
+    else:
+        return 0
+

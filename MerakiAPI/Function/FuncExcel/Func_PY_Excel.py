@@ -107,7 +107,7 @@ def countDevice(ws,arrRis,arrayStateSelected):
         row_location=SearchRow(rng_location,locationName)
         col_model=SearchColumn(rng_model,modelName)
         #Verify if the state is selected by user - Return 1 if is selected, 0 if is not selected
-        stateSelect=FuncMatrix.SearchElemArray(stateName,arrayStateSelected)
+        stateSelect=FuncMatrix.SearchElemArrayNew(stateName,arrayStateSelected)
         if stateSelect==1:
             #Add 1 to cell found
             ndev=ws.cell(row=row_location, column=col_model).value

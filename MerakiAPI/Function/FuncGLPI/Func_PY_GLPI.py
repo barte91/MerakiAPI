@@ -28,8 +28,8 @@ def APP_GLPI_InveManu(entities,location,state):
     wb1=Workbook()
 
     #Crea File Excel vuoto
-    df=pd.DataFrame()
-    df.to_excel(InveManu_nameFile, index=False, engine='openpyxl')
+    #df=pd.DataFrame()
+    #wb1=df.to_excel(InveManu_nameFile, index=False, engine='openpyxl')
 
     #Set Stile Foglio Excel - sTitle1 - style to Title (big size)
     sTitle1=FuncExc.SetStyleExcel_Font(sTitle1,20,True)
@@ -65,14 +65,14 @@ def APP_GLPI_InveManu(entities,location,state):
     sText=FuncExc.SetStyleExcel_Border(sText,'thin',ExBlack,'thin')
 
     #Extract array from query on GLPI DB
-    arrEntities=FuncDB.CopiaCampiDB("SELECT * FROM glpi_entities",1,0)
-    arrLocations=FuncDB.CopiaCampiDB("SELECT * FROM glpi_locations",3,0)
-    arrNetweqTypes=FuncDB.CopiaCampiDB("SELECT * FROM glpi_networkequipmenttypes",1,0)
-    arrNetweqModels=FuncDB.CopiaCampiDB("SELECT * FROM glpi_networkequipmentmodels",1,0)
-    arrVendors=FuncDB.CopiaCampiDB("SELECT * FROM glpi_manufacturers",1,0)
-    arrStates=FuncDB.CopiaCampiDB("SELECT * FROM glpi_states",1,0)             
-    arrIPAddresses=FuncDB.CopiaCampiDB("SELECT * FROM glpi_ipaddresses",5,12)
-    arrMACAddresses=FuncDB.CopiaCampiDB("SELECT * FROM glpi_networkports",8,1)
+    arrEntities=FuncDB.CopiaCampiDB("SELECT * FROM glpi_entities",1,0)                                              #Colonna 0 = id | colonna 1 = name
+    arrLocations=FuncDB.CopiaCampiDB("SELECT * FROM glpi_locations",3,0)                                            #Colonna 0 = id | colonna 3 = name
+    arrNetweqTypes=FuncDB.CopiaCampiDB("SELECT * FROM glpi_networkequipmenttypes",1,0)                              #Colonna 0 = id | colonna 1 = name
+    arrNetweqModels=FuncDB.CopiaCampiDB("SELECT * FROM glpi_networkequipmentmodels",1,0)                            #Colonna 0 = id | colonna 1 = name
+    arrVendors=FuncDB.CopiaCampiDB("SELECT * FROM glpi_manufacturers",1,0)                                          #Colonna 0 = id | colonna 1 = name
+    arrStates=FuncDB.CopiaCampiDB("SELECT * FROM glpi_states",1,0)                                                  #Colonna 0 = id | colonna 1 = name    
+    arrIPAddresses=FuncDB.CopiaCampiDB("SELECT * FROM glpi_ipaddresses",5,12)                                       #Colonna 5 = id | colonna 12 = name
+    arrMACAddresses=FuncDB.CopiaCampiDB("SELECT * FROM glpi_networkports",8,1)                                      #Colonna 1 = items_id | colonna 8 = mac
     arrPropHW=FuncDB.CopiaCampiDB("SELECT * FROM glpi_plugin_fields_proprietariohwfielddropdowns",1,0)             #da Plugin - Proprietario HW 
     arrMaintSuppl=FuncDB.CopiaCampiDB("SELECT * FROM glpi_plugin_fields_maintenancesupplierfielddropdowns",1,0)    #da Plugin - Maintenance Supplier
 
@@ -90,7 +90,8 @@ def APP_GLPI_InveManu(entities,location,state):
         WHERE ("+queryAdd+") AND glpi_networkequipments.is_template='0'"
         arrRisQuery=FuncDB.CopiaRisQuery_14_filed(query1,0,13,3,23,15,17,16,1,arrLocations,arrStates,arrNetweqTypes,arrVendors,arrNetweqModels,arrEntities)    #create matrix with all info necessary
     #LL=len(arrRisQuery)
-    arrStateName=FuncMatrix.ConvertArray(user_state,arrStates)                     #extract Name from state selected from user
+    #OLD- DA VERIFICARE E CAPIRE ----arrStateName=FuncMatrix.ConvertArray(user_state,arrStates)                     #extract Name from state selected from user
+    arrStateName=user_state #Sostituisce la precedente da verificare e capire
     matrixModels=FuncMatrix.ExtractMatrix_2_index(arrRisQuery,7,11)                #extract type_name and model_name from arrRisQuery
     matrixModelsUnique=FuncMatrix.DeleteDuplicateMatrix(matrixModels,1,0)          #delete duplicated element from matrixModels
     matrixLocations=FuncMatrix.ExtractMatrix_2_index(arrRisQuery,1,2)              #extract locations_id and locations_name from arrRisQuery

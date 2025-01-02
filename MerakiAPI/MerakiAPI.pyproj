@@ -22,6 +22,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="Function\FuncUSER\Func_PY_USER.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Function\FuncDB\Func_PY_DB.py">
       <SubType>Code</SubType>
     </Compile>
@@ -40,10 +43,31 @@
     <Compile Include="Function\FuncGLPI\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Function\FuncJSON\Func_PY_JSON.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncJSON\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Function\FuncMatrix\Func_PY_Matrix.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Function\FuncMatrix\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncMeraki\Func_PY_Meraki.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncMeraki\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncOS\Func_PY_OS.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncOS\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncUSER\__init__.py">
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="Func_AppRoute.py">
@@ -103,6 +127,10 @@
     <Folder Include="Function\FuncExcel\" />
     <Folder Include="Function\" />
     <Folder Include="Function\FuncMatrix\" />
+    <Folder Include="Function\FuncMeraki\" />
+    <Folder Include="Function\FuncOS\" />
+    <Folder Include="Function\FuncJSON\" />
+    <Folder Include="Function\FuncUSER\" />
     <Folder Include="static\" />
     <Folder Include="static\UNUSED\" />
     <Folder Include="templates\" />

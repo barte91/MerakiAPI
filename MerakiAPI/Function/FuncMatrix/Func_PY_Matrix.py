@@ -101,3 +101,26 @@ def SearchElemArrayNew(elem,array):
     else:
         return 0
 
+
+# FUNZIONI SU LIST-DICT-TUPLE
+
+def FilterListNtwDev(data,col1,col2,filter_param,filter_col):
+    # Filtra i dati per switch se richiesto
+    filtered_data = []
+    for d in data:
+        if filter_param == 'switch' and d.get(filter_col) and d[filter_col].startswith('MS'):
+            #filtered_data.append((d[col1], d[col2]))
+            filtered_data.append(d)
+        if filter_param == 'ap' and d.get(filter_col) and d[filter_col].startswith('MR'):
+            #filtered_data.append((d[col1], d[col2]))
+            filtered_data.append(d)
+        if filter_param == 'nofilter':
+            #filtered_data.append((d[col1], d[col2]))
+            filtered_data.append(d)
+    return filtered_data  # Restituisce le porte filtrate
+
+def Add_ListElement(list,primary_key,secondary_key,primary_key_value,secondary_key_value):
+    addElement={primary_key: primary_key_value, secondary_key: secondary_key_value }
+    list.append(addElement)
+    return list
+

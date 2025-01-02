@@ -166,3 +166,9 @@ def CopiaRisQuery_14_filed(query,ind_id,ind_loc,ind_desc,ind_stato,ind_tipo,ind_
          i=i+1
     arrDB.sort(key=itemgetter(0))      #ordina Array con key la seconda colonna (itemgetter(1))
     return arrDB
+
+# FUNZIONI DB - GLPI
+
+def fetch_Settings_GLPI(query, index_primary_key, index_secondary_key):
+    arrData = CopiaCampiDB(query, index_secondary_key, index_primary_key)
+    return arrData

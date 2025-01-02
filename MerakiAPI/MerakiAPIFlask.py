@@ -6,10 +6,14 @@ from config import URL,APIKEY, InveManu_nameFile
 from Inventario import *
 from UpdatePorts import *
 from ChangeIP import *
-from Tools import *
-from Func_AppRoute import *
+#from Tools import *
+#from Func_AppRoute import *
 from Function.FuncGLPI import Func_PY_GLPI as FuncGLPI
 from Function.FuncDB import Func_PY_DB as FuncDB
+from Function.FuncMeraki import Func_PY_Meraki as FuncMeraki
+from Function.FuncJSON import Func_PY_JSON as FuncJSON
+from Function.FuncUSER import Func_PY_USER as FuncUser
+from Function.FuncMatrix import Func_PY_Matrix as FuncMatrix
 
 app = Flask(__name__)
 
@@ -75,7 +79,7 @@ def API_SSID():
             ListNtw = request.form['ntwID']
         else:
             # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
-            ListNtw = get_networks_ID(orgID,selected_ntwtype)
+            ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
         modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
         #json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
 
@@ -87,19 +91,19 @@ def API_SSID():
         if selected_ntwtype == "SINGLE":    
             ntwID=ListNtw
             request_url=URL + f"/networks/{ntwID}/wireless/ssids/{json_value_pkey}"
-            json_output = UpdateJsonData(request_url, json_data)
+            json_output = FuncJSON.UpdateJsonData(request_url, json_data)
         #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
         else:
             for ntwID, name in ListNtw:
                 # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
                 request_url=URL + f"/networks/{ntwID}/wireless/ssids/{json_value_pkey}"
-                json_output = UpdateJsonData(request_url, json_data)
+                json_output = FuncJSON.UpdateJsonData(request_url, json_data)
 
         # Chiamata alla funzione CreateSSID e memorizza il risultato
         #json_output = ButtonApplyMod(request_url, json_data, ListNtw, selected_ntwtype)
 
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
-    organizations = getOrgID_Name()
+    organizations = FuncMeraki.getOrgID_Name()
     return render_template('API-SSID.html', organizations=organizations, json_output=json_output)
 
 ###### --------- INIZIO --- FUNZIONI-PAGINA - API - SSID
@@ -108,20 +112,20 @@ def API_SSID():
 @app.route('/api/get_networks/<orgID>')
 def get_networks_endpoint(orgID):
     #return valore della funzione get_networks in Func_AppRoute.py
-    return get_networks(orgID)
+    return FuncUser.get_networks(orgID)
 
 def get_networks_ID_endpoint(orgID,network_type):
     #return valore della funzione get_networks in Func_AppRoute.py
-    return get_networks_ID(orgID,network_type)
+    return FuncUser.get_networks_ID(orgID,network_type)
 
 ### - FUNZIONE GENERALE GET SWITCHES
 @app.route('/api/get_switches/<ntwID>')
 def get_generic_endpoint(ntwID):
     request_url=URL + f"/networks/{ntwID}/devices"
     #return valore della funzione get_networks in Func_AppRoute.py
-    ntwDev=get_APIgeneric(request_url)
-    ntwDev=FilterListNtwDev(ntwDev,'name','serial','switch','model')
-    ntwDev=Add_ListElement(ntwDev,'serial','name','ALL','ALL')
+    ntwDev=FuncUser.get_APIgeneric(request_url)
+    ntwDev=FuncMatrix.FilterListNtwDev(ntwDev,'name','serial','switch','model')
+    ntwDev=FuncMatrix.Add_ListElement(ntwDev,'serial','name','ALL','ALL')
     return ntwDev
 
 
@@ -155,13 +159,13 @@ def get_generic_endpoint(ntwID):
 @app.route('/api/get_ssid_settings/<ntwID>')
 def get_ssid_settings(ntwID):
     request_url=URL + f"/networks/{ntwID}/wireless/ssids/"
-    ssid_data = get_APIgeneric(request_url) 
+    ssid_data = FuncUser.get_APIgeneric(request_url) 
     return jsonify(ssid_data)
 
 @app.route('/api/get_ssid_settings/<ntwID>/<ssidNumber>')
 def get_ssid_settingsByNumber(ntwID,ssidNumber):
     request_url=URL + f"/networks/{ntwID}/wireless/ssids/{ssidNumber}"
-    ssid_data=get_APIgeneric(request_url)
+    ssid_data=FuncUser.get_APIgeneric(request_url)
     return jsonify(ssid_data)
 
 
@@ -185,7 +189,7 @@ def API_RadioProfile():
             ListNtw = request.form['ntwID']
         else:
             # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
-            ListNtw = get_networks_ID(orgID,selected_ntwtype)
+            ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
         modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
         #json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
 
@@ -197,28 +201,28 @@ def API_RadioProfile():
         if selected_ntwtype == "SINGLE":    
             ntwID=ListNtw
             request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles/{json_value_pkey}"
-            json_output = UpdateJsonData(request_url, json_data)
+            json_output = FuncJSON.UpdateJsonData(request_url, json_data)
         #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
         else:
             for ntwID, name in ListNtw:
                 # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
                 request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles/{json_value_pkey}"
-                json_output = UpdateJsonData(request_url, json_data)
+                json_output = FuncJSON.UpdateJsonData(request_url, json_data)
 
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
-    organizations = getOrgID_Name()
+    organizations = FuncMeraki.getOrgID_Name()
     return render_template('API-RadioProfile.html', organizations=organizations, json_output=json_output)
 
 @app.route('/api/get_rf_settings/<ntwID>')
 def get_rf_settings(ntwID):
     request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles"
-    rf_data = get_APIgeneric(request_url) 
+    rf_data = FuncUser.get_APIgeneric(request_url) 
     return jsonify(rf_data)
 
 @app.route('/api/get_rf_settings/<ntwID>/<rfID>')
 def get_rf_settingsByNumber(ntwID,rfID):
     request_url=URL + f"/networks/{ntwID}/wireless/rfProfiles/{rfID}"
-    rf_data=get_APIgeneric(request_url)
+    rf_data=FuncUser.get_APIgeneric(request_url)
     return jsonify(rf_data)
 
 @app.route('/api/post_rf_profiles/<ntwID>', methods=['POST'])
@@ -226,7 +230,7 @@ def POST_rf_profiles(ntwID):
     # Recupera il JSON inviato nel corpo della richiesta
     json_data = request.get_json()
     request_url = f"{URL}/networks/{ntwID}/wireless/rfProfiles"  # URL per creare un nuovo RF Profile
-    response = Flask_POST_Generic(request_url, APIKEY, json_data)  # Funzione per inviare una richiesta POST
+    response = FuncMeraki.Flask_POST_Generic(request_url, APIKEY, json_data)  # Funzione per inviare una richiesta POST
     # Controlla il codice di stato della risposta
     if response.status_code in (200, 201):
         return jsonify(response.json())  # Restituisce i dati della risposta come JSON
@@ -247,17 +251,17 @@ def PortDownMeraki():
             ListNtw = request.form['ntwID']
         else:
             # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
-            ListNtw = get_networks_ID(orgID,selected_ntwtype)
+            ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
         #modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
         #json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
 
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
-    organizations = getOrgID_Name()
+    organizations = FuncMeraki.getOrgID_Name()
     return render_template('API-PortDown.html', organizations=organizations)
 
 @app.route('/api/get_ports_down', methods=['GET'])
 def get_ports_down():
-    down_ports = GetSwPorts()  # Funzione che recupera i dati richiesti
+    down_ports = FuncMeraki.GetSwPorts()  # Funzione che recupera i dati richiesti - ****DA FARE -  NON COMPLETATA ************
     return jsonify(down_ports)
 
 ###### PAGINA - API - GLPI INVENTARIO
@@ -277,8 +281,8 @@ def GLPI_INVE_MANU():
     #Innazitutto cancella eventuale file InveManu - fatto in GET altrimenti dava errori di accesso
     if os.path.exists(InveManu_nameFile):
         os.remove (InveManu_nameFile)
-    entities = fetch_Settings_GLPI(" SELECT * FROM glpi_entities",1,0)
-    states = fetch_Settings_GLPI("SELECT * FROM glpi_states",1,0)
+    entities = FuncDB.fetch_Settings_GLPI(" SELECT * FROM glpi_entities",1,0)
+    states = FuncDB.fetch_Settings_GLPI("SELECT * FROM glpi_states",1,0)
     return render_template('API-GLPI-InveManu.html', entities=entities, states=states)
 
 @app.route ('/fetch_glpi_locations/<entID>', methods=['GET'])

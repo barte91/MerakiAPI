@@ -1,5 +1,6 @@
 import os
 import requests,json
+from config import URL,APIKEY
 
 # FUNZIONI FILE - JSON
 

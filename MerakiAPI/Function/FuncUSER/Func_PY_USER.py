@@ -69,12 +69,14 @@ def get_networks_ID(orgID,network_type):
 
 def get_APIgeneric( queryURL):
     response = requests.get(queryURL, headers=APIKEY)
+    #response = requests.request("GET", queryURL, headers=APIKEY)
     if response.status_code == 200:
         # Ottieni i dati JSON dalla risposta
-        data = response.json()
+        data=response.text
         return data  # Restituisci direttamente i dettagli SSID
     else:
         return {"error": response.status_code, "message": response.text}
+
 
 def AskOrgIDToUser(): #RICHIEDO ID ORG A UTENTE
     orgName=input("Digitare ID organization desiderata: ")

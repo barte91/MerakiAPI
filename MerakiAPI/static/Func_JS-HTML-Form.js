@@ -92,6 +92,7 @@ function onElementChange(field1, field2, field_visual_output, field_modify_outpu
     }
 }
 
+
 //Recupera le info data NtwID e OrgID del parametro richiesto
 function fetch_Settings(ntwID, request_url, el_select, el_JSON, primary_key, secondary_key) {
     request_url_full = request_url + ntwID

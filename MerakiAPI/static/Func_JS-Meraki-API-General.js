@@ -40,7 +40,7 @@ function DELETE_fetchGeneric(requestUrl, FieldOutput) {
 
 // Recuepra Generic by URL for 2 elements
 function fetchGeneric(requestUrl, FieldOutput,primary_key,secondary_key) {
-    console.log('^^^^^^^^URL^^^^^',requestUrl)
+    console.log('^^^^^^^^URL^^^^^', requestUrl)
     fetch(requestUrl)
         .then(response => response.json())
         .then(data => {
@@ -52,6 +52,30 @@ function fetchGeneric(requestUrl, FieldOutput,primary_key,secondary_key) {
                 option.textContent = `${element[secondary_key]} (${primary_key}: ${element[primary_key]})`;
                 FieldSelect.appendChild(option);
             });
+            console.log('^^^^^^^^data^^^^^', data)
+        });
+}
+
+// Recuepra Generic by URL for 2 elements
+function fetchGeneric_TEST(requestUrl, FieldOutput, primary_key, secondary_key) {
+    console.log('^^^^^^^^URL1^^^^^', requestUrl)
+    fetch(requestUrl)
+        .then(response => response.json())
+        .then(data1 => {
+            //console.log('Data ricevuta:', data1); // Debug per controllare il contenuto di data
+            const data = JSON.parse(data1);
+            if (Array.isArray(data)) {
+                const FieldSelect = document.getElementById(FieldOutput);
+                FieldSelect.innerHTML = "";
+                data.forEach(element => {
+                    const option = document.createElement('option');
+                    option.value = element[primary_key];
+                    option.textContent = `${element[secondary_key]} (${primary_key}: ${element[primary_key]})`;
+                    FieldSelect.appendChild(option);
+                });
+            } else {
+                console.error('I dati ricevuti non sono un array:', data);
+            }
             console.log('^^^^^^^^data^^^^^', data)
         });
 }

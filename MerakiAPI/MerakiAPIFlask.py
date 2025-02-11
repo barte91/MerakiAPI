@@ -1,7 +1,7 @@
 from flask import Flask, jsonify, render_template, request, send_from_directory, send_file
 from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem
-import os
+import os,json
 from config import URL,APIKEY, InveManu_nameFile
 from Inventario import *
 from UpdatePorts import *
@@ -91,13 +91,15 @@ def API_SSID():
         if selected_ntwtype == "SINGLE":    
             ntwID=ListNtw
             request_url=URL + f"/networks/{ntwID}/wireless/ssids/{json_value_pkey}"
-            json_output = FuncJSON.UpdateJsonData(request_url, json_data)
+            #json_output = FuncJSON.UpdateJsonData(request_url, json_data)
+            FuncMeraki.API_UpdateSSID(request_url, json_data,ntwID)
         #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
         else:
             for ntwID, name in ListNtw:
                 # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
                 request_url=URL + f"/networks/{ntwID}/wireless/ssids/{json_value_pkey}"
-                json_output = FuncJSON.UpdateJsonData(request_url, json_data)
+                #json_output = FuncJSON.UpdateJsonData(request_url, json_data)
+                FuncMeraki.API_UpdateSSID(request_url, json_data,ntwID)
 
         # Chiamata alla funzione CreateSSID e memorizza il risultato
         #json_output = ButtonApplyMod(request_url, json_data, ListNtw, selected_ntwtype)
@@ -159,14 +161,17 @@ def get_generic_endpoint(ntwID):
 @app.route('/api/get_ssid_settings/<ntwID>')
 def get_ssid_settings(ntwID):
     request_url=URL + f"/networks/{ntwID}/wireless/ssids/"
-    ssid_data = FuncUser.get_APIgeneric(request_url) 
+    ssid_data = FuncUser.get_APIgeneric(request_url)
+    ssid_data_json=jsonify(ssid_data)
     return jsonify(ssid_data)
 
 @app.route('/api/get_ssid_settings/<ntwID>/<ssidNumber>')
 def get_ssid_settingsByNumber(ntwID,ssidNumber):
     request_url=URL + f"/networks/{ntwID}/wireless/ssids/{ssidNumber}"
     ssid_data=FuncUser.get_APIgeneric(request_url)
-    return jsonify(ssid_data)
+    #ssid_data_json=ssid_data.json
+    return ssid_data
+
 
 
 #@app.route('/download_json/<ntwID>/<ssidNumber>', methods=['GET'])

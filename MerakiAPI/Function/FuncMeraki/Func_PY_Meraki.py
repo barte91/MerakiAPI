@@ -1,6 +1,6 @@
 import os
 import requests,json,openpyxl,pandas as pd, os
-from config import URL,APIKEY
+from config import URL,APIKEY,KEY
 import meraki
 
 # MERAKI API - ORGANIZATION
@@ -174,6 +174,14 @@ def UpdateSSID(request_url,APIKEY,data_json):
     return response
 
 
+def API_UpdateSSID(request_url,data_json,ntwId):
+    dashboard=meraki.DashboardAPI(KEY)
+    number=data_json['number']
+    response = dashboard.wireless.updateNetworkWirelessSsid(
+        ntwId, **data_json)
+ 
+    
+    
 ## PORTS - GET
 
 def GetSwPorts():

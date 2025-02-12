@@ -173,12 +173,27 @@ def UpdateSSID(request_url,APIKEY,data_json):
         #)
     return response
 
+######## MERAKI API DIRETTE #################
 
 def API_UpdateSSID(request_url,data_json,ntwId):
     dashboard=meraki.DashboardAPI(KEY)
     number=data_json['number']
-    response = dashboard.wireless.updateNetworkWirelessSsid(
-        ntwId, **data_json)
+    response = dashboard.wireless.updateNetworkWirelessSsid(ntwId, **data_json)
+
+def API_GetOrgNetworks(orgID):
+    dashboard=meraki.DashboardAPI(KEY)
+    response = dashboard.organizations.getOrganizationNetworks(orgID)
+    #if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        #organizations = response.json()
+        # Stampa ID e Nome delle organizzazioni
+    # Crea una lista di tuple (ID, Nome)
+    orgs = [(org['id'], org['name']) for org in response]
+    # Ordina la lista in base al nome dell'organizzazione
+    orgs_sorted = sorted(orgs, key=lambda x: x[1])
+    return orgs_sorted
+    #for org in response:
+    #    return [(org['id'], org['name']) for org in response]
  
     
     

@@ -8,7 +8,8 @@ from Function.FuncJSON import Func_PY_JSON as FuncJSON
 def get_networks(orgID):
     network_type = request.args.get('type')
     try:
-        networks = FuncMeraki.getNtwID_Name(URL, APIKEY, orgID)  # Recupera tutte le reti
+        #networks = FuncMeraki.getNtwID_Name(URL, APIKEY, orgID)  # Recupera tutte le reti
+        networks = FuncMeraki.API_GetOrgNetworks(orgID) # Recupera tutte le reti
     except Exception as e:
         print(f"Errore: {e}")  # Stampa l'errore per il debug
         return jsonify({"error": "Errore nel recupero delle reti.", "message": str(e)}), 500

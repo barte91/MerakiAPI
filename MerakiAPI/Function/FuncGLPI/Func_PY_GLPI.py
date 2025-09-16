@@ -85,10 +85,16 @@ def APP_GLPI_InveManu(entities,location,state):
         #Find Name from code Entities
         #ent=FindElemMatrix(arrEntities,cod_ent,0,1)
         #query1="SELECT * FROM glpi_networkequipments INNER JOIN glpi_entities ON glpi_networkequipments.entities_id=glpi_entities.id WHERE glpi_entities.name LIKE '%" + ent + "%' AND glpi_networkequipments.is_template='0'"
+
         query1="SELECT * FROM glpi_networkequipments \
         INNER JOIN glpi_entities ON glpi_networkequipments.entities_id=glpi_entities.id \
         WHERE ("+queryAdd+") AND glpi_networkequipments.is_template='0'"
+#        query1="SELECT * FROM glpi_networkequipments \
+#        INNER JOIN glpi_entities ON glpi_networkequipments.entities_id=glpi_entities.id \
+#        INNER JOIN glpi_plugin_genericobject_oxos ON  glpi_plugin_genericobject_oxos.entities_id = glpi_entities.id \
+#        WHERE ("+queryAdd+") AND glpi_networkequipments.is_template='0'"
         arrRisQuery=FuncDB.CopiaRisQuery_14_filed(query1,0,13,3,23,15,17,16,1,arrLocations,arrStates,arrNetweqTypes,arrVendors,arrNetweqModels,arrEntities)    #create matrix with all info necessary
+
     #LL=len(arrRisQuery)
     #OLD- DA VERIFICARE E CAPIRE ----arrStateName=FuncMatrix.ConvertArray(user_state,arrStates)                     #extract Name from state selected from user
     arrStateName=user_state #Sostituisce la precedente da verificare e capire

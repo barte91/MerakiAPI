@@ -132,8 +132,12 @@ def CopiaRisQuery_14_filed(query,ind_id,ind_loc,ind_desc,ind_stato,ind_tipo,ind_
         desc.append(row[ind_desc])
         stato_id.append(row[ind_stato])
         stato_name.append(FuncMatrix.FindElemMatrix(arrState,stato_id[count],0,1))
-        tipo_id.append(row[ind_tipo])
-        tipo_name.append(FuncMatrix.FindElemMatrix(arrType,tipo_id[count],0,1))
+        if ind_tipo ==99:             #Arriva da Plugin Generic OXO, quindi forzo tipo in OXO
+            tipo_id.append('9')
+            tipo_name.append('OXO')
+        else:
+            tipo_id.append(row[ind_tipo])
+            tipo_name.append(FuncMatrix.FindElemMatrix(arrType,tipo_id[count],0,1))
         vendor_id.append(row[ind_vendor])
         vendor_name.append(FuncMatrix.FindElemMatrix(arrVendor,vendor_id[count],0,1))
         modello_id.append(row[ind_modello])

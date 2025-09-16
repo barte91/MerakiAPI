@@ -73,8 +73,10 @@ def APP_GLPI_InveManu(entities,location,state):
     arrStates=FuncDB.CopiaCampiDB("SELECT * FROM glpi_states",1,0)                                                  #Colonna 0 = id | colonna 1 = name    
     arrIPAddresses=FuncDB.CopiaCampiDB("SELECT * FROM glpi_ipaddresses",5,12)                                       #Colonna 5 = id | colonna 12 = name
     arrMACAddresses=FuncDB.CopiaCampiDB("SELECT * FROM glpi_networkports",8,1)                                      #Colonna 1 = items_id | colonna 8 = mac
-    arrPropHW=FuncDB.CopiaCampiDB("SELECT * FROM glpi_plugin_fields_proprietariohwfielddropdowns",1,0)             #da Plugin - Proprietario HW 
-    arrMaintSuppl=FuncDB.CopiaCampiDB("SELECT * FROM glpi_plugin_fields_maintenancesupplierfielddropdowns",1,0)    #da Plugin - Maintenance Supplier
+    arrPropHW=FuncDB.CopiaCampiDB("SELECT * FROM glpi_plugin_fields_proprietariohwfielddropdowns",1,0)              #da Plugin - Proprietario HW 
+    arrMaintSuppl=FuncDB.CopiaCampiDB("SELECT * FROM glpi_plugin_fields_maintenancesupplierfielddropdowns",1,0)     #da Plugin - Maintenance Supplier
+    arrGenericPlugin_Model=FuncDB.CopiaCampiDB("SELECT * FROM glpi_plugin_genericobject_oxomodels",1,0)             #da Plugin - Model Plugin Generci (es. per OXO)
+    arrGenericPlugin_Type=FuncDB.CopiaCampiDB("SELECT * FROM glpi_plugin_genericobject_types",4,0)                  #da Plugin - Type Plugin Generci (es. per OXO)
 
     #ATTENZIONE!!!!!-------ATTUALMENTE DISPONIBILE SOLO VERSIONE CON SCELTA ENTITA'------------
     #if((user_location==['empty']) and (user_entities!=[])):       #user selected the entities
@@ -86,14 +88,21 @@ def APP_GLPI_InveManu(entities,location,state):
         #ent=FindElemMatrix(arrEntities,cod_ent,0,1)
         #query1="SELECT * FROM glpi_networkequipments INNER JOIN glpi_entities ON glpi_networkequipments.entities_id=glpi_entities.id WHERE glpi_entities.name LIKE '%" + ent + "%' AND glpi_networkequipments.is_template='0'"
 
-        query1="SELECT * FROM glpi_networkequipments \
+        #Query per recuperare dati NETWORK
+        query_NTWEquipment="SELECT * FROM glpi_networkequipments \
         INNER JOIN glpi_entities ON glpi_networkequipments.entities_id=glpi_entities.id \
         WHERE ("+queryAdd+") AND glpi_networkequipments.is_template='0'"
-#        query1="SELECT * FROM glpi_networkequipments \
-#        INNER JOIN glpi_entities ON glpi_networkequipments.entities_id=glpi_entities.id \
-#        INNER JOIN glpi_plugin_genericobject_oxos ON  glpi_plugin_genericobject_oxos.entities_id = glpi_entities.id \
-#        WHERE ("+queryAdd+") AND glpi_networkequipments.is_template='0'"
-        arrRisQuery=FuncDB.CopiaRisQuery_14_filed(query1,0,13,3,23,15,17,16,1,arrLocations,arrStates,arrNetweqTypes,arrVendors,arrNetweqModels,arrEntities)    #create matrix with all info necessary
+        #Query per recuperare dati FONIA
+        query_FONIA="SELECT * FROM glpi_plugin_genericobject_oxos \
+        INNER JOIN glpi_entities ON glpi_plugin_genericobject_oxos.entities_id=glpi_entities.id \
+        WHERE ("+queryAdd+") AND glpi_plugin_genericobject_oxos.is_template='0'"
+#       Conversione N.colonne=Description 0=id, 13=locations_id, 3=name, 23=states_id, 15=networkequipmenttypes_id, 17=manufacturers_id, 16=networkequipmentmodels_id, 1=entities_id)
+        arrRisQuery_NTWEquipment=FuncDB.CopiaRisQuery_14_filed(query_NTWEquipment,0,13,3,23,15,17,16,1,arrLocations,arrStates,arrNetweqTypes,arrVendors,arrNetweqModels,arrEntities)    #create matrix with all info necessary
+#       Conversione N.colonne=Description 0=id, 9=locations_id, 6=name, 10=states_id, 99=NOT-Exist=networkequipmenttypes_id, 12=manufacturers_id, 13=PlgGen=networkequipmentmodels_id, 4=entities_id)
+        arrRisQuery_FONIA=FuncDB.CopiaRisQuery_14_filed(query_FONIA,0,9,6,10,99,12,13,4,arrLocations,arrStates,arrGenericPlugin_Type,arrVendors,arrGenericPlugin_Model,arrEntities)    #create matrix with all info necessary
+#       Unisco i 2 ARRAY
+        arrRisQuery= arrRisQuery_NTWEquipment + arrRisQuery_FONIA
+
 
     #LL=len(arrRisQuery)
     #OLD- DA VERIFICARE E CAPIRE ----arrStateName=FuncMatrix.ConvertArray(user_state,arrStates)                     #extract Name from state selected from user

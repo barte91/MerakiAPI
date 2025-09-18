@@ -143,6 +143,8 @@ def APP_GLPI_InveManu(entities,location,state):
                                                       arrLocations,arrStates,arrPhoneTypes,arrVendors,arrPhoneModels,arrEntities)
 #       Unisco tutti gli array
         arrRisQuery= arrRisQuery_NTWEquipment + arrRisQuery_OXO + arrRisQuery_FONIA
+#       Solo per TEST
+        #arrRisQuery= arrRisQuery_NTWEquipment
 
 
     #LL=len(arrRisQuery)

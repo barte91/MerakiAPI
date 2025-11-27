@@ -22,6 +22,7 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="config_sample.py" />
     <Compile Include="Function\FuncUSER\Func_PY_USER.py">
       <SubType>Code</SubType>
     </Compile>
@@ -104,9 +105,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include=".editorconfig" />
+    <Content Include=".gitignore" />
     <Content Include="doc.txt" />
     <Content Include="Dockerfile" />
     <Content Include="Function\FuncGLPI\Old-Func.txt" />
+    <Content Include="requirements.txt" />
     <Content Include="static\Func_JS-GLPI-Inventario.js" />
     <Content Include="static\Func_JS-HTML-Form.js" />
     <Content Include="static\Func_JS-Meraki-API-General.js" />
@@ -120,6 +123,7 @@
     <Content Include="templates\index.html" />
     <Content Include="templates\API-RadioProfile.html" />
     <Content Include="templates\MenuNtwType.html" />
+    <Content Include=".env" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Function\FuncGLPI\" />

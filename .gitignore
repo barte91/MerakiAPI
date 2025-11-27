@@ -6,6 +6,7 @@
 # Escludi credenziali
 .env
 config.py
+MerakiAPI/config.py
 
 # User-specific files
 *.rsuser

@@ -5,7 +5,7 @@ def get_invetario(URL,APIKEY,orgID,xls_path_inv):
     swListTot={"Name":[],"Serial":[],"Model":[], "IP":[], "NetwName":[], "portID":[], "Enabled":[], "Status":[], "PortName":[], "PoeEnable":[]}
     df_swListTot=pd.DataFrame([])
     timestr = time.strftime("%Y%m%d-%H")
-    xls_path_inv_by_org = xls_path_inv+ timestr+"-TECNOMAT.xlsx"
+    xls_path_inv_by_org = xls_path_inv+ timestr+"-TEC.xlsx"
     wb = openpyxl.Workbook()
     wb.save(filename = xls_path_inv_by_org)
     wb = openpyxl.load_workbook(xls_path_inv_by_org)
@@ -320,7 +320,7 @@ def commentUseful():
     #    ws [f"B{row}"] = serial
     #    ws [f"C{row}"] = model
     #    ws [f"D{row}"] = ip
-    #xls_path_inv_by_org = xls_path_inv+ timestr+"-TECNOMAT.xlsx"
+    #xls_path_inv_by_org = xls_path_inv+ timestr+"-TEC.xlsx"
     #wb.save(filename = xls_path_inv_by_org)
     #    ntwName=searchNetwNameByID(ntwID)
     #    print(f"{ntwName}")

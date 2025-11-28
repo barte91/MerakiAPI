@@ -71,11 +71,11 @@ def UpdateIP(URL,APIKEY,serial,IPNew,MaskNew,GwNew,VlanNew):
             "vlan": None
         }
     })
-    headers = {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-        'Authorization': 'Bearer c12a73de18156681be08428bd345afc748aba00e'
-    }
+    #headers = {
+    #    'Content-Type': 'application/json',
+    #    'Accept': 'application/json',
+    #    'Authorization': 'AUTH'
+    #}
     #payload = '''{"wan1":{"staticGatewayIp":"192.168.139.254","staticIp":"192.139.192","staticSubnetMask":"255.255.255.128","wanEnabled":'enabled',"usingStaticIp":true,"staticDns":["10.100.5.1","10.100.5.2"]},"wan2":{"wanEnabled":'disabled'}}'''
 
     #response = requests.put(queryURL, headers=APIKEY)

@@ -85,7 +85,7 @@ def API_SSID():
             # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
             ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
         modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
-        #json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
+        #json_script_path = r"JSON_PATH"
 
         # Converti il JSON string in un oggetto Python
         json_data = json.loads(modify_json)  # Assicurati di importare json in cima al tuo file
@@ -200,7 +200,7 @@ def API_RadioProfile():
             # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
             ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
         modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
-        #json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
+        #json_script_path = r"JSON_PATH"
 
         # Converti il JSON string in un oggetto Python
         json_data = json.loads(modify_json)  # Assicurati di importare json in cima al tuo file
@@ -262,7 +262,7 @@ def PortDownMeraki():
             # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
             ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
         #modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
-        #json_script_path = r"\\192.168.100.65\Archivio Tecnico\Meraki API\SCRIPT\JSON"
+        #json_script_path = r"JSON_PATH"
 
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
     organizations = FuncMeraki.getOrgID_Name()

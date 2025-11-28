@@ -282,6 +282,8 @@ def PortDownMeraki():
         else:
             # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
             ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
+        all_switches = FuncUser.get_Allswitch_by_NtwType(ListNtw)
+
         #modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
         #json_script_path = r"JSON_PATH"
 

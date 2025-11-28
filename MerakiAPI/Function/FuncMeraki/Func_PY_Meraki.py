@@ -58,6 +58,23 @@ def Flask_getNtwID_Name(URL, APIKEY, orgID):
     else:
         return []
 
+def getNtwNameByID(ntwID):
+def getNtwNameByID(ntwID):
+    """
+    Restituisce il nome di una network dato il suo ID.
+    Args:
+        ntwID (str): ID della network Meraki
+    Returns:
+        str: nome della network
+    """
+    try:
+        dashboard = meraki.DashboardAPI(KEY, suppress_logging=True)
+        network = dashboard.networks.getNetwork(ntwID)
+        return network.get("name", "")
+    except Exception as e:
+        print(f"Errore in getNtwNameByID per network {ntwID}: {e}")
+        return ""
+
 ## NETWORK - PRINT
 
 def PrintNtwID_Name(URL,APIKEY,orgID):
@@ -219,5 +236,7 @@ def API_GetSwByNtwID(ntwID):
     
 ## PORTS - GET
 
-def GetSwPorts():
-    a=0
+def getDeviceSwitchPortsBySerial(serial):
+    dashboard = meraki.DashboardAPI(KEY)
+    ports = dashboard.switch.getDeviceSwitchPorts(serial)
+    return ports

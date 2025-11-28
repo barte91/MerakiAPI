@@ -1,3 +1,7 @@
+#Carica variabili con password
+from dotenv import load_dotenv
+load_dotenv()
+
 from flask import Flask, jsonify, render_template, request, send_from_directory, send_file
 from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem

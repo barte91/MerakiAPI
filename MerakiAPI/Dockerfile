@@ -6,6 +6,7 @@ WORKDIR /app
 
 # Copia i file del progetto nella directory di lavoro
 COPY . /app
+COPY .env /app/.env
 
 # Installa le dipendenze dal file requirements.txt
 RUN pip install --no-cache-dir -r env/requirements.txt

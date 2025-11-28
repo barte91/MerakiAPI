@@ -4,9 +4,7 @@ from Inventario import *
 from UpdatePorts import *
 from ChangeIP import *
 from Tools import *
-from dotenv import load_dotenv
 
-load_dotenv()
 
 if __name__ == '__main__':
     menu = ConsoleMenu("Scegli Operazione da eseguire")

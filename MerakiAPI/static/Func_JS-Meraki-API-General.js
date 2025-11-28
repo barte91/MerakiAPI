@@ -39,7 +39,7 @@ function DELETE_fetchGeneric(requestUrl, FieldOutput) {
 }
 
 // Recuepra Generic by URL for 2 elements
-function fetchGeneric(requestUrl, FieldOutput,primary_key,secondary_key) {
+function fetchGeneric(requestUrl, FieldOutput, primary_key, secondary_key) {
     console.log('^^^^^^^^URL^^^^^', requestUrl)
     fetch(requestUrl)
         .then(response => response.json())
@@ -80,6 +80,39 @@ function fetchGeneric_TEST(requestUrl, FieldOutput, primary_key, secondary_key) 
         });
 }
 
+// Funzione per cambiamento del network type
+function onNetworkTypeChange() {
+    const networkType = document.getElementById("networkType").value;
+    const orgID = document.getElementById("orgID").value;
+    const ntwSelect = document.getElementById("ntwID");
+    const swSelect = document.getElementById("SWSelect");
+    // Pulisce select
+    ntwSelect.innerHTML = "";
+    swSelect.innerHTML = "";
+    if (networkType === "SINGLE") {
+        // Se SINGLE, mostra lista network
+        fetch(`/api/get_networks/${orgID}?type=SINGLE`)
+            .then(resp => resp.json())
+            .then(data => {
+                data.forEach(ntw => {
+                    const option = document.createElement('option');
+                    option.value = ntw[0]; // ID
+                    option.textContent = ntw[1]; // Nome
+                    ntwSelect.appendChild(option);
+                });
+            });
+    } else {
+        // Se NON SINGLE, prendi tutte le network e subito tutti gli switch
+        fetch(`/api/get_networks/${orgID}?type=${networkType}`)
+            .then(resp => resp.json())
+            .then(ntwList => {
+                // Crea una lista di ID separati da virgola
+                const ntwIDs = ntwList.map(n => n[0]).join(",");
+                // Fetch switches direttamente
+                fetchGeneric(`/api/get_switches/${ntwIDs}`, "SWSelect", "serial", "name");
+            });
+    }
+}
 
 // Funzione che restituisce il JSON richiesto (requestUrl)
 function fetchGenericData(requestUrl, field_visual_output, field_modify_output) {

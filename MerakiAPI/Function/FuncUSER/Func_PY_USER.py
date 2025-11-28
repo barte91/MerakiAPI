@@ -103,3 +103,26 @@ def ButtonApplyMod(req_url, json_data, ListNtw, ntwType):
         for ntwID, name in ListNtw:
             # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
             response = FuncJSON.UpdateJsonData(req_url, json_data)
+
+def get_ListSwitch_by_NtwID(ntwID):
+    """
+    Restituisce la lista di switch presenti in una network.  
+    Args:
+        ntwID (str): ID della network Meraki
+    Returns:
+        list[dict]: lista di switch con serial e name
+    """
+    try:
+        # Chiama la funzione già esistente in FuncMeraki
+        switches = FuncMeraki.API_GetSwByNtwID(ntwID)  # ritorna lista di tuple (id, nome)
+        # Converti in lista di dizionari per uniformità JSON
+        switch_list = []
+        for sw in switches:
+            switch_list.append({
+                "serial": sw[0],
+                "name": sw[1]
+            })
+        return switch_list
+    except Exception as e:
+        print(f"Errore in get_ListSwitch_byNtwID per network {ntwID}: {e}")
+        return []

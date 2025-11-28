@@ -195,7 +195,27 @@ def API_GetOrgNetworks(orgID):
     #for org in response:
     #    return [(org['id'], org['name']) for org in response]
  
-    
+## API - VARIE
+#
+def API_GetSwByNtwID(ntwID):
+    """
+    Restituisce tutti gli switch di una network Meraki.
+    Args:
+        ntwID (str): ID della network Meraki
+    Returns:
+        list[tuple]: lista di tuple (serial, name)
+    """
+    try:
+        dashboard = meraki.DashboardAPI(KEY)
+        devices = dashboard.networks.getNetworkDevices(ntwID)  # ottieni tutti i dispositivi della network
+        # Filtra solo gli switch
+        sw = [(d['serial'], d['name']) for d in devices if d['model'].startswith('MS')]  # MS = Meraki Switch
+        # Ordina per nome
+        ListSw = sorted(sw, key=lambda x: x[1])
+        return ListSw
+    except Exception as e:
+        print(f"Errore in API_GetSwByNtwID per network {ntwID}: {e}")
+        return []   
     
 ## PORTS - GET
 

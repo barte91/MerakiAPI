@@ -125,15 +125,36 @@ def get_networks_ID_endpoint(orgID,network_type):
     return FuncUser.get_networks_ID(orgID,network_type)
 
 ### - FUNZIONE GENERALE GET SWITCHES
-@app.route('/api/get_switches/<ntwID>')
-def get_generic_endpoint(ntwID):
-    request_url=URL + f"/networks/{ntwID}/devices"
-    #return valore della funzione get_networks in Func_AppRoute.py
-    ntwDev=FuncUser.get_APIgeneric(request_url)
-    ntwDev=FuncMatrix.FilterListNtwDev(ntwDev,'name','serial','switch','model')
-    ntwDev=FuncMatrix.Add_ListElement(ntwDev,'serial','name','ALL','ALL')
-    return ntwDev
+#@app.route('/api/get_switches/<ntwID>')
+#def get_generic_endpoint(ntwID):
+#    request_url=URL + f"/networks/{ntwID}/devices"
+#    #return valore della funzione get_networks in Func_AppRoute.py
+#    ntwDev=FuncUser.get_APIgeneric(request_url)
+#    ntwDev=FuncMatrix.FilterListNtwDev(ntwDev,'name','serial','switch','model')
+#    ntwDev=FuncMatrix.Add_ListElement(ntwDev,'serial','name','ALL','ALL')
+#    return ntwDev
 
+@app.route('/api/get_switches/<ntwIDs>')
+def get_switches(ntwIDs):
+    # ntwIDs può essere una singola ID o più ID separati da virgola
+    ntwID_list = ntwIDs.split(",") 
+    all_switches = []
+    for ntwID in ntwID_list:
+        try:
+            switches = FuncUser.get_ListSwitch_by_NtwID(ntwID)
+            all_switches.extend(switches)
+        except Exception as e:
+            print(f"Errore caricando switch da network {ntwID}: {e}")  
+    # Opzionale: rimuove duplicati
+    seen = set()
+    unique_switches = []
+    for sw in all_switches:
+        if sw['serial'] not in seen:
+            seen.add(sw['serial'])
+            unique_switches.append(sw)
+    return jsonify(unique_switches)
+
+### - FUNZIONE GENERALE GET SWITCHES
 
 #@app.route('/api/get_ssid_settings/<ntwID>')
 #def get_ssid_settings(ntwID):

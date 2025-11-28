@@ -1,11 +1,11 @@
 //****TUTTE LE FUNZIONI CHE SI RIFERISCONO A
 
 //Funzione SPECIFICA--Recupera tipo Network quando si cambia dal menù
-function onNetworkTypeChange() {
-    const orgID = document.getElementById('orgID').value;
-    const type = document.getElementById('networkType').value;
-    fetchNetworks(orgID, type);
-}
+//function onNetworkTypeChange() {
+//    const orgID = document.getElementById('orgID').value;
+//    const type = document.getElementById('networkType').value;
+//    fetchNetworks(orgID, type);
+//}
 
 /* -----TEST DISABLE FUNCTION ----****START*****
 //Recupera tipo Network quando si cambia dal menù

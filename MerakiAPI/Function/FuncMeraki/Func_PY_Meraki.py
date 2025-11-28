@@ -59,7 +59,6 @@ def Flask_getNtwID_Name(URL, APIKEY, orgID):
         return []
 
 def getNtwNameByID(ntwID):
-def getNtwNameByID(ntwID):
     """
     Restituisce il nome di una network dato il suo ID.
     Args:
@@ -232,7 +231,69 @@ def API_GetSwByNtwID(ntwID):
         return ListSw
     except Exception as e:
         print(f"Errore in API_GetSwByNtwID per network {ntwID}: {e}")
-        return []   
+        return []
+
+def get_SwitchDetails_by_Serial(serial):
+    """
+    Restituisce i dettagli completi di uno switch dato il serial.
+    """
+    try:
+        # Recupera i dati completi tramite API dirette Meraki
+        url = f"{URL}/devices/{serial}"
+        response = requests.get(url, headers=APIKEY)
+        if response.status_code == 200:
+            data = response.json()
+            return {
+                "serial": data.get("serial"),
+                "name": data.get("name"),
+                "model": data.get("model"),
+                "lanIp": data.get("lanIp"),
+                "networkId": data.get("networkId"),
+                "tags": data.get("tags", [])
+            }
+        else:
+            print(f"Errore API {serial}: {response.status_code}")
+            return None
+    except Exception as e:
+        print(f"Errore API_GetSwitchDetails per serial {serial}: {e}")
+        return None
+    
+def API_GetSwitchDetailsBySerial(serial):
+    """
+    Restituisce tutte le proprietà di uno switch dato il seriale.
+    Args:
+        serial (str): Serial dello switch Meraki    
+    Returns:
+        dict: Dizionario con tutte le proprietà dello switch, o None se errore
+    """
+    try:
+        url = f"{URL}/devices/{serial}"
+        response = requests.get(url, headers=APIKEY)
+        if response.status_code != 200:
+            print(f"Errore API_GetSwitchDetails(): HTTP {response.status_code} - {response.text}")
+            return None
+        return response.json()
+    except Exception as e:
+        print(f"Errore generico API_GetSwitchDetails per serial {serial}: {e}")
+        return None
+
+def API_GetSwFieldBySerial(serial,field):
+    """
+    Ritorna il nome di uno switch Meraki partendo dal seriale.
+    Ritorna None se non trovato o in caso di errore.
+    """
+    try:
+        url = f"{URL}/devices/{serial}"
+        response = requests.get(url, headers=APIKEY)
+        if response.status_code != 200:
+            print(f"Errore API_GetSwFieldBySerial(): HTTP {response.status_code} - {response.text}")
+            return None
+        data = response.json()
+        # Se il device esiste il nome è dentro il campo 'field'
+        return data.get(field, None)
+    except Exception as e:
+        print(f"Errore API_GetSwFieldBySerial(): {e}")
+        return None
     
 ## PORTS - GET
 

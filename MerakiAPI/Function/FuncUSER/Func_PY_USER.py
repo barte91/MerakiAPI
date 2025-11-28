@@ -106,88 +106,45 @@ def ButtonApplyMod(req_url, json_data, ListNtw, ntwType):
 
 def get_ListSwitch_by_NtwID(ntwID):
     """
-    Restituisce la lista di switch presenti in una network.  
+    Restituisce la lista di switch presenti in una singola network Meraki.
+    
     Args:
         ntwID (str): ID della network Meraki
+    
     Returns:
-        list[dict]: lista di switch con serial e name
+        list[dict]: lista di switch con serial, name, model, lanIp, network_name e tags
     """
+    switch_list = []
     try:
-        # Chiama la funzione già esistente in FuncMeraki
-        switches = FuncMeraki.API_GetSwByNtwID(ntwID)  # ritorna lista di tuple (id, nome)
-        # Converti in lista di dizionari per uniformità JSON
-        switch_list = []
-        for sw in switches:
-            switch_list.append({
-                "serial": sw[0],
-                "name": sw[1],
-                "network_name": network_name,
-                "tags": sw.get("tags","")
-            })
-        return switch_list
+        switches = FuncMeraki.API_GetSwByNtwID(ntwID)  # tutti i dispositivi della network
+        network_name = FuncMeraki.getNtwNameByID(ntwID)       # chiamiamo solo una volta per network
+
+        for serial, name in switches:
+            sw_detail = FuncMeraki.get_SwitchDetails_by_Serial(serial)
+            if sw_detail and sw_detail["model"].startswith("MS"):
+                sw_detail["network_name"] = network_name
+                switch_list.append(sw_detail)
+
     except Exception as e:
-        print(f"Errore in get_ListSwitch_byNtwID per network {ntwID}: {e}")
-        return []
+        print(f"Errore elaborando switch in network {ntwID}: {e}")
+
+    return switch_list
+
 
 def get_Allswitch_by_NtwType(ListNtw):
     """
-    Restituisce la lista di switch presenti nel network Type  
+    Restituisce la lista di switch per un tipo di network (più network).
+    
     Args:
-        ListNtw (dict): ListaNetwork by NtwType
+        ListNtw (list[str]): Lista di network ID appartenenti allo stesso tipo
+    
     Returns:
-        all_switches (dict): Lista switch compresa di Network Name 
+        list[dict]: Lista di switch compresa di Network Name
     """
-    for ntw in ListNtw:
-        if isinstance(ntw, tuple):
-            ntwID = ntw[0]
-            ntwName = ntw[1]
-        else:
-            ntwID = ntw
-            # Recupera il nome network dal dashboard
-            ntwName = FuncMeraki.getNtwNameByID(ntwID)
-        switches = get_ListSwitch_byNtwID(ntwID)
-        for sw in switches:
-            sw['network_name'] = ntwName  # aggiunge il nome della network allo switch
+    all_switches = []
+    for ntwID in ListNtw:
+        switches = get_ListSwitch_by_NtwID(ntwID)
         all_switches.extend(switches)
-    return all_switches
 
-import csv
-from config import xls_path  # percorso dove salvare il CSV
-from Function.FuncMeraki import DashboardAPI  # o importa la tua istanza Meraki
 
-def export_switch_ports_to_csv(switch_list, filename="SwitchPorts.csv"):
-    """
-    Genera un CSV con tutte le porte degli switch selezionati.
-    Args:
-        switch_list (list[dict]): lista di switch, es: [{"serial": "...", "name": "...", "network_name": "...", "tags": "..."}]
-        filename (str): nome del file CSV da salvare
-    """
-    # Percorso completo del file
-    file_path = f"{xls_path}/{filename}"
-    # Intestazioni CSV
-    headers = ["NomeNetwork", "NomeSwitch", "SerialeSwitch", "TAGSwitch", "NumeroPorta", "DescrizionePorta"]
-    with open(file_path, mode="w", newline="", encoding="utf-8") as f:
-        writer = csv.DictWriter(f, fieldnames=headers)
-        writer.writeheader()
-        for sw in switch_list:
-            serial = sw.get("serial")
-            switch_name = sw.get("name")
-            network_name = sw.get("network_name", "")
-            tag = sw.get("tags", "")
-            # Ottieni le porte dello switch tramite Meraki API
-            try:
-                ports=FuncMeraki.getDeviceSwitchPortsBySerial(serial)
-                # ports è una lista di dizionari
-                for port in ports:
-                    writer.writerow({
-                        "NomeNetwork": network_name,
-                        "NomeSwitch": switch_name,
-                        "SerialeSwitch": serial,
-                        "TAGSwitch": tag,
-                        "NumeroPorta": port.get("portId"),
-                        "DescrizionePorta": port.get("name")
-                    })
-            except Exception as e:
-                print(f"Errore ottenendo porte dello switch {serial}: {e}")
-    print(f"CSV generato correttamente in {file_path}")
-    return file_path
+

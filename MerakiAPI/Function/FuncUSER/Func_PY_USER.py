@@ -1,6 +1,7 @@
-from flask import jsonify, request
+from flask import jsonify, request,send_file
 from config import URL,APIKEY, xls_path
-import requests,json,csv
+from concurrent.futures import ThreadPoolExecutor, as_completed
+import requests,json,csv,io
 from Function.FuncMeraki import Func_PY_Meraki as FuncMeraki
 from Function.FuncJSON import Func_PY_JSON as FuncJSON
 
@@ -104,7 +105,21 @@ def ButtonApplyMod(req_url, json_data, ListNtw, ntwType):
             # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
             response = FuncJSON.UpdateJsonData(req_url, json_data)
 
-def get_ListSwitch_by_NtwID(ntwID):
+def get_SwitchDetails_by_Serial_parallel(serial):
+    """
+    Recupera i dettagli di uno switch dato il serial.
+    Gestisce eventuali errori e ritorna None se fallisce.
+    """
+    try:
+        sw_detail = FuncMeraki.API_GetSwitchDetailsBySerial(serial)
+        if sw_detail:
+            return sw_detail
+    except Exception as e:
+        print(f"Errore API_GetSwitchDetails per serial {serial}: {e}")
+    return None
+
+
+def get_ListSwitch_by_NtwID(ntwID, max_workers=10):
     """
     Restituisce la lista di switch presenti in una singola network Meraki.
     
@@ -119,19 +134,30 @@ def get_ListSwitch_by_NtwID(ntwID):
         switches = FuncMeraki.API_GetSwByNtwID(ntwID)  # tutti i dispositivi della network
         network_name = FuncMeraki.getNtwNameByID(ntwID)       # chiamiamo solo una volta per network
 
-        for serial, name in switches:
-            sw_detail = FuncMeraki.get_SwitchDetails_by_Serial(serial)
-            if sw_detail and sw_detail["model"].startswith("MS"):
-                sw_detail["network_name"] = network_name
-                switch_list.append(sw_detail)
+       # Parallelizza il recupero dettagli switch
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            futures = {executor.submit(get_SwitchDetails_by_Serial_parallel, serial): serial for serial, _ in switches}
+
+            for future in as_completed(futures):
+                serial = futures[future]
+                sw_detail = future.result()
+                if sw_detail and sw_detail["model"].startswith("MS"):
+                    sw_detail["network_name"] = network_name
+                    switch_list.append(sw_detail)
+
+        #for serial, name in switches:
+        #    sw_detail = FuncMeraki.get_SwitchDetails_by_Serial(serial)
+        #    if sw_detail and sw_detail["model"].startswith("MS"):
+        #        sw_detail["network_name"] = network_name
+        #        switch_list.append(sw_detail)
 
     except Exception as e:
-        print(f"Errore elaborando switch in network {ntwID}: {e}")
+        print(f"Errore elaborando switch in network {ntwID} - ListSwitchByNtwID: {e}")
 
     return switch_list
 
 
-def get_Allswitch_by_NtwType(ListNtw):
+def get_Allswitch_by_NtwType(ListNtw, max_workers=10):
     """
     Restituisce la lista di switch per un tipo di network (più network).
     
@@ -142,9 +168,47 @@ def get_Allswitch_by_NtwType(ListNtw):
         list[dict]: Lista di switch compresa di Network Name
     """
     all_switches = []
-    for ntwID in ListNtw:
-        switches = get_ListSwitch_by_NtwID(ntwID)
-        all_switches.extend(switches)
+    with ThreadPoolExecutor(max_workers=max_workers) as executor:
+        # Lancia tutte le chiamate API in parallelo
+        future_to_ntw = {executor.submit(get_ListSwitch_by_NtwID, ntwID): ntwID for ntwID in ListNtw}
+
+        for future in as_completed(future_to_ntw):
+            ntwID = future_to_ntw[future]
+            try:
+                switches = future.result()
+                all_switches.extend(switches)
+            except Exception as e:
+                print(f"Errore recuperando switch da network {ntwID} - AllSwitchByNtwType: {e}")
+    return all_switches
+    #for ntwID in ListNtw:
+    #    switches = get_ListSwitch_by_NtwID(ntwID)
+    #    all_switches.extend(switches)
+
+
+def generate_switches_csv(switches_list, filename="switches.csv"):
+    """
+    Genera un CSV dai dettagli degli switch e lo ritorna come file scaricabile Flask.
+    """
+    output = io.StringIO()
+    fieldnames = ["serial", "name", "model", "lanIp", "network_name", "tags"]
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+    for sw in switches_list:
+        # Crea un dizionario filtrato con SOLO i fieldnames
+        row = {field: sw.get(field, "") for field in fieldnames}
+        #row = sw.copy()
+        # Se tags è lista, trasformala in stringa separata da ;
+        if isinstance(row.get("tags"), list):
+            row["tags"] = ";".join(row["tags"])
+        writer.writerow(row)
+    
+    output.seek(0)
+    return send_file(
+        io.BytesIO(output.getvalue().encode("utf-8")),
+        mimetype="text/csv",
+        as_attachment=True,
+        download_name=filename
+    )
 
 
 

@@ -27,14 +27,17 @@
 
         <!-- SELEZIONE NETWORK -->
         <label for="ntwID">Seleziona ID Network:</label><br>
-        <select id="ntwID" name="ntwID" required onchange="fetchGeneric(`/api/get_switches/${this.value}`, 'SWSelect', 'serial', 'name')">
+        <select id="ntwID" name="ntwID" onchange="fetchGeneric(`/api/get_switches/${this.value}`, 'SWSelect', 'serial', 'name')">
             <option value="">Seleziona prima l'organizzazione</option>
         </select><br>
 
         <!-- SELEZIONE SWITCH -->
         <label for="SWSelect">Seleziona Switch:</label><br>
+        <!--<select id="SWSelect" name="SWSelect">
+        <option value="">Seleziona prima una rete</option>
+        </select><br> -->
         <select id="SWSelect" name="SWSelect">
-            <option value="">Seleziona prima una rete</option>
+            <option value="">Tutti gli switch</option>
         </select><br>
 
         <input type="submit" value="Scarica File CSV">

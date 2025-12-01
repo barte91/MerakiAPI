@@ -273,7 +273,7 @@ def PortDownMeraki():
     json_output = None
     if request.method == 'POST':
         orgID = request.form['orgID']
-        ntwID = request.form['ntwID']
+        ntwID = request.form.get('ntwID')
         pkey='id'
         #modification_type = request.form['ModifynetworkType']  # Ottieni il valore da ModificationType
         selected_ntwtype = request.form['networkType']
@@ -282,7 +282,11 @@ def PortDownMeraki():
         else:
             # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
             ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
+            # ListNtw deve contenere solo gli ID
+            ListNtw = [ntw[0] for ntw in ListNtw]
         all_switches = FuncUser.get_Allswitch_by_NtwType(ListNtw)
+        # Genera CSV e lo fa scaricare
+        return FuncUser.generate_switches_csv(all_switches, filename="Switches_Meraki.csv")
         a=0
 
         #modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato

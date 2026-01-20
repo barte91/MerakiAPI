@@ -112,6 +112,7 @@
   <ItemGroup>
     <Content Include=".editorconfig" />
     <Content Include=".gitignore" />
+    <Content Include="apache-conf\httpd.conf" />
     <Content Include="doc.txt" />
     <Content Include="Dockerfile" />
     <Content Include="Function\FuncGLPI\Old-Func.txt" />
@@ -132,7 +133,7 @@
     <Content Include="templates\API-RadioProfile.html" />
     <Content Include="templates\MenuNtwType.html" />
     <Content Include=".env" />
-    <Content Include="apache-appMeraki.conf" />
+    <Content Include="apache-conf\apache-appMeraki.conf" />
     <Content Include="docker-compose.yml" />
   </ItemGroup>
   <ItemGroup>
@@ -147,6 +148,7 @@
     <Folder Include="Function\FuncUSER\" />
     <Folder Include="Function\FuncFILE\" />
     <Folder Include="certificates\" />
+    <Folder Include="apache-conf\" />
     <Folder Include="static\" />
     <Folder Include="static\UNUSED\" />
     <Folder Include="templates\" />

@@ -17,8 +17,9 @@ services:
     ports:
       - "443:443"
     volumes:
-      - ./apache-appMeraki.conf:/usr/local/apache2/conf/extra/meraki.conf:ro
+      - ./apache-conf/apache-appMeraki.conf:/usr/local/apache2/conf/extra/meraki.conf:ro
       - ./certificates:/certs:ro
+      - ./apache-conf/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
     depends_on:
       - meraki-api
     restart: unless-stopped

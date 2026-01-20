@@ -33,7 +33,7 @@ propcache==0.4.1
 Pygments==2.19.2
 PyMySQL==1.1.2
 pyproject_hooks==1.2.0
-pytest==9.0.1
+pytest==8.3.5
 python-dateutil==2.9.0
 python-dotenv==1.2.1
 pytz==2025.2

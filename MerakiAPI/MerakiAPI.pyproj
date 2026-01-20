@@ -132,6 +132,7 @@
     <Content Include="templates\API-RadioProfile.html" />
     <Content Include="templates\MenuNtwType.html" />
     <Content Include=".env" />
+    <Content Include="apache.conf" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Function\FuncGLPI\" />

@@ -16,3 +16,4 @@ EXPOSE 5000
 # Comando di default per eseguire il tuo script
 #CMD ["python", "MerakiAPIFlask.py"]
 CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "MerakiAPIFlask:app"]
+

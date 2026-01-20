@@ -5,7 +5,7 @@ load_dotenv()
 from flask import Flask, jsonify, render_template, request, send_from_directory, send_file
 from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem
-import os,json
+import os,json,zipfile,io
 from config import URL,APIKEY, InveManu_nameFile
 from Inventario import *
 from UpdatePorts import *
@@ -18,6 +18,8 @@ from Function.FuncMeraki import Func_PY_Meraki as FuncMeraki
 from Function.FuncJSON import Func_PY_JSON as FuncJSON
 from Function.FuncUSER import Func_PY_USER as FuncUser
 from Function.FuncMatrix import Func_PY_Matrix as FuncMatrix
+from Function.FuncOS import Func_PY_OS as FuncOS
+from Function.FuncFILE import Func_PY_FILE as FuncFILE
 
 app = Flask(__name__)
 
@@ -135,6 +137,27 @@ def get_networks_ID_endpoint(orgID,network_type):
 #    return ntwDev
 
 @app.route('/api/get_switches/<ntwIDs>')
+def get_sw_ntwidss(ntwIDs):
+    ntwID_list = ntwIDs.split(",")
+    allDevices = []
+    device_type = request.args.get("deviceType")
+    if device_type == 'AP':
+        FilterString='MR'
+    elif device_type == 'SW':
+        FilterString='MS'
+    else:
+        FilterString='ALL'
+    for ntwID in ntwID_list:
+        request_url=URL + f"/networks/{ntwID}/devices"
+        #return valore della funzione get_networks in Func_AppRoute.py
+        ntwDev=FuncUser.get_APIgeneric(request_url)
+        allDevices.extend(json.loads(ntwDev))
+    allDevices=FuncMatrix.FilterListNtwDev_AllFields(allDevices,'model',FilterString)
+    #allDevices=FuncMatrix.FilterListNtwDev(allDevices,'name','serial','switch','model')
+    allDevices=FuncMatrix.Add_ListElement(allDevices,'serial','name','ALL','ALL')
+    return allDevices
+
+@app.route('/api/get_switches/old/<ntwIDs>')
 def get_switches(ntwIDs):
     # ntwIDs può essere una singola ID o più ID separati da virgola
     ntwID_list = ntwIDs.split(",") 
@@ -145,14 +168,7 @@ def get_switches(ntwIDs):
             all_switches.extend(switches)
         except Exception as e:
             print(f"Errore caricando switch da network {ntwID}: {e}")  
-    # Opzionale: rimuove duplicati
-    seen = set()
-    unique_switches = []
-    for sw in all_switches:
-        if sw['serial'] not in seen:
-            seen.add(sw['serial'])
-            unique_switches.append(sw)
-    return jsonify(unique_switches)
+    return jsonify(all_switches)
 
 ### - FUNZIONE GENERALE GET SWITCHES
 
@@ -284,9 +300,12 @@ def PortDownMeraki():
             ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
             # ListNtw deve contenere solo gli ID
             ListNtw = [ntw[0] for ntw in ListNtw]
+        # 1.Recupero la lista di tutti gli switch
         all_switches = FuncUser.get_Allswitch_by_NtwType(ListNtw)
-        # Genera CSV e lo fa scaricare
-        return FuncUser.generate_switches_csv(all_switches, filename="Switches_Meraki.csv")
+        # 2.Recupero la lista di tutti gli switch
+        all_ports = FuncUser.get_AllPorts_from_SwitchList(all_switches)
+        # 3.Genera CSV e lo fa scaricare
+        return FuncUser.generate_switches_csv(all_ports, filename_prefix="Meraki-Sw-")
         a=0
 
         #modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
@@ -300,6 +319,141 @@ def PortDownMeraki():
 def get_ports_down():
     down_ports = FuncMeraki.GetSwPorts()  # Funzione che recupera i dati richiesti - ****DA FARE -  NON COMPLETATA ************
     return jsonify(down_ports)
+
+###### PAGINA - Inventario Apparati Meraki
+@app.route('/api/API-InventoryMeraki', methods=['GET', 'POST'])
+def InveAppMeraki():
+    json_output = None
+    allDevices = []
+    if request.method == 'POST':
+        orgID = request.form['orgID']
+        ntwID = request.form.get('ntwID')
+        pkey='id'
+        #Gestione Scelta tipo apparato (switch o AP)
+        device_type = request.form.get("deviceType")
+        #Imposto nome CSV
+        filename_prefix=f"Meraki-{device_type}-"
+        #modification_type = request.form['ModifynetworkType']  # Ottieni il valore da ModificationType
+        selected_ntwtype = request.form['networkType']
+        if selected_ntwtype == "SINGLE": # se la network selezionata è "SINGOLA NETWORK faccio la modifica solo sulla rete selezioanata, else su tutte le reti facenti parte del type
+            ListNtw = request.form['ntwID']
+        else:
+            # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
+            ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
+            # ListNtw deve contenere solo gli ID
+            ListNtw = [ntw[0] for ntw in ListNtw]
+        for ntw in ListNtw:
+            # 1. Recupero switch della singola Nwtwork
+            dev=FuncMeraki.API_getDevicesByNtwID(ntw)
+            # Aggiungo la lista recuperata a quelli della network precedente --- non serve json.loads(dev) in quanto dev è già una lista!
+            allDevices.extend(dev)
+        if device_type =='AP':
+            allDevices_ap = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model','MR')
+            return FuncUser.generate_switchesPorts_csv2(allDevices_ap, filename_prefix)
+        elif device_type =='SW':
+            allDevices_switch = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model','MS')
+            # 2.Recupero la lista delle porte di tutti gli switch
+            #Creo allDevices_switchPorts che conterrà sia switch che porte
+            allDevices_switchPorts = [] 
+            for dev in allDevices_switch:
+                serial_device= dev["serial"]
+                ports=FuncMeraki.API_GetSWPortBySerial(serial_device)
+                dev_ports = dev.copy()
+                dev_ports["ports"] = ports
+                allDevices_switchPorts.append(dev_ports)
+            return FuncUser.generate_switchesPorts_csv2(allDevices_switchPorts, filename_prefix)
+        #DEBUG=0
+        # 3.Genera CSV e lo fa scaricare
+        #return FuncUser.generate_switches_csv(all_ports, filename_prefix="Meraki-Sw-")
+
+        
+        a=0
+
+        #modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
+        #json_script_path = r"JSON_PATH"
+
+    # Se la richiesta è GET, mostra l'elenco delle organizzazioni
+    organizations = FuncMeraki.getOrgID_Name()
+    return render_template('API-InventoryMeraki.html', organizations=organizations)
+
+###### PAGINA - LM Catalyst to Meraki --> Parte Download config
+@app.route('/api/LM-CatMeraki', methods=['GET', 'POST'])
+def LMCatMeraki():
+    json_output = None
+    allDevices = []
+    if request.method == 'POST':
+        orgID = request.form['orgID']
+        ntwID = request.form.get('ntwID')
+        pkey='id'
+        #Gestione Scelta tipo apparato (switch o AP)
+        device_type = request.form.get("deviceType")
+        #Imposto nome CSV
+        filename_prefix=f"Meraki-{device_type}-"
+        #modification_type = request.form['ModifynetworkType']  # Ottieni il valore da ModificationType
+        selected_ntwtype = request.form['networkType']
+        if selected_ntwtype == "SINGLE": # se la network selezionata è "SINGOLA NETWORK faccio la modifica solo sulla rete selezioanata, else su tutte le reti facenti parte del type
+            ntw = request.form['ntwID']
+            dev=FuncMeraki.API_getDevicesByNtwID(ntw)
+            # Aggiungo la lista recuperata a quelli della network precedente --- non serve json.loads(dev) in quanto dev è già una lista!
+            allDevices.extend(dev)
+        else:
+            # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
+            ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
+            # ListNtw deve contenere solo gli ID
+            ListNtw = [ntw[0] for ntw in ListNtw]
+            for ntw in ListNtw:
+                # 1. Recupero switch della singola Nwtwork
+                dev=FuncMeraki.API_getDevicesByNtwID(ntw)
+                # Aggiungo la lista recuperata a quelli della network precedente --- non serve json.loads(dev) in quanto dev è già una lista!
+                allDevices.extend(dev)
+        if device_type =='AP':
+            allDevices_ap = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model','MR')
+            return FuncUser.generate_switchesPorts_csv2(allDevices_ap, filename_prefix)
+        elif device_type =='SW':
+            allDevices_switch = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model','C9')
+            # 2.Recupero la lista delle porte di tutti gli switch
+            #Creo allDevices_switchPorts che conterrà sia switch che porte
+            allDevices_switchPorts = [] 
+            for dev in allDevices_switch:
+                serial_device= dev["serial"]
+                ports=FuncMeraki.API_GetSWPortBySerial(serial_device)
+                dev_ports = dev.copy()
+                dev_ports["ports"] = ports
+                allDevices_switchPorts.append(dev_ports)
+            return FuncUser.generate_switchesPorts_zip(allDevices_switchPorts, filename_prefix)
+        #DEBUG=0
+        # 3.Genera CSV e lo fa scaricare
+        #return FuncUser.generate_switches_csv(all_ports, filename_prefix="Meraki-Sw-")
+
+        
+        a=0
+
+        #modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
+        #json_script_path = r"JSON_PATH"
+
+    # Se la richiesta è GET, mostra l'elenco delle organizzazioni
+    organizations = FuncMeraki.getOrgID_Name()
+    return render_template('LM-CatMeraki.html', organizations=organizations)
+
+###### PAGINA - LM Catalyst to Meraki --> Parte Upload config
+@app.route('/api/LM-CatMeraki-upload-switches', methods=['POST'])
+def upload_switches():
+    if 'file' not in request.files:
+        return jsonify({"error": "Nessun file presente"}), 400
+    file = request.files['file']
+    if file.filename == '':
+        return jsonify({"error": "Nome file vuoto"}), 400
+    # ──────────────── Dry-run opzionale ────────────────
+    dry_run = request.form.get("dry_run", "true").lower() == "true"
+    # Estensione
+    filename = file.filename.lower()
+    if filename.endswith('.csv'):
+        return FuncOS.handle_csv_upload(file)
+    elif filename.endswith('.zip'):
+        return FuncOS.handle_zip_upload(file)
+    else:
+        return jsonify({"error": "Formato non supportato"}), 400
+
 
 ###### PAGINA - API - GLPI INVENTARIO
 @app.route('/api/GLPI-InveManu', methods=['GET', 'POST'])
@@ -334,4 +488,8 @@ def test():
     return jsonify(result)
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(
+        host='0.0.0.0',
+        port=5000,
+        ssl_context=('certificates/MerakiAPI-Cert.pem', 'certificates/MerakiAPI-key.pem')
+    )

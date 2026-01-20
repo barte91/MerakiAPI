@@ -40,7 +40,7 @@ function DELETE_fetchGeneric(requestUrl, FieldOutput) {
 
 // Recuepra Generic by URL for 2 elements
 function fetchGeneric(requestUrl, FieldOutput, primary_key, secondary_key) {
-    console.log('^^^^^^^^URL^^^^^', requestUrl)
+    //console.log('^^^^^^^^URL^^^^^', requestUrl)
     fetch(requestUrl)
         .then(response => response.json())
         .then(data => {
@@ -52,7 +52,7 @@ function fetchGeneric(requestUrl, FieldOutput, primary_key, secondary_key) {
                 option.textContent = `${element[secondary_key]} (${primary_key}: ${element[primary_key]})`;
                 FieldSelect.appendChild(option);
             });
-            console.log('^^^^^^^^data^^^^^', data)
+            //console.log('^^^^^^^^data^^^^^', data)
         });
 }
 
@@ -80,12 +80,19 @@ function fetchGeneric_TEST(requestUrl, FieldOutput, primary_key, secondary_key) 
         });
 }
 
-// Funzione per cambiamento del network type
+// Funzione su campo TypeNetwork - OnChange (Nuova fetchGeneric(requestUrl, FieldOutput, primary_key, secondary_key) )
+function fetchGeneric_Inventory(FiledOutput, primary_key, secondary_key) {
+
+}
+
+
+// Funzione per cambiamento del network type - New - PIU LEGGERA e VELOCE
 function onNetworkTypeChange() {
     const networkType = document.getElementById("networkType").value;
     const orgID = document.getElementById("orgID").value;
     const ntwSelect = document.getElementById("ntwID");
     const swSelect = document.getElementById("SWSelect");
+    const deviceType = document.getElementById("deviceType").value;
     // Pulisce select
     ntwSelect.innerHTML = "";
     swSelect.innerHTML = "";
@@ -109,7 +116,8 @@ function onNetworkTypeChange() {
                 // Crea una lista di ID separati da virgola
                 const ntwIDs = ntwList.map(n => n[0]).join(",");
                 // Fetch switches direttamente
-                fetchGeneric(`/api/get_switches/${ntwIDs}`, "SWSelect", "serial", "name");
+                fetchGeneric(`/api/get_switches/${ntwIDs}?deviceType=${deviceType}`, "SWSelect", "serial", "name");
+                //fetchGeneric_Inventory()
             });
     }
 }

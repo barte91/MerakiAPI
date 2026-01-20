@@ -23,6 +23,12 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="config_sample.py" />
+    <Compile Include="Function\FuncFILE\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncFILE\Func_PY_FILE.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Function\FuncUSER\Func_PY_USER.py">
       <SubType>Code</SubType>
     </Compile>
@@ -117,6 +123,8 @@
     <Content Include="static\UNUSED\Func_JS-RadioProfile.js" />
     <Content Include="static\MerakiFunciotn-Style.css" />
     <Content Include="static\Main-Style.css" />
+    <Content Include="templates\LM-CatMeraki.html" />
+    <Content Include="templates\API-InventoryMeraki.html" />
     <Content Include="templates\API-PortDown.html" />
     <Content Include="templates\API-GLPI-InveManu.html" />
     <Content Include="templates\API-SSID.html" />
@@ -135,6 +143,8 @@
     <Folder Include="Function\FuncOS\" />
     <Folder Include="Function\FuncJSON\" />
     <Folder Include="Function\FuncUSER\" />
+    <Folder Include="Function\FuncFILE\" />
+    <Folder Include="certificates\" />
     <Folder Include="static\" />
     <Folder Include="static\UNUSED\" />
     <Folder Include="templates\" />

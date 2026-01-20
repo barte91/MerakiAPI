@@ -1,3 +1,8 @@
 # Escludi credenziali
 .env
 config.py
+# Certificati TLS / SSL
+Certificates/
+*.pem
+*.key
+*.crt

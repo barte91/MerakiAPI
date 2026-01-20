@@ -104,18 +104,35 @@ def SearchElemArrayNew(elem,array):
 
 # FUNZIONI SU LIST-DICT-TUPLE
 
-def FilterListNtwDev(data,col1,col2,filter_param,filter_col):
+def FilterListNtwDev(data,filter_col,start_string):
     # Filtra i dati per switch se richiesto
     filtered_data = []
     for d in data:
-        if filter_param == 'switch' and d.get(filter_col) and d[filter_col].startswith('MS'):
+        if d[filter_col].startswith(start_string):
+        #if filter_param == 'switch' and d.get(filter_col) and d[filter_col].startswith('MS'):
             #filtered_data.append((d[col1], d[col2]))
             filtered_data.append(d)
-        if filter_param == 'ap' and d.get(filter_col) and d[filter_col].startswith('MR'):
+        if d[filter_col].startswith(start_string):
+        #if filter_param == 'ap' and d.get(filter_col) and d[filter_col].startswith('MR'):
             #filtered_data.append((d[col1], d[col2]))
             filtered_data.append(d)
-        if filter_param == 'nofilter':
+        #if filter_param == 'nofilter':
             #filtered_data.append((d[col1], d[col2]))
+            #filtered_data.append(d)
+    return filtered_data  # Restituisce le porte filtrate
+
+def FilterListNtwDev_AllFields (data,filter_col,start_string):
+    '''
+    Filtra una lista di device secondo parametri dati
+    Parametri da indicare in chiamata
+    data --> Lista dei device da filtrare
+    filter_col --> Colonna da filtrare (es. model)
+    start_string --> Stringa con cui deve inizia il parametro da filtrare ( es. MS)
+    '''
+    filtered_data = []
+    for d in data:
+        if d[filter_col].startswith(start_string):
+            # Se il filtro viene individuato, aggiungo device alla lista
             filtered_data.append(d)
     return filtered_data  # Restituisce le porte filtrate
 

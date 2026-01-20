@@ -179,6 +179,7 @@ def PrintSSID_Num_Name(URL,APIKEY,orgID,ntwID):
 
 def UpdateSSID(request_url,APIKEY,data_json):
     #queryURL = URL + f"/networks/{ntwID}/wireless/ssids/{ssid_number}"
+    response = requests.get(queryURL, headers=APIKEY)
     response = requests.put(
         request_url,headers=APIKEY, json=data_json)
         #headers={
@@ -188,6 +189,15 @@ def UpdateSSID(request_url,APIKEY,data_json):
         #json=data_json
         #)
     return response
+
+## DEVICES -- WITH URL
+
+def API_getDevicesByNtwID(networkId):
+    queryURL = URL + f"/networks/{networkId}/devices"
+    response = requests.get(queryURL, headers=APIKEY)
+    response.raise_for_status()
+    return response.json()
+
 
 ######## MERAKI API DIRETTE #################
 
@@ -301,3 +311,21 @@ def getDeviceSwitchPortsBySerial(serial):
     dashboard = meraki.DashboardAPI(KEY)
     ports = dashboard.switch.getDeviceSwitchPorts(serial)
     return ports
+
+def API_GetSWPortBySerial(serial):
+    queryURL = URL + f"/devices/{serial}/switch/ports"
+    response = requests.get(queryURL, headers=APIKEY)
+    response.raise_for_status()
+    return response.json()
+
+## PROFILE - GET
+
+def API_GetPortProfileName(network_id, profile_id):
+    profiles = dashboard.switch.getNetworkSwitchPortProfiles(network_id)
+    # Filtra per ID del profilo
+    profile_name = None
+    for p in profiles:
+        if str(p["id"]) == profile_id:
+            profile_name = p["name"]
+            break
+    return profile_name

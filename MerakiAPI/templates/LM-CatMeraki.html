@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LM - CATALYST TO MERAKI</title>
+    <!-- Utilizza il percorso static per importare il tuo file CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='MerakiFunciotn-Style.css') }}">
+    <!-- Utilizza il percorso static per importare il tuo file JS -->
+    <script src="{{ url_for('static', filename='Func_JS-Meraki-API-General.js') }}"></script>
+    <script src="{{ url_for('static', filename='Func_JS-HTML-Form.js') }}"></script>
+</head>
+<body>
+    <h1>LM - CATALYST TO MERAKI</h1>
+    <h1>DOWNLOAD CONFIG</h1>
+    <form action="/api/LM-CatMeraki" method="POST">
+        <!-- SELEZIONE ORGANIZZAZIONE -->
+        <label for="orgID">Seleziona ID Organizzazione:</label><br>
+        <select id="orgID" name="orgID" required onchange="fetchGeneric(`/api/get_networks/${this.value}?type=${document.getElementById('networkType').value}`, 'ntwID','id','name')">
+            <option value="">Seleziona un'organizzazione</option>
+            {% for org in organizations %}
+            <option value="{{ org[0] }}">{{ org[1] }} (id: {{ org[0] }})</option>
+            {% endfor %}
+        </select><br>
+
+        <!-- TIPO APPARATI -->
+        <label for="deviceType">Tipo apparati:</label><br>
+        <select id="deviceType" name="deviceType">
+            <option value="ALL">Tutti</option>
+            <option value="SW">Switch</option>
+            <option value="AP">Access Point</option>
+        </select><br>
+
+        <!-- NETWOROK TYPE -->
+        {% include 'MenuNtwType.html' %}
+
+        <!-- SELEZIONE NETWORK -->
+        <label for="ntwID">Seleziona ID Network:</label><br>
+        <select id="ntwID" name="ntwID" onchange="fetchGeneric(`/api/get_switches/${this.value}?deviceType=${document.getElementById('deviceType').value}`, 'SWSelect', 'serial', 'name')">
+            <option value="">Seleziona prima l'organizzazione</option>
+        </select><br>
+
+        <!-- SELEZIONE SWITCH -->
+        <label for="SWSelect">Seleziona Device:</label><br>
+        <!--<select id="SWSelect" name="SWSelect">
+        <option value="">Seleziona prima una rete</option>
+        </select><br> -->
+        <select id="SWSelect" name="SWSelect">
+            <option value="">Tutti gli switch</option>
+        </select><br>
+
+        <input type="submit" value="Scarica File CSV">
+
+    </form>
+    <h1>UPLOAD CONFIG</h1>
+    <form action="/api/LM-CatMeraki-upload-switches" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".csv,.zip" required>
+        <button type="submit">Upload</button>
+    </form>
+</body>
+</html>

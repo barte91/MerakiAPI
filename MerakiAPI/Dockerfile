@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . /app
 
 # Installa le dipendenze dal file requirements.txt
-RUN pip install --no-cache-dir -r env/requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 # Espone la porta su cui gira l'app
 EXPOSE 5000

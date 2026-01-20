@@ -133,6 +133,7 @@
     <Content Include="templates\MenuNtwType.html" />
     <Content Include=".env" />
     <Content Include="apache.conf" />
+    <Content Include="docker-compose.yml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Function\FuncGLPI\" />

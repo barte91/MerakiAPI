@@ -1,0 +1,18 @@
+services:
+  meraki-api:
+    build:
+      context: ./MerakiAPI
+    container_name: meraki-api
+    expose:
+      - "5000"
+
+  apache:
+    image: httpd:2.4
+    container_name: meraki-apache
+    ports:
+      - "443:443"
+    volumes:
+      - ./apache.conf:/usr/local/apache2/conf/httpd.conf:ro
+      - ./Certificates:/certs:ro
+    depends_on:
+      - meraki-api

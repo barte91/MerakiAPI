@@ -27,4 +27,5 @@ services:
 
 networks:
   meraki-network:
+    name: meraki-network
     driver: bridge

@@ -5,6 +5,9 @@ services:
     container_name: meraki-api
     expose:
       - "5000"
+    restart: unless-stopped
+    networks:
+      - meraki-network
 
   apache:
     image: httpd:2.4
@@ -12,7 +15,14 @@ services:
     ports:
       - "443:443"
     volumes:
-      - ./apache.conf:/usr/local/apache2/conf/httpd.conf:ro
+      - ./MerakiAPI/apache-appMeraki.conf:/usr/local/apache2/conf/extra/meraki.conf:ro
       - ./Certificates:/certs:ro
     depends_on:
       - meraki-api
+    restart: unless-stopped
+    networks:
+      - meraki-network
+
+networks:
+  meraki-network:
+    driver: bridge

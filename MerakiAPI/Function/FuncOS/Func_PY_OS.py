@@ -37,7 +37,8 @@ def handle_csv_upload(file):
     content = file.read().decode("utf-8")
     reader = csv.DictReader(io.StringIO(content))
     rows = list(reader)
-    return FuncFILE.LM_CatMeraki_apply_ports_config(rows)
+    return FuncFILE.LM_CatMeraki_apply_ports_config_advanced(rows)
+    #return FuncFILE.LM_CatMeraki_apply_ports_config(rows)
     #SOLO PER TEST
     #rows = list(reader)
     #return jsonify({

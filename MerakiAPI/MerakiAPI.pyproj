@@ -80,6 +80,9 @@
     <Compile Include="Func_AppRoute.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="MerakiConfig\LMConfPortByName.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="MerakiAPI.py" />
     <Compile Include="Inventario.py">
       <SubType>Code</SubType>
@@ -149,6 +152,7 @@
     <Folder Include="Function\FuncFILE\" />
     <Folder Include="certificates\" />
     <Folder Include="apache-conf\" />
+    <Folder Include="MerakiConfig\" />
     <Folder Include="static\" />
     <Folder Include="static\UNUSED\" />
     <Folder Include="templates\" />

@@ -491,5 +491,5 @@ if __name__ == '__main__':
     app.run(
         host='0.0.0.0',
         port=5000,
-        ssl_context=('certificates/MerakiAPI-Cert.pem', 'certificates/MerakiAPI-key.pem') #Attivare solo per debug Visual Studio
+        #ssl_context=('certificates/MerakiAPI-Cert.pem', 'certificates/MerakiAPI-key.pem') #Attivare solo per debug Visual Studio
     )

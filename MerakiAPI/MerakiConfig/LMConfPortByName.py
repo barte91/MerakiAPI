@@ -38,9 +38,9 @@ PORT_PROFILES = {
             },
         }
     },
-    "ap": {
-        "priority": 50,
-        "pattern": r"ap\d+",
+    "ap|ponteradio--Trunk-vlan307": {
+        "priority": 90,
+        "pattern": r"ap\d+|.*uplink_bridge.*",
         "payload": {
             "tags": [],
             "enabled": True,

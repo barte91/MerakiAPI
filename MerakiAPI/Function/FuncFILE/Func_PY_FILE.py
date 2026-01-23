@@ -69,7 +69,6 @@ def build_port_payload(row):
 #PROVVISORIO - LM CAT TO MERAKI - ADVANCED --> Prendo config da CSV, leggo port_name e in base alla prota applico un profilo specifico
 def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run: bool):
     results = []
-    no_profile_rows = []
 
     stats = {
         "total_rows": 0,
@@ -93,8 +92,14 @@ def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run: bool):
             stats["errors"] += 1
             results.append({
                 "status": "ERROR",
-                "reason": "serial o portId mancanti",
-                "row": row
+                "serial": serial or "",
+                "port": port_id or "",
+                "port_name": port_name or "",
+                "enabled": port_enabled,
+                "poeEnabled": "",
+                "type": "",
+                "vlan": "",
+                "allowedVlans": ""
             })
             continue
 
@@ -103,87 +108,50 @@ def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run: bool):
         # ─────────────── SHUT ───────────────
         if profile == "shut":
             stats["shut_applied"] += 1
-            results.append({
-                "status": "PROFILE-APPLIED-SHUT",
-                "serial": serial,
-                "port": port_id,
-                "port_name": port_name,
-                "profile": "shut",
-                "payload": payload
-            })
+            results.append(build_output_row(serial, port_id, port_name, "PROFILE-APPLIED-SHUT", payload))
             continue
 
         # ─────────────── NO PROFILE ───────────────
         if not payload:
             stats["no_profile"] += 1
-
-            no_profile_rows.append({
-                "serial": serial,
-                "port": port_id,
-                "port_name": port_name,
-                "port_enabled": port_enabled
-            })
-
-            results.append({
-                "status": "NO-PROFILE",
-                "level": "WARNING",
-                "serial": serial,
-                "port": port_id,
-                "port_name": port_name
-            })
+            results.append(build_output_row(serial, port_id, port_name, "NO-PROFILE", {}))
             continue
 
         # ─────────────── PROFILO APPLICATO ───────────────
         stats["profile_applied"] += 1
 
+        status_text = f"PROFILE-APPLIED-{profile}"
         if dry_run:
-            # Solo simulazione
-            results.append({
-                "status": f"PROFILE-APPLIED-{profile} (dry-run)",
-                "serial": serial,
-                "port": port_id,
-                "port_name": port_name,
-                "profile": profile,
-                "payload": payload
-            })
-        else:
-            # Invia la richiesta all'API Meraki
-            try:
-                resp = FuncMeraki.API_UpdateSwitchPort(
-                    serial=serial,
-                    port_id=port_id,
-                    payload=payload
-                )
-                results.append({
-                    "status": f"PROFILE-APPLIED-{profile}",
-                    "serial": serial,
-                    "port": port_id,
-                    "port_name": port_name,
-                    "profile": profile,
-                    "payload": payload,
-                    "api_response": resp
-                })
-            except Exception as e:
-                stats["errors"] += 1
-                results.append({
-                    "status": "ERROR",
-                    "reason": str(e),
-                    "serial": serial,
-                    "port": port_id,
-                    "port_name": port_name
-                })
+            status_text += "-DRYRUN"
 
-    # ─────────────── CSV NO-PROFILE ───────────────
-    csv_no_profile = generate_no_profile_csv(no_profile_rows, stats)
-    global LAST_NO_PROFILE_CSV
-    LAST_NO_PROFILE_CSV = csv_no_profile
+        results.append(build_output_row(serial, port_id, port_name, status_text, payload))
+
+    # ─────────────── GENERA CSV COMPLETO ───────────────
+    full_csv = generate_full_csv(results, stats)
+    global LAST_FULL_CSV
+    LAST_FULL_CSV = full_csv
 
     return jsonify({
         "stats": stats,
         "results": results,
-        "no_profile_count": len(no_profile_rows),
-        "no_profile_csv": csv_no_profile
+        "full_csv": full_csv
     })
+
+
+# ─────────────── BUILD OUTPUT ROW ───────────────
+def build_output_row(serial, port_id, port_name, status, payload):
+    return {
+        "serial": serial,
+        "port_id": port_id,
+        "port_name": port_name,
+        "status": status,
+        "enabled": payload.get("enabled") if payload else "",
+        "poeEnabled": payload.get("poeEnabled") if payload else "",
+        "type": payload.get("type") if payload else "",
+        "vlan": payload.get("vlan") if payload else "",
+        "allowedVlans": payload.get("allowedVlans") if payload else ""
+    }
+
 
 #Costruzione Payload in base al profilo deciso dal port name ridato dal detect_port_profile
 def build_port_payload_with_profile(row):
@@ -274,12 +242,21 @@ def normalize_port_name_value(port_name: str | None) -> str | None:
 #--------------------EXPORT CSV---------------------------------------------------------------------
 
 def generate_no_profile_csv(no_profile_rows, stats):
+    import io, csv
+
     output = io.StringIO()
+
+    # colonne come nella tabella
     fieldnames = [
         "serial",
-        "port",
+        "port_id",
         "port_name",
-        "port_enabled"
+        "status",
+        "enabled",
+        "poeEnabled",
+        "type",
+        "vlan",
+        "allowedVlans"
     ]
 
     writer = csv.DictWriter(output, fieldnames=fieldnames)
@@ -287,7 +264,17 @@ def generate_no_profile_csv(no_profile_rows, stats):
 
     # Righe NO-PROFILE
     for row in no_profile_rows:
-        writer.writerow(row)
+        writer.writerow({
+            "serial": row.get("serial", ""),
+            "port_id": row.get("port", ""),  # se nel tuo dict è 'port'
+            "port_name": row.get("port_name", ""),
+            "status": "NO-PROFILE",
+            "enabled": row.get("port_enabled", ""),
+            "poeEnabled": "",
+            "type": "",
+            "vlan": "",
+            "allowedVlans": ""
+        })
 
     # Riga vuota
     writer.writerow({})
@@ -295,7 +282,7 @@ def generate_no_profile_csv(no_profile_rows, stats):
     # Riga statistiche
     writer.writerow({
         "serial": "STATS",
-        "port": "",
+        "port_id": "",
         "port_name": (
             f"total={stats['total_rows']} | "
             f"profile_applied={stats['profile_applied']} | "
@@ -303,7 +290,89 @@ def generate_no_profile_csv(no_profile_rows, stats):
             f"no_profile={stats['no_profile']} | "
             f"errors={stats['errors']}"
         ),
-        "port_enabled": ""
+        "status": "",
+        "enabled": "",
+        "poeEnabled": "",
+        "type": "",
+        "vlan": "",
+        "allowedVlans": ""
     })
 
     return output.getvalue()
+
+def generate_full_csv(results, stats):
+    import io, csv
+
+    output = io.StringIO()
+
+    fieldnames = [
+        "serial",
+        "port_id",
+        "port_name",
+        "status",
+        "enabled",
+        "poeEnabled",
+        "type",
+        "vlan",
+        "allowedVlans"
+    ]
+
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+
+    for row in results:
+        writer.writerow({
+            "serial": row.get("serial", ""),
+            "port_id": row.get("port", ""),
+            "port_name": row.get("port_name", ""),
+            "status": row.get("status", ""),
+            "enabled": row.get("enabled", ""),
+            "poeEnabled": row.get("poeEnabled", ""),
+            "type": row.get("type", ""),
+            "vlan": row.get("vlan", ""),
+            "allowedVlans": row.get("allowedVlans", "")
+        })
+
+    # Riga vuota
+    writer.writerow({})
+
+    # Riga statistiche
+    writer.writerow({
+        "serial": "STATS",
+        "port_id": "",
+        "port_name": (
+            f"total={stats['total_rows']} | "
+            f"profile_applied={stats['profile_applied']} | "
+            f"shut={stats['shut_applied']} | "
+            f"no_profile={stats['no_profile']} | "
+            f"errors={stats['errors']}"
+        ),
+        "status": "",
+        "enabled": "",
+        "poeEnabled": "",
+        "type": "",
+        "vlan": "",
+        "allowedVlans": ""
+    })
+
+    return output.getvalue()
+
+#-------- NORMALIZZAZIONE OUTPUT ----------------------
+def build_output_row(
+    serial,
+    port_id,
+    port_name,
+    status,
+    payload=None
+):
+    return {
+        "serial": serial,
+        "port_id": port_id,
+        "port_name": port_name,
+        "status": status,
+        "enabled": payload.get("enabled") if payload else None,
+        "poeEnabled": payload.get("poeEnabled") if payload else None,
+        "type": payload.get("type") if payload else None,
+        "vlan": payload.get("vlan") if payload else None,
+        "allowedVlans": payload.get("allowedVlans") if payload else None,
+    }

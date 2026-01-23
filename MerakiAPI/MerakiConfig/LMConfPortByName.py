@@ -40,7 +40,7 @@ PORT_PROFILES = {
     },
     "ap": {
         "priority": 50,
-        "pattern": r"^ap(0[1-9]|[1-9][0-9])_(00[1-9]|0[1-9][0-9]|[12][0-9]{2}|300)",
+        "pattern": r"ap\d+",
         "payload": {
             "tags": [],
             "enabled": True,

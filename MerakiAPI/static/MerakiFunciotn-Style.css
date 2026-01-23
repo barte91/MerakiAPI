@@ -47,3 +47,10 @@ pre {
 .error {
     color: red;
 }
+
+#resultsTable th {
+    position: sticky;
+    top: 0;
+    z-index: 1;
+    background-color: #f0f0f0; /* così le intestazioni non diventano trasparenti */
+}

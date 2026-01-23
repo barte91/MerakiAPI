@@ -166,6 +166,8 @@ def Save_SSID_JSON(URL,APIKEY,orgID,ntwID,json_path):
                     json.dump(ssids, json_file, indent=4, ensure_ascii=False)
 
 
+
+
 ## SSID - PRINT
 
 def PrintSSID_Num_Name(URL,APIKEY,orgID,ntwID):
@@ -317,6 +319,30 @@ def API_GetSWPortBySerial(serial):
     response = requests.get(queryURL, headers=APIKEY)
     response.raise_for_status()
     return response.json()
+
+def API_UpdateSwitchPort(serial, port_id, payload):
+## URL + f"/devices/{serial}/switch/ports/{portId}
+    """
+    Aggiorna la configurazione di una porta switch Meraki usando la libreria ufficiale.
+    :param serial: Serial dello switch
+    :param port_id: ID della porta
+    :param payload: dict con la configurazione da applicare
+    :return: dict con la risposta dell'API
+    """
+    dashboard = meraki.DashboardAPI(KEY)
+    # La libreria meraki accetta solo argomenti keyword,
+    # quindi filtriamo payload per lasciare solo valori non-None
+    filtered_payload = {k: v for k, v in payload.items() if v is not None}
+    try:
+        response = dashboard.switch.updateDeviceSwitchPort(
+            serial,
+            port_id,
+            **filtered_payload
+        )
+        return response
+    except Exception as e:
+        # Puoi gestire logging o ritornare l'errore in modo strutturato
+        return {"status": "error", "serial": serial, "port": port_id, "error": str(e)}
 
 ## PROFILE - GET
 

@@ -67,7 +67,7 @@ def build_port_payload(row):
 
 
 #PROVVISORIO - LM CAT TO MERAKI - ADVANCED --> Prendo config da CSV, leggo port_name e in base alla prota applico un profilo specifico
-def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run):
+def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run: bool):
     results = []
     no_profile_rows = []
 
@@ -136,14 +136,42 @@ def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run):
         # ─────────────── PROFILO APPLICATO ───────────────
         stats["profile_applied"] += 1
 
-        results.append({
-            "status": f"PROFILE-APPLIED-{profile}",
-            "serial": serial,
-            "port": port_id,
-            "port_name": port_name,
-            "profile": profile,
-            "payload": payload
-        })
+        if dry_run:
+            # Solo simulazione
+            results.append({
+                "status": f"PROFILE-APPLIED-{profile} (dry-run)",
+                "serial": serial,
+                "port": port_id,
+                "port_name": port_name,
+                "profile": profile,
+                "payload": payload
+            })
+        else:
+            # Invia la richiesta all'API Meraki
+            try:
+                resp = FuncMeraki.API_UpdateSwitchPort(
+                    serial=serial,
+                    port_id=port_id,
+                    payload=payload
+                )
+                results.append({
+                    "status": f"PROFILE-APPLIED-{profile}",
+                    "serial": serial,
+                    "port": port_id,
+                    "port_name": port_name,
+                    "profile": profile,
+                    "payload": payload,
+                    "api_response": resp
+                })
+            except Exception as e:
+                stats["errors"] += 1
+                results.append({
+                    "status": "ERROR",
+                    "reason": str(e),
+                    "serial": serial,
+                    "port": port_id,
+                    "port_name": port_name
+                })
 
     # ─────────────── CSV NO-PROFILE ───────────────
     csv_no_profile = generate_no_profile_csv(no_profile_rows, stats)

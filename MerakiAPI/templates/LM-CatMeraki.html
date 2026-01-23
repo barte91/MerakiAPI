@@ -9,6 +9,7 @@
     <!-- Utilizza il percorso static per importare il tuo file JS -->
     <script src="{{ url_for('static', filename='Func_JS-Meraki-API-General.js') }}"></script>
     <script src="{{ url_for('static', filename='Func_JS-HTML-Form.js') }}"></script>
+    <script src="{{ url_for('static', filename='Func_JS-Catalyst-To-Meraki.js') }}"></script>
 </head>
 <body>
     <h1>LM - CATALYST TO MERAKI</h1>
@@ -53,9 +54,25 @@
 
     </form>
     <h1>UPLOAD CONFIG</h1>
-    <form action="/api/LM-CatMeraki-upload-switches" method="POST" enctype="multipart/form-data">
+    <form id="uploadConfigForm"
+          action="/api/LM-CatMeraki-upload-switches"
+          method="POST"
+          enctype="multipart/form-data">
+        <!--INPUR FILE -->
         <input type="file" name="file" accept=".csv,.zip" required>
+        <br><br>
+        <!--CHECKBOX DRY RUN -->
+        <label>
+            <input type="checkbox" name="dry_run" value="true" checked>
+            Dry-Run-TEST (non applicare configurazioni)
+        </label>
+        <br><br>
+        <!--BUTTON UPLOAD -->
         <button type="submit">Upload</button>
     </form>
+
+    <pre id="uploadResult"
+        style="margin-top:20px; background:#111; color:#0f0; padding:10px; max-height:400px; overflow:auto;">
+    </pre>
 </body>
 </html>

@@ -2,7 +2,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask, jsonify, render_template, request, send_from_directory, send_file
+from flask import Flask, jsonify, render_template, request, send_from_directory, send_file, Response
 from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem
 import os,json,zipfile,io
@@ -22,6 +22,11 @@ from Function.FuncOS import Func_PY_OS as FuncOS
 from Function.FuncFILE import Func_PY_FILE as FuncFILE
 
 app = Flask(__name__)
+
+# VARIABILI
+## Var temporanee per programma Catalyst to Meraki
+TMP_NO_PROFILE = []
+TMP_STATS = {}
 
 @app.route('/')
 def home():
@@ -444,15 +449,35 @@ def upload_switches():
     if file.filename == '':
         return jsonify({"error": "Nome file vuoto"}), 400
     # ──────────────── Dry-run opzionale ────────────────
-    dry_run = request.form.get("dry_run", "true").lower() == "true"
+    dry_run = request.form.get("dry_run") == "true"
     # Estensione
     filename = file.filename.lower()
     if filename.endswith('.csv'):
-        return FuncOS.handle_csv_upload(file)
+        return FuncOS.handle_csv_upload(file,dry_run)
     elif filename.endswith('.zip'):
         return FuncOS.handle_zip_upload(file)
     else:
         return jsonify({"error": "Formato non supportato"}), 400
+
+# ENDPOINT PER EXPORT CSV DELLE PORTE NO-PROFILE DI CATALYST TO MERAKI ##
+@app.route("/api/LM-CatMeraki-download-no-profile", methods=["GET"])
+def download_no_profile_csv():
+
+    csv_data = FuncFILE.LAST_NO_PROFILE_CSV
+
+    if not csv_data:
+        return jsonify({
+            "error": "Nessun CSV NO-PROFILE disponibile"
+        }), 404
+
+    return Response(
+        csv_data,
+        mimetype="text/csv",
+        headers={
+            "Content-Disposition": "attachment; filename=no-profile-ports.csv"
+        }
+    )
+
 
 
 ###### PAGINA - API - GLPI INVENTARIO
@@ -491,5 +516,5 @@ if __name__ == '__main__':
     app.run(
         host='0.0.0.0',
         port=5000,
-        #ssl_context=('certificates/MerakiAPI-Cert.pem', 'certificates/MerakiAPI-key.pem') #Attivare solo per debug Visual Studio
+        ssl_context=('certificates/MerakiAPI-Cert.pem', 'certificates/MerakiAPI-key.pem') #Attivare solo per debug Visual Studio
     )

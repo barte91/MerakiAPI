@@ -1,10 +1,14 @@
 from Function.FuncMeraki import Func_PY_Meraki as FuncMeraki
 from MerakiConfig.LMConfPortByName import PORT_PROFILES
-from flask import jsonify
-import re
+from flask import jsonify, send_file
+from datetime import datetime
+import re,csv,io
 
+##VARIABILI GLOBALI - | Programma Catalyst to Meraki
 #Variabile globale per individuare porte con nome tipo "Gi1/0/13" - quelle vuote, da shuttare
 PORT_ONLY_REGEX = re.compile(r"^[A-Za-z]{1,3}\d+(?:/\d+)+$")
+#Variabile GLOBAL per resettare file CSV No Profile
+LAST_NO_PROFILE_CSV = None
 
 #PROVVISORIO - LM CAT TO MERAKI - STANDARD --> Prendo config da CSV e la scrivo su API
 def LM_CatMeraki_apply_ports_config(rows, dry_run=True):
@@ -63,16 +67,30 @@ def build_port_payload(row):
 
 
 #PROVVISORIO - LM CAT TO MERAKI - ADVANCED --> Prendo config da CSV, leggo port_name e in base alla prota applico un profilo specifico
-def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run=True):
+def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run):
     results = []
+    no_profile_rows = []
+
+    stats = {
+        "total_rows": 0,
+        "profile_applied": 0,
+        "shut_applied": 0,
+        "no_profile": 0,
+        "errors": 0
+    }
 
     for row in rows:
+        stats["total_rows"] += 1
+
         serial = row.get("serial")
         port_id = row.get("port_portId")
         raw_port_name = row.get("port_name")
-        normalized_name = normalize_port_name_value(raw_port_name)
+
+        port_name = normalize_port_name_value(raw_port_name)
+        port_enabled = normalize_csv_value(row.get("port_enabled"))
 
         if not serial or not port_id:
+            stats["errors"] += 1
             results.append({
                 "status": "ERROR",
                 "reason": "serial o portId mancanti",
@@ -82,45 +100,62 @@ def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run=True):
 
         payload, profile = build_port_payload_with_profile(row)
 
-        # NO PROFILE → WARNING
+        # ─────────────── SHUT ───────────────
+        if profile == "shut":
+            stats["shut_applied"] += 1
+            results.append({
+                "status": "PROFILE-APPLIED-SHUT",
+                "serial": serial,
+                "port": port_id,
+                "port_name": port_name,
+                "profile": "shut",
+                "payload": payload
+            })
+            continue
+
+        # ─────────────── NO PROFILE ───────────────
         if not payload:
+            stats["no_profile"] += 1
+
+            no_profile_rows.append({
+                "serial": serial,
+                "port": port_id,
+                "port_name": port_name,
+                "port_enabled": port_enabled
+            })
+
             results.append({
                 "status": "NO-PROFILE",
                 "level": "WARNING",
                 "serial": serial,
                 "port": port_id,
-                "raw_port_name": raw_port_name,
-                "normalized_name": normalized_name
+                "port_name": port_name
             })
             continue
 
-        # Status naming
-        if profile == "SHUT":
-            status = "PROFILE-APPLIED-SHUT"
-        else:
-            status = f"PROFILE-APPLIED-{profile}"
+        # ─────────────── PROFILO APPLICATO ───────────────
+        stats["profile_applied"] += 1
 
-        entry = {
-            "status": status,
+        results.append({
+            "status": f"PROFILE-APPLIED-{profile}",
             "serial": serial,
             "port": port_id,
-            "raw_port_name": raw_port_name,
-            "normalized_name": normalized_name,
-            "profile": profile
-        }
+            "port_name": port_name,
+            "profile": profile,
+            "payload": payload
+        })
 
-        if dry_run:
-            entry["payload"] = payload
-        else:
-            FuncMeraki.API_UpdateSwitchPort(
-                serial=serial,
-                port_id=port_id,
-                payload=payload
-            )
+    # ─────────────── CSV NO-PROFILE ───────────────
+    csv_no_profile = generate_no_profile_csv(no_profile_rows, stats)
+    global LAST_NO_PROFILE_CSV
+    LAST_NO_PROFILE_CSV = csv_no_profile
 
-        results.append(entry)
-
-    return jsonify(results)
+    return jsonify({
+        "stats": stats,
+        "results": results,
+        "no_profile_count": len(no_profile_rows),
+        "no_profile_csv": csv_no_profile
+    })
 
 #Costruzione Payload in base al profilo deciso dal port name ridato dal detect_port_profile
 def build_port_payload_with_profile(row):
@@ -207,3 +242,40 @@ def normalize_port_name_value(port_name: str | None) -> str | None:
         return ""
 
     return name
+
+#--------------------EXPORT CSV---------------------------------------------------------------------
+
+def generate_no_profile_csv(no_profile_rows, stats):
+    output = io.StringIO()
+    fieldnames = [
+        "serial",
+        "port",
+        "port_name",
+        "port_enabled"
+    ]
+
+    writer = csv.DictWriter(output, fieldnames=fieldnames)
+    writer.writeheader()
+
+    # Righe NO-PROFILE
+    for row in no_profile_rows:
+        writer.writerow(row)
+
+    # Riga vuota
+    writer.writerow({})
+
+    # Riga statistiche
+    writer.writerow({
+        "serial": "STATS",
+        "port": "",
+        "port_name": (
+            f"total={stats['total_rows']} | "
+            f"profile_applied={stats['profile_applied']} | "
+            f"shut={stats['shut_applied']} | "
+            f"no_profile={stats['no_profile']} | "
+            f"errors={stats['errors']}"
+        ),
+        "port_enabled": ""
+    })
+
+    return output.getvalue()

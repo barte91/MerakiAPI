@@ -120,6 +120,7 @@
     <Content Include="Dockerfile" />
     <Content Include="Function\FuncGLPI\Old-Func.txt" />
     <Content Include="requirements.txt" />
+    <Content Include="static\Func_JS-Catalyst-To-Meraki.js" />
     <Content Include="static\Func_JS-GLPI-Inventario.js" />
     <Content Include="static\Func_JS-HTML-Form.js" />
     <Content Include="static\Func_JS-Meraki-API-General.js" />

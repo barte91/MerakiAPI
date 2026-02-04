@@ -1,6 +1,7 @@
 from flask import jsonify
 import os,io,zipfile,csv
 from Function.FuncFILE import Func_PY_FILE as FuncFILE
+from Function.FuncZabbix import Func_PY_Zabbix as FuncZabbix
 
 # FUNZIONI SU SISTEMA WINDOWS
 
@@ -45,4 +46,12 @@ def handle_csv_upload(file,dry_run):
     #    "status": "ok",
     #    "rows_received": len(rows)
     #})
-    
+
+###### ZABBIX #####
+ 
+#Gestione CSV File caricati per API-Zabbix
+def APIZabbix_csv(file,dry_run):
+    content = file.read().decode("utf-8")
+    reader = csv.DictReader(io.StringIO(content))
+    rows = list(reader)
+    return FuncZabbix.SendAPI(rows,dry_run)

@@ -77,6 +77,12 @@
     <Compile Include="Function\FuncUSER\__init__.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Function\FuncZabbix\Func_PY_Zabbix.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncZabbix\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="Func_AppRoute.py">
       <SubType>Code</SubType>
     </Compile>
@@ -128,6 +134,7 @@
     <Content Include="static\UNUSED\Func_JS-RadioProfile.js" />
     <Content Include="static\MerakiFunciotn-Style.css" />
     <Content Include="static\Main-Style.css" />
+    <Content Include="templates\API-Zabbix.html" />
     <Content Include="templates\LM-CatMeraki.html" />
     <Content Include="templates\API-InventoryMeraki.html" />
     <Content Include="templates\API-PortDown.html" />
@@ -153,6 +160,7 @@
     <Folder Include="Function\FuncFILE\" />
     <Folder Include="certificates\" />
     <Folder Include="apache-conf\" />
+    <Folder Include="Function\FuncZabbix\" />
     <Folder Include="MerakiConfig\" />
     <Folder Include="static\" />
     <Folder Include="static\UNUSED\" />

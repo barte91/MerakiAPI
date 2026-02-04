@@ -4,11 +4,19 @@ load_dotenv()
 
 import os
 
+#MERAKI
 URL = os.getenv("MERAKI_API_URL")
 HEADER = os.getenv("MERAKI_API_HEADER")
 KEY = os.getenv("MERAKI_KEY")
 APIKEY = {HEADER: KEY}
 
+#ZABBIX
+ZABURL = os.getenv("ZABBIX_API_URL")
+ZABKEY = os.getenv("ZABBIX_KEY")
+ZABHEADERS = {
+    "Authorization": f"Bearer {ZABKEY}",
+    "Content-Type": "application/json-rpc"
+}
 
 
 xls_path_inv = os.getenv("xls_path_inv")
@@ -29,3 +37,4 @@ InveManu_nameFile=os.getenv("InveManu_nameFile")
 #COLORI EXCEL
 ExOrange=os.getenv("ExOrange")
 ExBlack=os.getenv("ExBlack")
+

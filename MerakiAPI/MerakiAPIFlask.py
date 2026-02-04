@@ -20,6 +20,7 @@ from Function.FuncUSER import Func_PY_USER as FuncUser
 from Function.FuncMatrix import Func_PY_Matrix as FuncMatrix
 from Function.FuncOS import Func_PY_OS as FuncOS
 from Function.FuncFILE import Func_PY_FILE as FuncFILE
+from Function.FuncZabbix import Func_PY_Zabbix as FuncZabbix
 
 app = Flask(__name__)
 
@@ -505,6 +506,111 @@ def GLPI_INVE_MANU():
 def get_glpi_locations(entID):
     query='SELECT * FROM glpi_locations WHERE entities_id=' + entID
     return FuncDB.CopiaCampiDB(query,3,0)
+
+
+######### PAGINA API - ZABBIX - BARTE****
+
+@app.route('/api/API-Zabbix', methods=['GET', 'POST'])
+def APIZabbix():
+    json_output = None
+    allDevices = []
+    if request.method == 'POST':
+        orgID = request.form['orgID']
+        ntwID = request.form.get('ntwID')
+        pkey='id'
+        #Gestione Scelta tipo apparato (switch o AP)
+        device_type = request.form.get("deviceType")
+        #modification_type = request.form['ModifynetworkType']  # Ottieni il valore da ModificationType
+        selected_ntwtype = request.form['networkType']
+        if selected_ntwtype == "SINGLE": # se la network selezionata è "SINGOLA NETWORK faccio la modifica solo sulla rete selezioanata, else su tutte le reti facenti parte del type
+            ntw = request.form['ntwID']
+            dev=FuncMeraki.API_getDevicesByNtwID(ntw)
+            # Aggiungo la lista recuperata a quelli della network precedente --- non serve json.loads(dev) in quanto dev è già una lista!
+            allDevices.extend(dev)
+        else:
+            # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
+            ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
+            # ListNtw deve contenere solo gli ID
+            ListNtw = [ntw[0] for ntw in ListNtw]
+            for ntw in ListNtw:
+                # 1. Recupero switch della singola Nwtwork
+                dev=FuncMeraki.API_getDevicesByNtwID(ntw)
+                # Aggiungo la lista recuperata a quelli della network precedente --- non serve json.loads(dev) in quanto dev è già una lista!
+                allDevices.extend(dev)
+        # allDevices ora contiene gli Apparati di Meraki interessati
+        #FuncZabbix.zabbix_AddMacro_to_Host()
+        return jsonify(allDevices)        
+        #DEBUG=0
+        # 3.Genera CSV e lo fa scaricare
+        #return FuncUser.generate_switches_csv(all_ports, filename_prefix="Meraki-Sw-")
+
+        #modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
+        #json_script_path = r"JSON_PATH"
+
+    # Se la richiesta è GET, mostra l'elenco delle organizzazioni
+    organizations = FuncMeraki.getOrgID_Name()
+    return render_template('API-Zabbix.html', organizations=organizations)
+
+###### PAGINA - API ZABBIX --> Parte per prendere dev da Meraki e aggiornare serial in Zabbix
+@app.route("/api/meraki/sync-zabbix", methods=["POST"])
+def meraki_sync_zabbix():
+    org_id = request.form.get("orgID")
+    network_id = request.form.get("ntwID")
+    device_serial = request.form.get("SWSelect")
+    device_type = request.form.get("deviceType")
+
+    # 1️ recupera device Meraki
+    devices = meraki_get_devices(
+        network_id=network_id,
+        device_type=device_type
+    )
+
+    # filtro se l’utente ha scelto un solo device
+    if device_serial and device_serial != "":
+        devices = [d for d in devices if d["serial"] == device_serial]
+
+    # 2️⃣ recupera host Zabbix
+    zabbix_hosts = zabbix_SendAPI(
+        "host.get",
+        {
+            "output": ["hostid", "host"],
+            "selectMacros": "extend"
+        }
+    )
+
+    # 3️⃣ mapping
+    mapping = map_meraki_to_zabbix(devices, zabbix_hosts)
+
+    # 4️⃣ update macro
+    updated = []
+    for host, data in mapping.items():
+        zabbix_AddMacro_to_Host(
+            hostid=data["hostid"],
+            macro="{$MERAKI.SERIAL}",
+            value=data["serial"]
+        )
+        updated.append(host)
+
+    return {
+        "status": "ok",
+        "updated_hosts": updated,
+        "count": len(updated)
+    }
+
+
+###### PAGINA - API-ZABBIX --> Parte Send API
+@app.route('/api/API-Zabbix-Send-Command', methods=['POST'])
+def Zabbix_SendAPI():
+    # ──────────────── Dry-run opzionale ────────────────
+    dry_run = request.form.get("dry_run") == "true"
+    # Estensione
+    #filename = file.filename.lower()
+    #if filename.endswith('.csv'):
+    #    return FuncOS.APIZabbix_csv(file,dry_run)
+    #elif filename.endswith('.zip'):
+    #    return FuncOS.handle_zip_upload(file)
+    #else:
+    return FuncZabbix.zabbix_AddMacro_to_Host()
 
 
 @app.route('/api/test')

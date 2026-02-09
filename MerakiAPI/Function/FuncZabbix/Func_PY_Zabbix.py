@@ -36,11 +36,9 @@ def zabbix_SendAPI(method, params=None, request_id=1):
     return data["result"]
 
 #Funzione ADD Macro in HOST
-def zabbix_AddMacro_to_Host():
+def zabbix_AddMacro_to_Host_By_Meraki(merHost,orgId):
     #Get HostID e HostName da Zabbix
     zabHost=zabbix_SendAPI("host.get",{"output": ["hostid", "host"],"selectInterfaces": ["interfaceid", "ip"]})
-    #Get Hostname e Serial da Meraki
-    merHost=0
 
     #---VARIABILI DICHIARATE SOLO PER TEST
     #hostid="13344"  #SNI001SW001A
@@ -52,37 +50,70 @@ def zabbix_AddMacro_to_Host():
     mapped_host=map_meraki_to_zabbix(merHost,zabHost)
     for host, data in mapped_host.items():
         #Update MACRO HOST
-        hostid=data["hostid"],
-        macro="{$MERAKI.SERIAL}",
-        value=data["serial"]
-        params=zabbix_ParamsAddMacro(hostid,macro,value)
+        hostid=data["hostid"]
+        macros = []
+
+        # Macro SERIAL
+        macros.append(
+            zabbix_ParamsAddMacro(
+                "{$SERIAL}",
+                data["serial"]
+            )
+        )
+        # Macro ORGANIZATION_ID
+        macros.append(
+            zabbix_ParamsAddMacro(
+                "{$ORGANIZATION_ID}",
+                str(orgId)
+            )
+        )
+
+        
+        params = {
+            "hostid": hostid,
+            "macros": macros
+        }
+        #macro="{$SERIAL}"
+        #value=data["serial"]
+        #params=zabbix_ParamsAddMacro(hostid,macro,value)
+        #params=zabbix_ParamsAddMacro(hostid,macros)
         zabHostUpdate=zabbix_SendAPI("host.update", params)
     return zabHostUpdate
+    #return {
+    #    "updated_hosts": len(mapped_hosts),
+    #    "organization_id": orgId
+    #}
 
 
-#Funzione per creare Param per Update di una macro di 1 Host in Zabbix
-def zabbix_ParamsAddMacro(hostid,macro,value):
-    paramMacroSerial={
-        "hostid": hostid,
-        "macros": [
-            {
-                "macro": macro,
-                "value": value
-            }
-        ]
+#Funzione per creare Param per Update di una macro di 1 Host in Zabbix - 1 
+#def zabbix_ParamsAddMacro(hostid,macro,value):
+#    paramMacroSerial={
+#        "hostid": hostid,
+#        "macros": [
+#            {
+#                "macro": macro,
+#                "value": value
+#            }
+#        ]
+#    }
+#    return paramMacroSerial
+
+def zabbix_ParamsAddMacro(macro, value):
+    return {
+        "macro": macro,
+        "value": value
     }
-    return paramMacroSerial
 
 
 #Funzione per unire HostID Zabbix a Name e Serial Meraki
 def map_meraki_to_zabbix(merHosts, zabHosts):
     mapping = {}
-    zabHost_Name = {h["host"]: h for h in zabHosts}
+    zabHost = {h["host"]: h for h in zabHosts}
     for merHost in merHosts:
         merHost_name = merHost.get("name")
         merHost_serial = merHost.get("serial")
 
-        if merHost_name in zabHost_Name:
+        if merHost_name in zabHost:
             mapping[merHost_name] = {
                 "hostid": zabHost[merHost_name]["hostid"],
                 "serial": merHost_serial

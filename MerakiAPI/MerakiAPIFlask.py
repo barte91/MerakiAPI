@@ -538,7 +538,7 @@ def APIZabbix():
                 # Aggiungo la lista recuperata a quelli della network precedente --- non serve json.loads(dev) in quanto dev è già una lista!
                 allDevices.extend(dev)
         # allDevices ora contiene gli Apparati di Meraki interessati
-        #FuncZabbix.zabbix_AddMacro_to_Host()
+        FuncZabbix.zabbix_AddMacro_to_Host_By_Meraki(allDevices,orgID)
         return jsonify(allDevices)        
         #DEBUG=0
         # 3.Genera CSV e lo fa scaricare

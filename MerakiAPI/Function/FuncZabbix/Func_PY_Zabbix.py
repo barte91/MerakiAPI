@@ -1,9 +1,12 @@
 from flask import jsonify, send_file
 from datetime import datetime
-import re,csv,io,requests
+import re,csv,io,requests,urllib3
 
 from Function.FuncJSON import Func_PY_JSON as FuncJSON
 from config import ZABURL,ZABHEADERS
+
+# Disabilita il warning HTTPS non verificato
+urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
 def GetInventory():
     a=0
@@ -23,6 +26,7 @@ def zabbix_SendAPI(method, params=None, request_id=1):
         ZABURL,
         headers=ZABHEADERS,
         json=payload,
+        verify=False,
         timeout=10
     )
     r.raise_for_status()

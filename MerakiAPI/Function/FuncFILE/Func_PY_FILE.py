@@ -214,6 +214,10 @@ def detect_type_port_profile(sw_name):
         PortProfiles = PORT_PROFILES_STORE
     elif prefix == "ENT":
         PortProfiles = PORT_PROFILES_ENT
+    elif prefix == "RDC":
+        PortProfiles = PORT_PROFILES_RDC
+    elif prefix == "SRM":
+        PortProfiles = PORT_PROFILES_SRM
     else:
         raise ValueError(f"Prefisso non riconosciuto: {prefix}")
     return PortProfiles

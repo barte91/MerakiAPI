@@ -77,7 +77,8 @@ def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run: bool):
         "no_profile": 0,
         "errors": 0
     }
-
+    if dry_run is None:
+        mer_dashboard=FuncMeraki.API_MerakiIntialize()
     for row in rows:
         stats["total_rows"] += 1
 
@@ -108,8 +109,10 @@ def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run: bool):
         # ─────────────── SHUT ───────────────
         if profile == "shut":
             stats["shut_applied"] += 1
+            #if dry_run is None:
+                #FuncMeraki.API_UpdateSwitchPort(serial, port_id, payload,mer_dashboard)
             results.append(build_output_row(serial, port_id, port_name, "PROFILE-APPLIED-SHUT", payload))
-            continue
+            #continue
 
         # ─────────────── NO PROFILE ───────────────
         if not payload:
@@ -123,7 +126,7 @@ def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run: bool):
         status_text = f"PROFILE-APPLIED-{profile}"
         if dry_run is None:
             try:
-                FuncMeraki.API_UpdateSwitchPort(serial, port_id, payload)
+                FuncMeraki.API_UpdateSwitchPort(serial, port_id, payload,mer_dashboard)
                 status_text += "-APPLIED"
             except Exception as e:
                 stats["errors"] += 1

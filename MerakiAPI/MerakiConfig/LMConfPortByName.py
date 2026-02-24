@@ -882,9 +882,6 @@ PORT_PROFILES_ENT = {
             },
             "mirror": {
                 "mode": "Not mirroring traffic"
-            },
-            "dot3az": {
-                "enabled": False
             }
         }
     }

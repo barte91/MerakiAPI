@@ -3,6 +3,10 @@ import requests,json,openpyxl,pandas as pd, os
 import meraki
 from config import URL,KEY,APIKEY
 
+def API_MerakiIntialize ():
+        dashboard = meraki.DashboardAPI(KEY)
+        return dashboard
+
 # MERAKI API - ORGANIZATION
 
 ## ORG - GET
@@ -320,7 +324,7 @@ def API_GetSWPortBySerial(serial):
     response.raise_for_status()
     return response.json()
 
-def API_UpdateSwitchPort(serial, port_id, payload):
+def API_UpdateSwitchPort(serial, port_id, payload,dashboard):
 ## URL + f"/devices/{serial}/switch/ports/{portId}
     """
     Aggiorna la configurazione di una porta switch Meraki usando la libreria ufficiale.
@@ -329,7 +333,7 @@ def API_UpdateSwitchPort(serial, port_id, payload):
     :param payload: dict con la configurazione da applicare
     :return: dict con la risposta dell'API
     """
-    dashboard = meraki.DashboardAPI(KEY)
+
     # La libreria meraki accetta solo argomenti keyword,
     # quindi filtriamo payload per lasciare solo valori non-None
     filtered_payload = {k: v for k, v in payload.items() if v is not None}

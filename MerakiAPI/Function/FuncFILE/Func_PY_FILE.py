@@ -1,5 +1,5 @@
 from Function.FuncMeraki import Func_PY_Meraki as FuncMeraki
-from MerakiConfig.LMConfPortByName import PORT_PROFILES
+from MerakiConfig.LMConfPortByName import PORT_PROFILES_STORE, PORT_PROFILES_ENT
 from flask import jsonify, send_file
 from datetime import datetime
 import re,csv,io
@@ -155,6 +155,13 @@ def build_output_row(serial, port_id, port_name, status, payload):
 
 #Costruzione Payload in base al profilo deciso dal port name ridato dal detect_port_profile
 def build_port_payload_with_profile(row):
+
+    # Recupero nome switch per differenziare tra ENT/STORE ecc
+    sw_name= row.get("name")
+
+    #Assegno port profile in base al nome switch
+    PortProfiles=detect_type_port_profile(sw_name)
+
     # Normalizzazione dati CSV
     port_name = normalize_port_name_value(row.get("port_name"))
     port_enabled = normalize_csv_value(row.get("port_enabled"))
@@ -162,17 +169,17 @@ def build_port_payload_with_profile(row):
     # 1️. LOGICA SHUT
     # porta senza nome + disabilitata
     if port_enabled is False and port_name == "":
-        payload = PORT_PROFILES["shut"]["payload"].copy()
+        payload = PortProfiles["shut"]["payload"].copy()
         return payload, "shut"
 
     # 2️. Rilevamento profilo da nome porta
-    profile = detect_port_profile(port_name)
+    profile = detect_port_profile(port_name, PortProfiles)
 
     if not profile:
         return None, None
 
     # 3️. Payload base dal profilo
-    payload = PORT_PROFILES[profile]["payload"].copy()
+    payload = PortProfiles[profile]["payload"].copy()
 
     # 4️. Campi dinamici dal CSV
     payload["name"] = port_name
@@ -187,17 +194,28 @@ def build_port_payload_with_profile(row):
 
     return payload, profile
 
+#
+def detect_type_port_profile(sw_name):
+    #Assegno port profile in base al nome switch
+    prefix = sw_name[:3]
 
+    if prefix == "MAG":
+        PortProfiles = PORT_PROFILES_STORE
+    elif prefix == "ENT":
+        PortProfiles = PORT_PROFILES_ENT
+    else:
+        raise ValueError(f"Prefisso non riconosciuto: {prefix}")
+    return PortProfiles
 
 #Prende nome e applica profilo
-def detect_port_profile(port_name: str) -> str | None:
+def detect_port_profile(port_name: str, PortProfiles) -> str | None:
     if not port_name:
         return None
 
     name = port_name.lower()
 
     for profile, cfg in sorted(
-        PORT_PROFILES.items(),
+        PortProfiles.items(),
         key=lambda x: x[1].get("priority", 0),
         reverse=True
     ):

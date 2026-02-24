@@ -450,7 +450,7 @@ def upload_switches():
     if file.filename == '':
         return jsonify({"error": "Nome file vuoto"}), 400
     # ──────────────── Dry-run opzionale ────────────────
-    dry_run = request.form.get("dry_run") == "true"
+    dry_run = request.form.get("dry_run") #== "true"
     # Estensione
     filename = file.filename.lower()
     if filename.endswith('.csv'):

@@ -121,7 +121,15 @@ def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run: bool):
         stats["profile_applied"] += 1
 
         status_text = f"PROFILE-APPLIED-{profile}"
-        if dry_run:
+        if dry_run is None:
+            try:
+                FuncMeraki.API_UpdateSwitchPort(serial, port_id, payload)
+                status_text += "-APPLIED"
+            except Exception as e:
+                stats["errors"] += 1
+                results.append(build_output_row(serial, port_id, port_name, f"ERROR-{str(e)}", {}))
+                continue
+        else:
             status_text += "-DRYRUN"
 
         results.append(build_output_row(serial, port_id, port_name, status_text, payload))

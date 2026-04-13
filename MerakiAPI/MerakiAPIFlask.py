@@ -451,10 +451,12 @@ def upload_switches():
         return jsonify({"error": "Nome file vuoto"}), 400
     # ──────────────── Dry-run opzionale ────────────────
     dry_run = request.form.get("dry_run") #== "true"
+    cfg_wTpl = request.form.get("cfg_wTpl") #== "false" #variabile per sapere se applicare template oppure scrivere ciò che legge
     # Estensione
     filename = file.filename.lower()
     if filename.endswith('.csv'):
-        return FuncOS.handle_csv_upload(file,dry_run)
+        return FuncOS.handle_csv_upload(file,dry_run,cfg_wTpl)
+    #ZIP - NON IMPLEMENTATA!
     elif filename.endswith('.zip'):
         return FuncOS.handle_zip_upload(file)
     else:

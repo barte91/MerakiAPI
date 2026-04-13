@@ -34,11 +34,14 @@ def handle_zip_upload(file):
     })
 
 #Gestione CSV File caricati (Per LM-Catalyst - to - Meraki)
-def handle_csv_upload(file,dry_run):
+def handle_csv_upload(file,dry_run,cfg_wTpl):
     content = file.read().decode("utf-8")
     reader = csv.DictReader(io.StringIO(content))
     rows = list(reader)
-    return FuncFILE.LM_CatMeraki_apply_ports_config_advanced(rows,dry_run)
+    if (cfg_wTpl):
+        return FuncFILE.LM_CatMeraki_apply_ports_config_advanced(rows,dry_run)
+    else:
+        return FuncFILE.LM_CatMeraki_apply_ports_config_NoTPL(rows,dry_run)
     #return FuncFILE.LM_CatMeraki_apply_ports_config(rows)
     #SOLO PER TEST
     #rows = list(reader)

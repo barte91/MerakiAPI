@@ -10,7 +10,7 @@ PORT_ONLY_REGEX = re.compile(r"^[A-Za-z]{1,3}\d+(?:/\d+)+$")
 #Variabile GLOBAL per resettare file CSV No Profile
 LAST_NO_PROFILE_CSV = None
 
-#PROVVISORIO - LM CAT TO MERAKI - STANDARD --> Prendo config da CSV e la scrivo su API
+#PROVVISORIO - NOT USED - LM CAT TO MERAKI - STANDARD --> Prendo config da CSV e la scrivo su API
 def LM_CatMeraki_apply_ports_config(rows, dry_run=True):
     results = []
     for row in rows:
@@ -66,7 +66,7 @@ def build_port_payload(row):
 
 
 
-#PROVVISORIO - LM CAT TO MERAKI - ADVANCED --> Prendo config da CSV, leggo port_name e in base alla prota applico un profilo specifico
+#PROVVISORIO - IN USO - LM CAT TO MERAKI - ADVANCED --> Prendo config da CSV, leggo port_name e in base alla prota applico un profilo specifico
 def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run: bool):
     results = []
 
@@ -148,21 +148,139 @@ def LM_CatMeraki_apply_ports_config_advanced(rows, dry_run: bool):
         "full_csv": full_csv
     })
 
+#PROVVISORIO - IN USO - LM CAT TO MERAKI - NO TEMPLATE --> Prendo config da CSV, leggo e NON applico NESSUNA MODIFICA - Scrivo così com'è
+def LM_CatMeraki_apply_ports_config_NoTPL(rows,dry_run: bool):
+    results = []
+
+    stats = {
+        "total_rows": 0,
+        "profile_applied": 0,
+        "shut_applied": 0,
+        "no_profile": 0,
+        "errors": 0
+    }
+    if dry_run is None:
+        mer_dashboard=FuncMeraki.API_MerakiIntialize()
+    for row in rows:
+        stats["total_rows"] += 1
+
+        serial = row.get("serial")
+        port_id = row.get("port_portId")
+        raw_port_name = row.get("port_name")
+        port_name = normalize_port_name_value(raw_port_name)
+        #-NOT-USED--port_enabled = normalize_csv_value(row.get("port_enabled"))
+        #port_enabled = row.get("port_enabled")
+        #port_poeEnabled = row.get("port_poeEnabled")
+        #port_type= row.get("port_type")
+        #port_vlan= row.get("port_vlan")
+        #port_allowedVlans= row.get("port_allowedVlans")
+        #port_activeVlans= row.get("port_activeVlans")
+        #port_rstpEnabled= row.get("port_rstpEnabled")
+        #port_stpGuard= row.get("port_stpGuard")
+        #port_linkNegotiation = row.get("port_linkNegotiation")
+        #port_ProfileEnabled= row.get("port_profile_enabled")
+        #port_ProfileID= row.get("port_profile_id")
+        #port_Profileiname = row.get("port_profile_iname")
+
+        if not serial or not port_id:
+            stats["errors"] += 1
+            results.append({
+                "status": "ERROR",
+                "serial": serial or "",
+                "port": port_id or "",
+                "port_name": port_name or "",
+                "enabled": port_enabled,
+                "poeEnabled": "",
+                "type": "",
+                "vlan": "",
+                "allowedVlans": ""
+            })
+            continue
+
+        payload = build_port_payload_NO_profile(row)
+
+        if dry_run is None:
+            try:
+                FuncMeraki.API_UpdateSwitchPort(serial, port_id, payload,mer_dashboard)
+                status_text = f"PROD"
+            except Exception as e:
+                stats["errors"] += 1
+                results.append(build_output_row(serial, port_id, port_name, f"ERROR-{str(e)}", {}))
+                continue
+        else:
+            status_text = f"DRYRUN"
+
+        results.append(build_output_row(serial, port_id, port_name, status_text, payload))
+
+    # ─────────────── GENERA CSV COMPLETO ───────────────
+    full_csv = generate_full_csv(results, stats)
+    global LAST_FULL_CSV
+    LAST_FULL_CSV = full_csv
+
+    return jsonify({
+        "stats": stats,
+        "results": results,
+        "full_csv": full_csv
+    })
+
+    return 0
+
 
 # ─────────────── BUILD OUTPUT ROW ───────────────
-def build_output_row(serial, port_id, port_name, status, payload):
-    return {
-        "serial": serial,
-        "port_id": port_id,
-        "port_name": port_name,
-        "status": status,
-        "enabled": payload.get("enabled") if payload else "",
-        "poeEnabled": payload.get("poeEnabled") if payload else "",
-        "type": payload.get("type") if payload else "",
-        "vlan": payload.get("vlan") if payload else "",
-        "allowedVlans": payload.get("allowedVlans") if payload else ""
-    }
+#def build_output_row(serial, port_id, port_name, status, payload):
+#    return {
+#        "serial": serial,
+#        "port_id": port_id,
+#        "port_name": port_name,
+#        "status": status,
+#        "enabled": payload.get("enabled") if payload else "",
+#        "poeEnabled": payload.get("poeEnabled") if payload else "",
+#        "type": payload.get("type") if payload else "",
+#        "vlan": payload.get("vlan") if payload else "",
+#        "allowedVlans": payload.get("allowedVlans") if payload else ""
+#    }
 
+
+#Costruzione Payload in base al profilo deciso dal port name ridato dal detect_port_profile
+def build_port_payload_NO_profile(row):
+
+    # Normalizzazione dati CSV
+    port_name = normalize_port_name_value(row.get("port_name"))
+    port_enabled = normalize_csv_value(row.get("port_enabled"))
+
+    if "port_rstpEnabled" in row:
+       port_rstpEnabled = normalize_csv_value(row["port_rstpEnabled"])
+    if "port_stpGuard" in row:
+       port_stpGuard = normalize_csv_value(row["port_stpGuard"])
+    if "port_poeEnabled" in row:
+       port_PoeEnabled = normalize_csv_value(row["port_poeEnabled"])
+
+    # Costruisco payload per config porta
+    payload = {
+        "name": port_name,
+        "enabled": port_enabled,
+        "poeEnabled": port_PoeEnabled,
+        "type": row.get("port_type"),
+        "vlan": row.get("port_vlan"),
+        "allowedVlans": row.get("port_allowedVlans"),
+        "activeVlans": row.get("port_activeVlans"),
+        "rstpEnabled": port_rstpEnabled,
+        "stpGuard": port_stpGuard,
+        "linkNegotiation": row.get("port_linkNegotiation"),
+        "profile": {
+            "enabled": row.get("port_profile_enabled"),
+            "id": row.get("port_profile_id"),
+            "iname": row.get("port_profile_iname")
+            }
+        }
+
+    # 4️. Campi dinamici dal CSV
+    #payload["name"] = port_name
+    #payload["enabled"] = port_enabled
+
+
+
+    return payload
 
 #Costruzione Payload in base al profilo deciso dal port name ridato dal detect_port_profile
 def build_port_payload_with_profile(row):
@@ -347,7 +465,11 @@ def generate_full_csv(results, stats):
         "poeEnabled",
         "type",
         "vlan",
-        "allowedVlans"
+        "allowedVlans",
+        "activeVlans",
+        "rstpEnabled",
+        "stpGuard",
+        "linkNegotiation"
     ]
 
     writer = csv.DictWriter(output, fieldnames=fieldnames)
@@ -363,7 +485,12 @@ def generate_full_csv(results, stats):
             "poeEnabled": row.get("poeEnabled", ""),
             "type": row.get("type", ""),
             "vlan": row.get("vlan", ""),
-            "allowedVlans": row.get("allowedVlans", "")
+            "allowedVlans": row.get("allowedVlans", ""),
+            "activeVlans": row.get("activeVlans", ""),
+            "rstpEnabled": row.get("rstpEnabled", ""),
+            "stpGuard": row.get("stpGuard", ""),
+            "linkNegotiation": row.get("linkNegotiation", "")
+
         })
 
     # Riga vuota
@@ -408,4 +535,8 @@ def build_output_row(
         "type": payload.get("type") if payload else None,
         "vlan": payload.get("vlan") if payload else None,
         "allowedVlans": payload.get("allowedVlans") if payload else None,
+        "activeVlans": payload.get("activeVlans") if payload else None,
+        "rstpEnabled": payload.get("rstpEnabled") if payload else None,
+        "stpGuard": payload.get("stpGuard") if payload else None,
+        "linkNegotiation": payload.get("linkNegotiation") if payload else None,
     }

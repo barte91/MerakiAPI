@@ -148,9 +148,11 @@ def get_sw_ntwidss(ntwIDs):
     allDevices = []
     device_type = request.args.get("deviceType")
     if device_type == 'AP':
-        FilterString='MR'
+        #FilterString='MR'
+        FilterString=['MR', 'CW']
     elif device_type == 'SW':
-        FilterString='MS'
+        #FilterString='MS'
+        FilterString=['MS', 'C9']
     else:
         FilterString='ALL'
     for ntwID in ntwID_list:
@@ -354,10 +356,10 @@ def InveAppMeraki():
             # Aggiungo la lista recuperata a quelli della network precedente --- non serve json.loads(dev) in quanto dev è già una lista!
             allDevices.extend(dev)
         if device_type =='AP':
-            allDevices_ap = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model','MR')
+            allDevices_ap = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model',['MR', 'CW'])
             return FuncUser.generate_switchesPorts_csv2(allDevices_ap, filename_prefix)
         elif device_type =='SW':
-            allDevices_switch = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model','MS')
+            allDevices_switch = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model',['MS', 'C9'])
             # 2.Recupero la lista delle porte di tutti gli switch
             #Creo allDevices_switchPorts che conterrà sia switch che porte
             allDevices_switchPorts = [] 
@@ -413,10 +415,12 @@ def LMCatMeraki():
                 # Aggiungo la lista recuperata a quelli della network precedente --- non serve json.loads(dev) in quanto dev è già una lista!
                 allDevices.extend(dev)
         if device_type =='AP':
-            allDevices_ap = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model','MR')
+            allDevices_ap = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model',['MR', 'CW'])
             return FuncUser.generate_switchesPorts_csv2(allDevices_ap, filename_prefix)
         elif device_type =='SW':
-            allDevices_switch = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model','C9')
+            allDevices_switch = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model',['MS', 'C9'])
+            #if (orgID=='280759'):
+            #    allDevices_switch = FuncMatrix.FilterListNtwDev_AllFields (allDevices,'model','MS')
             # 2.Recupero la lista delle porte di tutti gli switch
             #Creo allDevices_switchPorts che conterrà sia switch che porte
             allDevices_switchPorts = [] 

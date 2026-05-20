@@ -336,6 +336,8 @@ def detect_type_port_profile(sw_name):
         PortProfiles = PORT_PROFILES_RDC
     elif prefix == "SRM":
         PortProfiles = PORT_PROFILES_SRM
+    elif prefix == "HQ00":
+        PortProfiles = PORT_PROFILES_SIB
     else:
         raise ValueError(f"Prefisso non riconosciuto: {prefix}")
     return PortProfiles
@@ -478,7 +480,7 @@ def generate_full_csv(results, stats):
     for row in results:
         writer.writerow({
             "serial": row.get("serial", ""),
-            "port_id": row.get("port", ""),
+            "port_id": row.get("port_id", ""),
             "port_name": row.get("port_name", ""),
             "status": row.get("status", ""),
             "enabled": row.get("enabled", ""),

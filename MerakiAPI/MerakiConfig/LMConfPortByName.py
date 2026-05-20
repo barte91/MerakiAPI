@@ -1839,3 +1839,74 @@ PORT_PROFILES_SRM = {
         }
     }
 }
+
+PORT_PROFILES_SIB = {
+    "firewall_lan": {
+        "priority": 100,
+        "pattern": r"firewall.*lan|lan.*firewall",
+        "payload": {
+            "tags": [],
+            "enabled": False,
+            "poeEnabled": False,
+            "type": "trunk",
+            "vlan": 1,
+            "voiceVlan": None,
+            "allowedVlans": "301-304,306,307,311,312,320,321,323-325",
+            "activeVlans": "301-304,306-307,311-312,320-321,323-325",
+            "isolationEnabled": False,
+            "rstpEnabled": False,
+            "stpGuard": "disabled",
+            "linkNegotiation": "Auto negotiate",
+            "portScheduleId": None,
+            "schedule": None,
+            "udld": "Alert only",
+            "accessPolicyType": "Open",
+            "daiTrusted": False,
+            "profile": {
+                "enabled": False,
+                "id": "",
+                "iname": None
+            },
+            "module": {
+                "model": None    
+            },
+            "mirror": {
+                "mode": "Not mirroring traffic"
+            }
+        }
+    },
+    "ap|ponteradio--Trunk-vlan307": {
+        "priority": 90,
+        "pattern": r"ap\d+|.*uplink_bridge.*",
+        "payload": {
+            "tags": [],
+            "enabled": True,
+            "poeEnabled": True,
+            "type": "trunk",
+            "vlan": 307,
+            "voiceVlan": None,
+            "allowedVlans": "304,306-307,320,323",
+            "activeVlans": "304,306-307,320,323",
+            "isolationEnabled": False,
+            "rstpEnabled": True,
+            "stpGuard": "disabled",
+            "linkNegotiation": "Auto negotiate",
+            "portScheduleId": None,
+            "schedule": None,
+            "udld": "Alert only",
+            "accessPolicyType": "Open",
+            "daiTrusted": False,
+            "profile": {
+                "enabled": False,
+                "id": "",
+                "iname": None
+            },
+            "module": {
+                "model": None
+            },
+            "mirror": {
+                "mode": "Not mirroring traffic"
+            }
+         }
+    },
+}

@@ -121,7 +121,7 @@ def FilterListNtwDev(data,filter_col,start_string):
             #filtered_data.append(d)
     return filtered_data  # Restituisce le porte filtrate
 
-def FilterListNtwDev_AllFields (data,filter_col,start_string):
+def FilterListNtwDev_AllFields (data,filter_col,start_strings):
     '''
     Filtra una lista di device secondo parametri dati
     Parametri da indicare in chiamata
@@ -131,7 +131,7 @@ def FilterListNtwDev_AllFields (data,filter_col,start_string):
     '''
     filtered_data = []
     for d in data:
-        if d[filter_col].startswith(start_string):
+        if d[filter_col].startswith(tuple(start_strings)):
             # Se il filtro viene individuato, aggiungo device alla lista
             filtered_data.append(d)
     return filtered_data  # Restituisce le porte filtrate

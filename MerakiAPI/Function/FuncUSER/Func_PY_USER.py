@@ -681,7 +681,8 @@ def generate_switchesPorts_csv2(allDevices_switchPorts, filename_prefix):
 def generate_single_switch_csv(sw, filename_prefix):
     timestamp = datetime.datetime.now().strftime("%Y%m%d_%H%M%S")
     switch_name = sw.get("name", sw.get("serial", "unknown"))
-    filename = f"{filename_prefix}{switch_name}_{timestamp}.csv"
+    switch_serial = sw.get("serial", "unknown")
+    filename = f"{filename_prefix}{switch_name}_{switch_serial}_{timestamp}.csv"
 
     output = io.StringIO()
     rows = []

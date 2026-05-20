@@ -2,6 +2,7 @@ import os
 import requests,json,openpyxl,pandas as pd, os
 import meraki
 from config import URL,KEY,APIKEY
+from Function.FuncFILE import Func_PY_FILE as FuncFile
 
 def API_MerakiIntialize ():
         dashboard = meraki.DashboardAPI(KEY)
@@ -333,7 +334,14 @@ def API_UpdateSwitchPort(serial, port_id, payload,dashboard):
     :param payload: dict con la configurazione da applicare
     :return: dict con la risposta dell'API
     """
-
+    #Sostituisco gli spazi in , per gestione corretta API
+    allowed_vlans = payload["allowedVlans"]
+    if allowed_vlans:
+        payload["allowedVlans"] = FuncFile.normalize_csv_port_vlan(allowed_vlans)
+    #Sostituisco gli spazi in , per gestione corretta API
+    active_vlans = payload["activeVlans"]
+    if allowed_vlans:
+        payload["activeVlans"] = FuncFile.normalize_csv_port_vlan(active_vlans)
     # La libreria meraki accetta solo argomenti keyword,
     # quindi filtriamo payload per lasciare solo valori non-None
     filtered_payload = {k: v for k, v in payload.items() if v is not None}

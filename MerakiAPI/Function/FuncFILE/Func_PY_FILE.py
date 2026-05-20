@@ -254,6 +254,10 @@ def build_port_payload_NO_profile(row):
        port_stpGuard = normalize_csv_value(row["port_stpGuard"])
     if "port_poeEnabled" in row:
        port_PoeEnabled = normalize_csv_value(row["port_poeEnabled"])
+    #if "allowedVlans" in row:
+    #   port_AllowedVlans = normalize_csv_port_vlan(row["allowedVlans"])
+    #if "activeVlans" in row:
+    #   port_AllowedVlans = normalize_csv_port_vlan(row["activeVlans"])
 
     # Costruisco payload per config porta
     payload = {
@@ -376,6 +380,10 @@ def normalize_csv_value(value):
             return int(v)
     return value
 
+#Sostituisco "spazio" in "," per mandarlo all API
+def normalize_csv_port_vlan(value):
+        value= value.replace(" ", ",")
+        return value
 
 def normalize_port_name_value(port_name: str | None) -> str | None:
     if not port_name:

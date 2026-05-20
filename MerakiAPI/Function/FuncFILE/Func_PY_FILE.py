@@ -6,7 +6,8 @@ import re,csv,io
 
 ##VARIABILI GLOBALI - | Programma Catalyst to Meraki
 #Variabile globale per individuare porte con nome tipo "Gi1/0/13" - quelle vuote, da shuttare
-PORT_ONLY_REGEX = re.compile(r"^[A-Za-z]{1,3}\d+(?:/\d+)+$")
+#OLD___PORT_ONLY_REGEX = re.compile(r"^[A-Za-z]{1,3}\d+(?:/\d+)+$")
+PORT_ONLY_REGEX = re.compile(r"^(Gi|Fa|Te|Eth|Po|Hu|Twe)\d+(?:/\d+)*(?:\.\d+)?$")
 #Variabile GLOBAL per resettare file CSV No Profile
 LAST_NO_PROFILE_CSV = None
 

@@ -169,6 +169,7 @@ def LM_CatMeraki_apply_ports_config_NoTPL(rows,dry_run: bool):
         port_id = row.get("port_portId")
         raw_port_name = row.get("port_name")
         port_name = normalize_port_name_value(raw_port_name)
+        sw_name = row.get("name") # UTILE SOLO PER LOG 
         #-NOT-USED--port_enabled = normalize_csv_value(row.get("port_enabled"))
         #port_enabled = row.get("port_enabled")
         #port_poeEnabled = row.get("port_poeEnabled")
@@ -202,7 +203,7 @@ def LM_CatMeraki_apply_ports_config_NoTPL(rows,dry_run: bool):
 
         if dry_run is None:
             try:
-                FuncMeraki.API_UpdateSwitchPort(serial, port_id, payload,mer_dashboard)
+                FuncMeraki.API_UpdateSwitchPort(sw_name,serial, port_id, payload,mer_dashboard)
                 status_text = f"PROD"
             except Exception as e:
                 stats["errors"] += 1

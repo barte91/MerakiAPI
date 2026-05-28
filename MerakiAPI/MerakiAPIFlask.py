@@ -2,10 +2,10 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-from flask import Flask, jsonify, render_template, request, send_from_directory, send_file, Response
+from flask import Flask, jsonify, render_template, request, send_from_directory, send_file, Response, stream_with_context
 from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem
-import os,json,zipfile,io
+import os,json,zipfile,io,time,queue,logging
 from config import URL,APIKEY, InveManu_nameFile
 from Inventario import *
 from UpdatePorts import *
@@ -21,6 +21,7 @@ from Function.FuncMatrix import Func_PY_Matrix as FuncMatrix
 from Function.FuncOS import Func_PY_OS as FuncOS
 from Function.FuncFILE import Func_PY_FILE as FuncFILE
 from Function.FuncZabbix import Func_PY_Zabbix as FuncZabbix
+from Function.FuncLog import Func_PY_Log as FuncLog
 
 app = Flask(__name__)
 
@@ -32,6 +33,31 @@ TMP_STATS = {}
 @app.route('/')
 def home():
     return render_template('index.html')
+
+###### PARTE LOG FRONT END SSE
+@app.route("/api/log-stream")
+def log_stream():
+    def generate():
+        yield "data: [LOG STREAM CONNESSO]\n\n"
+        formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+        while True:
+            try:
+                record = FuncLog.log_queue.get(timeout=5)
+                msg = formatter.format(record)
+                msg_clean = msg.replace("\n", " ")
+                yield f"data: {msg_clean}\n\n"
+            except queue.Empty:
+                yield "data: \n\n"  # heartbeat per tenere viva la connessione
+
+    return Response(
+        stream_with_context(generate()),
+        mimetype="text/event-stream",
+        headers={
+            "Cache-Control": "no-cache",
+            "X-Accel-Buffering": "no"
+        }
+    )
+
 
 #@app.route('/templates/<path:filename>')
 #def send_js(filename):
@@ -566,7 +592,7 @@ def meraki_sync_zabbix():
     device_type = request.form.get("deviceType")
 
     # 1️ recupera device Meraki
-    devices = meraki_get_devices(
+    devices = FuncMeraki.meraki_get_devices(
         network_id=network_id,
         device_type=device_type
     )
@@ -576,7 +602,7 @@ def meraki_sync_zabbix():
         devices = [d for d in devices if d["serial"] == device_serial]
 
     # 2️⃣ recupera host Zabbix
-    zabbix_hosts = zabbix_SendAPI(
+    zabbix_hosts = FuncZabbix.zabbix_SendAPI(
         "host.get",
         {
             "output": ["hostid", "host"],
@@ -585,12 +611,12 @@ def meraki_sync_zabbix():
     )
 
     # 3️⃣ mapping
-    mapping = map_meraki_to_zabbix(devices, zabbix_hosts)
+    mapping = FuncZabbix.map_meraki_to_zabbix(devices, zabbix_hosts)
 
     # 4️⃣ update macro
     updated = []
     for host, data in mapping.items():
-        zabbix_AddMacro_to_Host(
+        FuncZabbix.zabbix_AddMacro_to_Host(
             hostid=data["hostid"],
             macro="{$MERAKI.SERIAL}",
             value=data["serial"]
@@ -621,7 +647,7 @@ def Zabbix_SendAPI():
 
 @app.route('/api/test')
 def test():
-    result = CreateSSID(URL, APIKEY, json_script_path)  # Puoi modificare il comportamento se necessario
+    result = FuncMeraki.CreateSSID(URL, APIKEY, json_script_path)  # Puoi modificare il comportamento se necessario
     return jsonify(result)
 
 if __name__ == '__main__':

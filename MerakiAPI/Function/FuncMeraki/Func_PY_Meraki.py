@@ -1,8 +1,22 @@
 import os
 import requests,json,openpyxl,pandas as pd, os
 import meraki
+import logging, logging.handlers, queue
 from config import URL,KEY,APIKEY
 from Function.FuncFILE import Func_PY_FILE as FuncFile
+from Function.FuncLog import Func_PY_Log as FuncLog
+
+# ── Setup logger ───────────────────────────────────────────────────────────
+logger = logging.getLogger("FuncMeraki")
+
+if not logger.handlers:
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+
+    q_handler = logging.handlers.QueueHandler(FuncLog.log_queue)  # ← stessa coda
+    q_handler.setFormatter(formatter)
+    logger.addHandler(q_handler)
+
+    logger.setLevel(logging.DEBUG)
 
 def API_MerakiIntialize ():
         dashboard = meraki.DashboardAPI(KEY)
@@ -325,7 +339,7 @@ def API_GetSWPortBySerial(serial):
     response.raise_for_status()
     return response.json()
 
-def API_UpdateSwitchPort(serial, port_id, payload,dashboard):
+def API_UpdateSwitchPort(sw_name,serial, port_id, payload,dashboard):
 ## URL + f"/devices/{serial}/switch/ports/{portId}
     """
     Aggiorna la configurazione di una porta switch Meraki usando la libreria ufficiale.
@@ -334,13 +348,15 @@ def API_UpdateSwitchPort(serial, port_id, payload,dashboard):
     :param payload: dict con la configurazione da applicare
     :return: dict con la risposta dell'API
     """
+    #Attiva parte di logging
+    #logger.debug("START | switch=%s serial=%s port=%s", sw_name, serial, port_id)
     #Sostituisco gli spazi in , per gestione corretta API
     allowed_vlans = payload["allowedVlans"]
     if allowed_vlans:
         payload["allowedVlans"] = FuncFile.normalize_csv_port_vlan(allowed_vlans)
     #Sostituisco gli spazi in , per gestione corretta API
     active_vlans = payload["activeVlans"]
-    if allowed_vlans:
+    if active_vlans:
         payload["activeVlans"] = FuncFile.normalize_csv_port_vlan(active_vlans)
     # La libreria meraki accetta solo argomenti keyword,
     # quindi filtriamo payload per lasciare solo valori non-None
@@ -351,10 +367,13 @@ def API_UpdateSwitchPort(serial, port_id, payload,dashboard):
             port_id,
             **filtered_payload
         )
+        logger.info("OK | switch=%s serial=%s port=%s", sw_name, serial, port_id)
         return response
     except Exception as e:
+        logger.error("FAIL | switch=%s serial=%s port=%s", sw_name, serial, port_id, str(e))
+        raise
         # Puoi gestire logging o ritornare l'errore in modo strutturato
-        return {"status": "error", "serial": serial, "port": port_id, "error": str(e)}
+        #return {"status": "error", "serial": serial, "port": port_id, "error": str(e)}
 
 ## PROFILE - GET
 

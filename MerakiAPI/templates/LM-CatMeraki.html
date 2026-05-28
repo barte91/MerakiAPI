@@ -6,10 +6,12 @@
     <title>LM - CATALYST TO MERAKI</title>
     <!-- Utilizza il percorso static per importare il tuo file CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='MerakiFunciotn-Style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='LogPanel-Style.css') }}">
     <!-- Utilizza il percorso static per importare il tuo file JS -->
     <script src="{{ url_for('static', filename='Func_JS-Meraki-API-General.js') }}"></script>
     <script src="{{ url_for('static', filename='Func_JS-HTML-Form.js') }}"></script>
     <script src="{{ url_for('static', filename='Func_JS-Catalyst-To-Meraki.js') }}"></script>
+    <script src="{{ url_for('static', filename='Func_JS-LogPanel.js') }}" defer></script>
 </head>
 <body>
     <h1>LM - CATALYST TO MERAKI</h1>
@@ -68,10 +70,10 @@
         </label>
         <br><br>
         <!--CHECKBOX Versione B - No Template-Config Liscia - COME LEGGE LA CONFIG LA RICARICA! NESSUNA MODIFICA!! Default: True (usa Template) -->
-            <label>
-                <input type="checkbox" name="cfg_wTpl" value="true" checked>
-                Applico Template Custom
-            </label>
+        <label>
+            <input type="checkbox" name="cfg_wTpl" value="true" checked>
+            Applico Template Custom
+        </label>
         <br><br>
         <!--BUTTON UPLOAD -->
         <button type="submit">Upload</button>
@@ -81,7 +83,25 @@
 
     <div id="resultsTableContainer"></div>
     <!--<pre id="uploadResult">-->
-        <!--style="margin-top:20px; background:#111; color:#0f0; padding:10px; max-height:400px; overflow:auto;">-->
+    <!--style="margin-top:20px; background:#111; color:#0f0; padding:10px; max-height:400px; overflow:auto;">-->
     <!--</pre> -->
+
+    <!-- ══════════════════════════════════════════════ -->
+    <!-- PANNELLO LOG IN TEMPO REALE                    -->
+    <!-- ══════════════════════════════════════════════ -->
+    <div id="log-section">
+        <h2>LOG IN TEMPO REALE</h2>
+
+        <div id="log-controls">
+            <button onclick="clearLog()">🗑 Pulisci</button>
+            <button onclick="toggleAutoscroll()">⬇ Autoscroll: <span id="autoscroll-label">ON</span></button>
+            <span id="log-status" class="disconnected">● Disconnesso</span>
+        </div>
+
+        <div id="log-panel">
+            <div id="log-content"></div>
+        </div>
+    </div>
+
 </body>
 </html>

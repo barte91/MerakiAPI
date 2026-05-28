@@ -29,6 +29,8 @@
     <Compile Include="Function\FuncFILE\Func_PY_FILE.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="Function\FuncLog\Func_PY_Log.py" />
+    <Compile Include="Function\FuncLog\__init__.py" />
     <Compile Include="Function\FuncUSER\Func_PY_USER.py">
       <SubType>Code</SubType>
     </Compile>
@@ -129,7 +131,9 @@
     <Content Include="static\Func_JS-Catalyst-To-Meraki.js" />
     <Content Include="static\Func_JS-GLPI-Inventario.js" />
     <Content Include="static\Func_JS-HTML-Form.js" />
+    <Content Include="static\Func_JS-LogPanel.js" />
     <Content Include="static\Func_JS-Meraki-API-General.js" />
+    <Content Include="static\LogPanel-Style.css" />
     <Content Include="static\UNUSED\Func_JS-SSID.js" />
     <Content Include="static\UNUSED\Func_JS-RadioProfile.js" />
     <Content Include="static\MerakiFunciotn-Style.css" />
@@ -161,6 +165,7 @@
     <Folder Include="certificates\" />
     <Folder Include="apache-conf\" />
     <Folder Include="Function\FuncZabbix\" />
+    <Folder Include="Function\FuncLog\" />
     <Folder Include="MerakiConfig\" />
     <Folder Include="static\" />
     <Folder Include="static\UNUSED\" />

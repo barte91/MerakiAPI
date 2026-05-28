@@ -1,0 +1,66 @@
+/* ── LOG PANEL ─────────────────────────────────────────── */
+#log-section {
+    margin-top: 30px;
+}
+
+    #log-section h2 {
+        margin-bottom: 8px;
+    }
+
+#log-controls {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 6px;
+    align-items: center;
+}
+
+    #log-controls button {
+        padding: 4px 12px;
+        font-size: 12px;
+        cursor: pointer;
+    }
+
+#log-status {
+    font-size: 12px;
+    color: #888;
+}
+
+    #log-status.connected {
+        color: #4caf50;
+    }
+
+    #log-status.disconnected {
+        color: #f44336;
+    }
+
+#log-panel {
+    background: #1e1e1e;
+    color: #d4d4d4;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    padding: 12px;
+    border-radius: 6px;
+    height: 300px;
+    overflow-y: auto;
+    border: 1px solid #444;
+    white-space: pre-wrap;
+    word-break: break-all;
+}
+
+.log-debug {
+    color: #9cdcfe;
+}
+
+.log-info {
+    color: #b5cea8;
+}
+
+.log-warning {
+    color: #dcdcaa;
+}
+
+.log-error {
+    color: #f48771;
+    font-weight: bold;
+}
+/* ─────────────────────────────────────────────────────── */

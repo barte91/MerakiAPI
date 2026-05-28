@@ -5,6 +5,8 @@ services:
     container_name: meraki-api
     expose:
       - "5000"
+    environment:
+      - PYTHONUNBUFFERED=1
     volumes:
       - ./config.py:/app/config.py:ro
     restart: unless-stopped

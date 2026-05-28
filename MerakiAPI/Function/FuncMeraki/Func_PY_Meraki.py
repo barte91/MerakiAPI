@@ -12,7 +12,7 @@ logger = logging.getLogger("FuncMeraki")
 if not logger.handlers:
     formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
 
-    q_handler = logging.handlers.QueueHandler(FuncLog.log_queue)  # ← stessa coda
+    q_handler = logging.handlers.QueueHandler(FuncLog.log_queue) 
     q_handler.setFormatter(formatter)
     logger.addHandler(q_handler)
 

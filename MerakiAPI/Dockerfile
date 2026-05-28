@@ -18,4 +18,4 @@ EXPOSE 5000
 
 # Comando di default per eseguire l'app con Gunicorn
 #CMD ["gunicorn", "-w", "4", "-b", "0.0.0.0:5000", "MerakiAPIFlask:app"]
-CMD ["gunicorn", "-w", "1", "-k", "gthread", "--threads", "4", "--timeout", "120", "-b", "0.0.0.0:5000", "MerakiAPIFlask:app"]
+CMD ["gunicorn", "-w", "4", "-k", "gthread", "--threads", "4", "--timeout", "120", "-b", "0.0.0.0:5000", "MerakiAPIFlask:app"]

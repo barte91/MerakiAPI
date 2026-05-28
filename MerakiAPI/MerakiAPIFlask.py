@@ -39,23 +39,20 @@ def home():
 def log_stream():
     def generate():
         yield "data: [LOG STREAM CONNESSO]\n\n"
-        formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-        while True:
-            try:
-                record = FuncLog.log_queue.get(timeout=5)
-                msg = formatter.format(record)
-                msg_clean = msg.replace("\n", " ")
-                yield f"data: {msg_clean}\n\n"
-            except queue.Empty:
-                yield "data: \n\n"  # heartbeat per tenere viva la connessione
+        pubsub = FuncLog.subscribe()
+        try:
+            for message in pubsub.listen():
+                if message["type"] == "message":
+                    msg = message["data"].decode("utf-8")
+                    msg_clean = msg.replace("\n", " ")
+                    yield f"data: {msg_clean}\n\n"
+        except GeneratorExit:
+            pubsub.unsubscribe()
 
     return Response(
         stream_with_context(generate()),
         mimetype="text/event-stream",
-        headers={
-            "Cache-Control": "no-cache",
-            "X-Accel-Buffering": "no"
-        }
+        headers={"Cache-Control": "no-cache", "X-Accel-Buffering": "no"}
     )
 
 

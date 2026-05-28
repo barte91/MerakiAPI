@@ -1,21 +1,27 @@
 import os
 import requests,json,openpyxl,pandas as pd, os
 import meraki
-import logging, logging.handlers, queue
+import logging
 from config import URL,KEY,APIKEY
 from Function.FuncFILE import Func_PY_FILE as FuncFile
 from Function.FuncLog import Func_PY_Log as FuncLog
 
 # ── Setup logger ───────────────────────────────────────────────────────────
+class RedisLogHandler(logging.Handler):
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            FuncLog.publish(msg)
+        except Exception:
+            pass
+
 logger = logging.getLogger("FuncMeraki")
 
 if not logger.handlers:
     formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
-
-    q_handler = logging.handlers.QueueHandler(FuncLog.log_queue) 
-    q_handler.setFormatter(formatter)
-    logger.addHandler(q_handler)
-
+    handler = RedisLogHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
     logger.setLevel(logging.DEBUG)
 
 def API_MerakiIntialize ():

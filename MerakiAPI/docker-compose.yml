@@ -7,8 +7,18 @@ services:
       - "5000"
     environment:
       - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis:6379/0
     volumes:
       - ./config.py:/app/config.py:ro
+    restart: unless-stopped
+    depends_on:
+      - redis
+    networks:
+      - meraki-network
+
+  redis: 
+    image: redis:7-alpine
+    container_name: meraki-redis
     restart: unless-stopped
     networks:
       - meraki-network

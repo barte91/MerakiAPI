@@ -41,24 +41,27 @@ def log_stream():
         yield "data: [LOG STREAM CONNESSO]\n\n"
 
         if FuncLog.USE_REDIS:
-            # ── Docker: legge da Redis ────────────────────────
+            import time
             pubsub = FuncLog.subscribe()
             try:
-                for message in pubsub.listen():
-                    if message["type"] == "message":
+                while True:
+                    message = pubsub.get_message(ignore_subscribe_messages=True, timeout=0.1)
+                    if message and message["type"] == "message":
                         msg = message["data"].decode("utf-8")
                         yield f"data: {msg.replace(chr(10), ' ')}\n\n"
+                    else:
+                        yield "data: \n\n"  # heartbeat
+                        time.sleep(0.5)
             except GeneratorExit:
                 pubsub.unsubscribe()
         else:
-            # ── Locale: legge dalla Queue ─────────────────────
             import queue
             while True:
                 try:
                     msg = FuncLog.log_queue.get(timeout=5)
                     yield f"data: {msg.replace(chr(10), ' ')}\n\n"
                 except queue.Empty:
-                    yield "data: \n\n"  # heartbeat
+                    yield "data: \n\n"
 
     return Response(
         stream_with_context(generate()),

@@ -87,15 +87,21 @@ function fetchGeneric_Inventory(FiledOutput, primary_key, secondary_key) {
 
 
 // Funzione per cambiamento del network type - New - PIU LEGGERA e VELOCE
-function onNetworkTypeChange() {
+function old_onNetworkTypeChange() {
     const networkType = document.getElementById("networkType").value;
     const orgID = document.getElementById("orgID").value;
     const ntwSelect = document.getElementById("ntwID");
+
     const swSelect = document.getElementById("SWSelect");
     const deviceType = document.getElementById("deviceType").value;
+
     // Pulisce select
     ntwSelect.innerHTML = "";
-    swSelect.innerHTML = "";
+
+    if (swSelect) {
+        swSelect.innerHTML = "";
+    }
+
     if (networkType === "SINGLE") {
         // Se SINGLE, mostra lista network
         fetch(`/api/get_networks/${orgID}?type=SINGLE`)
@@ -120,6 +126,45 @@ function onNetworkTypeChange() {
                 //fetchGeneric_Inventory()
             });
     }
+}
+
+// Funzione che viene caricata dal template MenuNtwType.html
+async function onNetworkTypeChange() {
+
+    const orgID = document.getElementById("orgID").value;
+    const networkType = document.getElementById("networkType").value;
+
+    const networks = await loadNetworks(orgID, networkType);
+
+    afterNetworksLoaded(networks);
+}
+
+
+// Funzione per cambiamento del network type - New - non è piu legata a SWITCH o AP - carica solo le Ntw
+async function loadNetworks(orgID, networkType, selectID = "ntwID") {
+
+    const ntwSelect = document.getElementById(selectID);
+
+    ntwSelect.innerHTML = '<option value="">Caricamento...</option>';
+
+    if (!orgID || !networkType) {
+        ntwSelect.innerHTML = '<option value="">Seleziona organizzazione e tipo</option>';
+        return [];
+    }
+
+    const response = await fetch(`/api/get_networks/${orgID}?type=${networkType}`);
+    const networks = await response.json();
+
+    ntwSelect.innerHTML = '<option value="">Seleziona una Network</option>';
+
+    networks.forEach(ntw => {
+        const option = document.createElement("option");
+        option.value = ntw[0];
+        option.textContent = `${ntw[1]} (${ntw[0]})`;
+        ntwSelect.appendChild(option);
+    });
+
+    return networks;
 }
 
 // Funzione che restituisce il JSON richiesto (requestUrl)
@@ -220,3 +265,4 @@ function POST_API_Meraki(requestUrl, field_modify_output) {
         .catch(err => console.error('Error POST data:', err));
 }
 */
+

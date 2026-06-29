@@ -118,6 +118,7 @@ def log_stream():
 @app.route('/api/API-SSID', methods=['GET', 'POST'])
 def API_SSID():
     json_output = None
+    allDevices = []
     if request.method == 'POST':
         orgID = request.form['orgID']
         ntwID = request.form['ntwID']
@@ -138,7 +139,7 @@ def API_SSID():
         
         #Chiamata per fare Update DATA
         if selected_ntwtype == "SINGLE":    
-            ntwID=ListNtw
+            ntwID = request.form['ntwID']
             request_url=URL + f"/networks/{ntwID}/wireless/ssids/{json_value_pkey}"
             #json_output = FuncJSON.UpdateJsonData(request_url, json_data)
             FuncMeraki.API_UpdateSSID(request_url, json_data,ntwID)
@@ -248,7 +249,7 @@ def get_switches(ntwIDs):
 def get_ssid_settings(ntwID):
     request_url=URL + f"/networks/{ntwID}/wireless/ssids/"
     ssid_data = FuncUser.get_APIgeneric(request_url)
-    ssid_data_json=jsonify(ssid_data)
+    ssid_data = json.loads(ssid_data)
     return jsonify(ssid_data)
 
 @app.route('/api/get_ssid_settings/<ntwID>/<ssidNumber>')

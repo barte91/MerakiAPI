@@ -1,4 +1,6 @@
-﻿document.addEventListener("DOMContentLoaded", function () {
+﻿// ****TUTTE LE FUNZIONI PER PAGINA LM-Meraki-to-Catalyst
+
+document.addEventListener("DOMContentLoaded", function () {
 
     const uploadForm = document.getElementById("uploadConfigForm");
     if (!uploadForm) return;
@@ -120,4 +122,28 @@ function renderResultsTable(results) {
     });
 
     table.appendChild(tbody);
+}
+
+
+// Funzione che carica gli switch data la network ID (viene verificata da MenuNtwType.html)
+function afterNetworksLoaded(networks) {
+
+    const networkType = document.getElementById("networkType").value;
+
+    // In modalità SINGLE aspetto che l'utente scelga la rete.
+    if (networkType === "SINGLE") {
+        return;
+    }
+
+    const deviceType = document.getElementById("deviceType").value;
+
+    const ntwIDs = networks.map(n => n[0]).join(",");
+
+    fetchGeneric(
+        `/api/get_switches/${ntwIDs}?deviceType=${deviceType}`,
+        "SWSelect",
+        "serial",
+        "name"
+    );
+
 }

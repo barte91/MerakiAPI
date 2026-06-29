@@ -6,9 +6,12 @@
     <title>GLPI API - INVENTARIO MANUTENZIONE</title>
     <!-- Utilizza il percorso static per importare il tuo file CSS -->
     <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='MerakiFunciotn-Style.css') }}">
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='LogPanel-Style.css') }}">
     <!-- Utilizza il percorso static per importare il tuo file JS -->
     <script src="{{ url_for('static', filename='Func_JS-Meraki-API-General.js') }}"></script>
     <script src="{{ url_for('static', filename='Func_JS-HTML-Form.js') }}"></script>
+    <script src="{{ url_for('static', filename='Func_JS-Catalyst-To-Meraki.js') }}"></script>
+    <script src="{{ url_for('static', filename='Func_JS-LogPanel.js') }}" defer></script>
 </head>
 <body>
     <h1>API - OPERAZIONI SU SSID</h1>
@@ -27,7 +30,7 @@
 
         <!-- SELEZIONE NETWORK -->
         <label for="ntwID">Seleziona ID Network:</label><br>
-        <select id="ntwID" name="ntwID" required onchange="fetchGeneric_TEST(`/api/get_ssid_settings/${this.value}`,'ssidSelect','number','name')">
+        <select id="ntwID" name="ntwID" required onchange="fetchGeneric(`/api/get_ssid_settings/${this.value}`,'ssidSelect','number','name')">
             <option value="">Seleziona prima l'organizzazione</option>
         </select><br>
 
@@ -50,5 +53,8 @@
         <input type="button" value="Scarica JSON" onclick="promptDownloadJSON(document.getElementsByTagName('pre')[0].innerHTML,'SSID-Settings.json')"> <!-- Pulsante per scaricare il JSON -->
 
     </form>
+    <script>function afterNetworksLoaded(networks) { }</script>
+    
+
 </body>
 </html>

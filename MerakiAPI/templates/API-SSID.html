@@ -53,8 +53,14 @@
         <input type="button" value="Scarica JSON" onclick="promptDownloadJSON(document.getElementsByTagName('pre')[0].innerHTML,'SSID-Settings.json')"> <!-- Pulsante per scaricare il JSON -->
 
     </form>
+    {% if error %}
+    <div style="color:red; margin-top:20px;">
+        <h3>Errore API Meraki</h3>
+        <pre>{{ error }}</pre>
+    </div>
+    {% endif %}
     <script>function afterNetworksLoaded(networks) { }</script>
-    
+
 
 </body>
 </html>

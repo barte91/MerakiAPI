@@ -5,6 +5,8 @@ import logging
 from config import URL,KEY,APIKEY
 from Function.FuncFILE import Func_PY_FILE as FuncFile
 from Function.FuncLog import Func_PY_Log as FuncLog
+from flask import jsonify
+
 
 # ── Setup logger ───────────────────────────────────────────────────────────
 class RedisLogHandler(logging.Handler):
@@ -228,10 +230,30 @@ def API_getDevicesByNtwID(networkId):
 
 ######## MERAKI API DIRETTE #################
 
-def API_UpdateSSID(request_url,data_json,ntwId):
-    dashboard=meraki.DashboardAPI(KEY)
-    number=data_json['number']
-    response = dashboard.wireless.updateNetworkWirelessSsid(ntwId, **data_json)
+def API_UpdateSSID(request_url, data_json, ntwId):
+    dashboard = meraki.DashboardAPI(KEY)
+    # Copia del JSON
+    payload = data_json.copy()
+    # Estrae il numero SSID
+    number = payload.pop("number")
+    try:
+        response = dashboard.wireless.updateNetworkWirelessSsid(
+            ntwId,
+            number,
+            **payload
+        )
+        return {
+            "success": True,
+            "response": response
+        }
+    except meraki.APIError as e:
+        return {
+            "success": False,
+            "networkId": ntwId,
+            "status": e.status,
+            "reason": e.reason,
+            "message": e.message
+        }
 
 def API_GetOrgNetworks(orgID):
     dashboard=meraki.DashboardAPI(KEY)

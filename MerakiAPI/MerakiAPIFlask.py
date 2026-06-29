@@ -142,7 +142,13 @@ def API_SSID():
             ntwID = request.form['ntwID']
             request_url=URL + f"/networks/{ntwID}/wireless/ssids/{json_value_pkey}"
             #json_output = FuncJSON.UpdateJsonData(request_url, json_data)
-            FuncMeraki.API_UpdateSSID(request_url, json_data,ntwID)
+            result = FuncMeraki.API_UpdateSSID(request_url, json_data,ntwID)
+            if not result["success"]:
+                return render_template(
+                    "API-SSID.html",
+                    organizations=FuncMeraki.getOrgID_Name(),
+                    error=result
+                )
         #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
         else:
             for ntwID, name in ListNtw:

@@ -39,7 +39,7 @@ function DELETE_fetchGeneric(requestUrl, FieldOutput) {
 }
 
 // Recuepra Generic by URL for 2 elements
-function fetchGeneric(requestUrl, FieldOutput, primary_key, secondary_key) {
+function fetchGeneric(requestUrl, FieldOutput, primary_key, secondary_key, callback = null) {
     //console.log('^^^^^^^^URL^^^^^', requestUrl)
     fetch(requestUrl)
         .then(response => response.json())
@@ -53,6 +53,9 @@ function fetchGeneric(requestUrl, FieldOutput, primary_key, secondary_key) {
                 FieldSelect.appendChild(option);
             });
             //console.log('^^^^^^^^data^^^^^', data)
+            if (typeof callback === "function") {
+                callback(data);
+            }
         });
 }
 

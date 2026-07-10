@@ -255,6 +255,40 @@ def API_UpdateSSID(request_url, data_json, ntwId):
             "message": e.message
         }
 
+def API_UpdateVlanProfiles(request_url, data_json, ntwId):
+    dashboard = meraki.DashboardAPI(KEY)
+    # Copia del JSON
+    payload = data_json.copy()
+    # Estrae il nome del profilo
+    iname = payload.pop("iname")
+    name = payload.pop("name")
+    vlanNames = payload.pop("vlanNames")
+    vlanGroups = payload.pop("vlanGroups")
+    # Rimuovi i campi di sola lettura
+    payload.pop("isDefault", None)
+    payload.pop("activeVlans", None)
+    try:
+        response = dashboard.networks.updateNetworkVlanProfile(
+            ntwId,
+            iname,
+            name,
+            vlanNames,
+            vlanGroups,
+            **payload
+        )
+        return {
+            "success": True,
+            "response": response
+        }
+    except meraki.APIError as e:
+        return {
+            "success": False,
+            "networkId": ntwId,
+            "status": e.status,
+            "reason": e.reason,
+            "message": e.message
+        }
+
 def API_GetOrgNetworks(orgID):
     dashboard=meraki.DashboardAPI(KEY)
     response = dashboard.organizations.getOrganizationNetworks(orgID)

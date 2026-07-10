@@ -273,6 +273,72 @@ def get_ssid_settingsByNumber(ntwID,ssidNumber):
 #    return jsonify(ssid_settings)
 ###### --------- FINE --- FUNZIONI-PAGINA - API - SSID
 
+###### PAGINA - API - VLAN PROFILES
+@app.route('/api/API-VLAN', methods=['GET', 'POST'])
+def API_VLAN():
+    json_output = None
+    allDevices = []
+    if request.method == 'POST':
+        orgID = request.form['orgID']
+        ntwID = request.form['ntwID']
+        pkey='iname'
+        #modification_type = request.form['ModifynetworkType']  # Ottieni il valore da ModificationType
+        selected_ntwtype = request.form['networkType']
+        if selected_ntwtype == "SINGLE": # se la network selezionata è "SINGOLA NETWORK faccio la modifica solo sulla rete selezioanata, else su tutte le reti facenti parte del type
+            ListNtw = request.form['ntwID']
+        else:
+            # Ottieni i network filtrati chiamando get_networks - tutte le network facenti parte del ntwType
+            ListNtw = FuncUser.get_networks_ID(orgID,selected_ntwtype)
+        modify_json = request.form['ModifyJson']  # Ottieni il JSON inviato
+        #json_script_path = r"JSON_PATH"
+
+        # Converti il JSON string in un oggetto Python
+        json_data = json.loads(modify_json)  # Assicurati di importare json in cima al tuo file
+        json_value_pkey = json_data[pkey]
+        
+        #Chiamata per fare Update DATA
+        if selected_ntwtype == "SINGLE":    
+            ntwID = request.form['ntwID']
+            request_url=URL + f"/networks/{ntwID}/vlanProfiles/{json_value_pkey}"
+            #json_output = FuncJSON.UpdateJsonData(request_url, json_data)
+            result = FuncMeraki.API_UpdateVlanProfiles(request_url, json_data,ntwID)
+            if not result["success"]:
+                return render_template(
+                    "API-VLAN-Profiles.html",
+                    organizations=FuncMeraki.getOrgID_Name(),
+                    error=result
+                )
+        #Altrimenti passo la list di tutte le reti facenti parte del Tipo selezionato
+        else:
+            for ntwID, name in ListNtw:
+                # Esegui l'aggiornamento dell'SSID usando i dettagli ricevuti
+                request_url=URL + f"/networks/{ntwID}/vlanProfiles/{json_value_pkey}"
+                #json_output = FuncJSON.UpdateJsonData(request_url, json_data)
+                FuncMeraki.API_UpdateVlanProfiles(request_url, json_data,ntwID)
+
+        # Chiamata alla funzione CreateSSID e memorizza il risultato
+        #json_output = ButtonApplyMod(request_url, json_data, ListNtw, selected_ntwtype)
+
+    # Se la richiesta è GET, mostra l'elenco delle organizzazioni
+    organizations = FuncMeraki.getOrgID_Name()
+    return render_template('API-VLAN-Profiles.html', organizations=organizations, json_output=json_output)
+
+######## START --- FUNZIONI PAGINA VLAN PROFILES -------- #################
+@app.route('/api/get_vlan_profiles/<ntwID>')
+def get_vlan_profiles_settings(ntwID):
+    request_url=URL + f"/networks/{ntwID}/vlanProfiles/"
+    vlan_profiles_data = FuncUser.get_APIgeneric(request_url)
+    vlan_profiles_data = json.loads(vlan_profiles_data)
+    return jsonify(vlan_profiles_data)
+
+@app.route('/api/get_vlan_profiles/<ntwID>/<iname>')
+def get_vlan_profiles_settings_by_iname(ntwID,iname):
+    request_url=URL + f"/networks/{ntwID}/vlanProfiles/{iname}"
+    vlan_profiles_data=FuncUser.get_APIgeneric(request_url)
+    return vlan_profiles_data
+
+######## END --- FUNZIONI PAGINA VLAN PROFILES -------- #################
+
 ###### PAGINA - API - RADIO PROFILE
 @app.route('/api/API-RadioProfile', methods=['GET', 'POST'])
 def API_RadioProfile():

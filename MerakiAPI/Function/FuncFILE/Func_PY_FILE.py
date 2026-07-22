@@ -270,8 +270,8 @@ def build_port_payload_NO_profile(row):
         "vlan": row.get("port_vlan"),
         "allowedVlans": row.get("port_allowedVlans"),
         "activeVlans": row.get("port_activeVlans"),
-        "rstpEnabled": port_rstpEnabled,
-        "stpGuard": port_stpGuard,
+        #"rstpEnabled": port_rstpEnabled,
+        #"stpGuard": port_stpGuard,
         "linkNegotiation": row.get("port_linkNegotiation"),
         "profile": {
             "enabled": row.get("port_profile_enabled"),

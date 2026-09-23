@@ -1,5 +1,10 @@
+#Carica variabili con password
+from dotenv import load_dotenv
+load_dotenv()
+
 from consolemenu import ConsoleMenu,SelectionMenu
 from consolemenu.items import FunctionItem
+from config import *
 from Inventario import *
 from UpdatePorts import *
 from ChangeIP import *

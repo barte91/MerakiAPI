@@ -20,7 +20,7 @@
         <label for="orgID">Seleziona ID Organizzazione:</label><br>
         <select id="orgID" name="orgID" required onchange="fetchGeneric(`/api/get_networks/${this.value}?type=${document.getElementById('networkType').value}`, 'ntwID','id','name')">
             <option value="">Seleziona un'organizzazione</option>
-            {% for org in organizations %}
+            {% for org in organizations or [] %}
             <option value="{{ org[0] }}">{{ org[1] }} (id: {{ org[0] }})</option>
             {% endfor %}
         </select><br>

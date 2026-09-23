@@ -38,12 +38,19 @@ def getOrgID_Name():
     """Fetch the list of organizations for the authenticated user."""
     queryURL = f'{URL}/organizations'
     response = requests.get(queryURL, headers=APIKEY)
+    print("========== DEBUG ORGANIZATIONS ==========")
+    print("URL:", queryURL)
+    print("STATUS:", response.status_code)
+    print("RESPONSE:", response.text)
+    print("=========================================")
     if response.status_code == 200:
         # Ottieni i dati JSON dalla risposta
         organizations = response.json()
         # Stampa ID e Nome delle organizzazioni
         for org in organizations:
             return [(org['id'], org['name']) for org in organizations]
+    else:
+        return []
 
 def Flask_getOrgID_Name(URL,APIKEY):
     """Fetch the list of organizations for the authenticated user."""

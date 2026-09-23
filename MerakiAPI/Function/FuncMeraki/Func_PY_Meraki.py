@@ -1,0 +1,450 @@
+import os
+import requests,json,openpyxl,pandas as pd, os
+import meraki
+import logging
+from config import URL,KEY,APIKEY
+from Function.FuncFILE import Func_PY_FILE as FuncFile
+from Function.FuncLog import Func_PY_Log as FuncLog
+from flask import jsonify
+
+
+# ── Setup logger ───────────────────────────────────────────────────────────
+class RedisLogHandler(logging.Handler):
+    def emit(self, record):
+        try:
+            msg = self.format(record)
+            FuncLog.publish(msg)
+        except Exception:
+            pass
+
+logger = logging.getLogger("FuncMeraki")
+
+if not logger.handlers:
+    formatter = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s")
+    handler = RedisLogHandler()
+    handler.setFormatter(formatter)
+    logger.addHandler(handler)
+    logger.setLevel(logging.DEBUG)
+
+def API_MerakiIntialize ():
+        dashboard = meraki.DashboardAPI(KEY,wait_on_rate_limit=True)
+        return dashboard
+
+# MERAKI API - ORGANIZATION
+
+## ORG - GET
+
+def getOrgID_Name():
+    """Fetch the list of organizations for the authenticated user."""
+    queryURL = f'{URL}/organizations'
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        organizations = response.json()
+        # Stampa ID e Nome delle organizzazioni
+        for org in organizations:
+            return [(org['id'], org['name']) for org in organizations]
+
+def Flask_getOrgID_Name(URL,APIKEY):
+    """Fetch the list of organizations for the authenticated user."""
+    queryURL = f'{URL}/organizations'
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        organizations = response.json()
+        return [(org['id'], org['name']) for org in organizations]
+    else:
+        return []
+
+## ORG - PRINT
+
+def PrintOrgID_Name(URL,APIKEY):
+    org = getOrgID_Name(URL,APIKEY)
+    if org: # Se org non è None e ha risultati
+        for org_id, org_name in org:
+            print(f"\tNome: {org_name},\n\tID:{org_id}\n")     
+
+# MERAKI API - NETWORK
+
+## NETWORK - GET
+def getNtwID_Name(URL,APIKEY,orgID):
+    queryURL = URL + f"/organizations/{orgID}/networks"
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        networks = response.json()
+        # Stampa ID e Nome delle organizzazioni
+        for ntw in networks:
+            return [(ntw['id'], ntw['name']) for ntw in networks]
+
+def Flask_getNtwID_Name(URL, APIKEY, orgID):
+    queryURL = URL + f"/organizations/{orgID}/networks"
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        networks = response.json()
+        return [(ntw['id'], ntw['name']) for ntw in networks]
+    else:
+        return []
+
+def getNtwNameByID(ntwID):
+    """
+    Restituisce il nome di una network dato il suo ID.
+    Args:
+        ntwID (str): ID della network Meraki
+    Returns:
+        str: nome della network
+    """
+    try:
+        dashboard = meraki.DashboardAPI(KEY, suppress_logging=True)
+        network = dashboard.networks.getNetwork(ntwID)
+        return network.get("name", "")
+    except Exception as e:
+        print(f"Errore in getNtwNameByID per network {ntwID}: {e}")
+        return ""
+
+## NETWORK - PRINT
+
+def PrintNtwID_Name(URL,APIKEY,orgID):
+    ntw = getNtwID_Name(URL,APIKEY,orgID)
+    if ntw: # Se org non è None e ha risultati
+        for ntw_id, ntw_name in ntw:
+            print(f"\tNome: {ntw_name},\n\tID:{ntw_id}\n")
+            
+
+# MERAKI - API -GENERALIZZATE
+
+## GET
+
+def Flask_get_Generic(queryURL,col1,col2):
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        data = response.json()
+        return data
+        # Stampa ID e Nome delle organizzazioni
+        #for d in data:
+        #    return [(d[col2], d[col1]) for d in data]
+        #return data  # Restituisci direttamente i dettagli SSID
+    else:
+        return {"error": response.status_code, "message": response.text}
+
+"""
+def Flask_get_Generic_old( queryURL):
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        data = response.json()
+        return data  # Restituisci direttamente i dettagli SSID
+    else:
+        return {"error": response.status_code, "message": response.text}
+"""
+
+def Flask_extractDataGeneric(data):
+        for d in data:
+            return [(d[0], d[1]) for d in data]
+# MERAKI API - SSID
+
+## SSID - GET
+
+def getSSID_Num_Name(URL,APIKEY,orgID,ntwID):
+    queryURL = URL + f"/networks/{ntwID}/wireless/ssids"
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        ssids = response.json()
+
+        # Stampa number e Nome delle ssids
+        for ssid in ssids:
+            return [(ssid['number'], ssid['name']) for ssid in ssids]
+
+def Flask_getSSID_Num_Name(URL, APIKEY, orgID, ntwID):
+    queryURL = URL + f"/networks/{ntwID}/wireless/ssids"
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        ssids = response.json()
+        return ssids  # Restituisci direttamente i dettagli SSID
+    else:
+        return {"error": response.status_code, "message": response.text}
+
+def Flask_getSSID_Num_Name_By_NumberSSID(URL, APIKEY, orgID, ntwID,ssidNumber):
+    queryURL = URL + f"/networks/{ntwID}/wireless/ssids/{ssidNumber}"
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        ssids = response.json()
+        return ssids  # Restituisci direttamente i dettagli SSID
+    else:
+        return {"error": response.status_code, "message": response.text}
+
+
+## SSID - SAVE
+
+def Save_SSID_JSON(URL,APIKEY,orgID,ntwID,json_path):
+    queryURL = URL + f"/networks/{ntwID}/wireless/ssids"
+    response = requests.get(queryURL, headers=APIKEY)
+    if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        ssids = response.json()
+
+        #Salvo il file JSON
+        json_path=os.path.join(json_path,"Template-SSID.json")
+        if json_path:
+               with open(json_path, 'w', encoding='utf-8') as json_file:
+                    json.dump(ssids, json_file, indent=4, ensure_ascii=False)
+
+
+
+
+## SSID - PRINT
+
+def PrintSSID_Num_Name(URL,APIKEY,orgID,ntwID):
+    ssid = getSSID_Num_Name(URL,APIKEY,orgID,ntwID)
+    if ssid: # Se org non è None e ha risultati
+        for ssid_num, ssid_name in ssid:
+            print(f"\tNome: {ssid_name},\n\tNUMBER: {ssid_num}\n")
+
+
+## SSID - PUT (PDATE)
+
+def UpdateSSID(request_url,APIKEY,data_json):
+    #queryURL = URL + f"/networks/{ntwID}/wireless/ssids/{ssid_number}"
+    response = requests.get(queryURL, headers=APIKEY)
+    response = requests.put(
+        request_url,headers=APIKEY, json=data_json)
+        #headers={
+        #"Content-Type": "application/json",
+        #"Authorization": f"Bearer {APIKEY}"
+        #},
+        #json=data_json
+        #)
+    return response
+
+## DEVICES -- WITH URL
+
+def API_getDevicesByNtwID(networkId):
+    queryURL = URL + f"/networks/{networkId}/devices"
+    response = requests.get(queryURL, headers=APIKEY)
+    response.raise_for_status()
+    return response.json()
+
+
+######## MERAKI API DIRETTE #################
+
+def API_UpdateSSID(request_url, data_json, ntwId):
+    dashboard = meraki.DashboardAPI(KEY)
+    # Copia del JSON
+    payload = data_json.copy()
+    # Estrae il numero SSID
+    number = payload.pop("number")
+    try:
+        response = dashboard.wireless.updateNetworkWirelessSsid(
+            ntwId,
+            number,
+            **payload
+        )
+        return {
+            "success": True,
+            "response": response
+        }
+    except meraki.APIError as e:
+        return {
+            "success": False,
+            "networkId": ntwId,
+            "status": e.status,
+            "reason": e.reason,
+            "message": e.message
+        }
+
+def API_UpdateVlanProfiles(request_url, data_json, ntwId):
+    dashboard = meraki.DashboardAPI(KEY)
+    # Copia del JSON
+    payload = data_json.copy()
+    # Estrae il nome del profilo
+    iname = payload.pop("iname")
+    name = payload.pop("name")
+    vlanNames = payload.pop("vlanNames")
+    vlanGroups = payload.pop("vlanGroups")
+    # Rimuovi i campi di sola lettura
+    payload.pop("isDefault", None)
+    payload.pop("activeVlans", None)
+    try:
+        response = dashboard.networks.updateNetworkVlanProfile(
+            ntwId,
+            iname,
+            name,
+            vlanNames,
+            vlanGroups,
+            **payload
+        )
+        return {
+            "success": True,
+            "response": response
+        }
+    except meraki.APIError as e:
+        return {
+            "success": False,
+            "networkId": ntwId,
+            "status": e.status,
+            "reason": e.reason,
+            "message": e.message
+        }
+
+def API_GetOrgNetworks(orgID):
+    dashboard=meraki.DashboardAPI(KEY)
+    response = dashboard.organizations.getOrganizationNetworks(orgID)
+    #if response.status_code == 200:
+        # Ottieni i dati JSON dalla risposta
+        #organizations = response.json()
+        # Stampa ID e Nome delle organizzazioni
+    # Crea una lista di tuple (ID, Nome)
+    orgs = [(org['id'], org['name']) for org in response]
+    # Ordina la lista in base al nome dell'organizzazione
+    orgs_sorted = sorted(orgs, key=lambda x: x[1])
+    return orgs_sorted
+    #for org in response:
+    #    return [(org['id'], org['name']) for org in response]
+ 
+## API - VARIE
+#
+def API_GetSwByNtwID(ntwID):
+    """
+    Restituisce tutti gli switch di una network Meraki.
+    Args:
+        ntwID (str): ID della network Meraki
+    Returns:
+        list[tuple]: lista di tuple (serial, name)
+    """
+    try:
+        dashboard = meraki.DashboardAPI(KEY)
+        devices = dashboard.networks.getNetworkDevices(ntwID)  # ottieni tutti i dispositivi della network
+        # Filtra solo gli switch
+        sw = [(d['serial'], d['name']) for d in devices if d['model'].startswith('MS')]  # MS = Meraki Switch
+        # Ordina per nome
+        ListSw = sorted(sw, key=lambda x: x[1])
+        return ListSw
+    except Exception as e:
+        print(f"Errore in API_GetSwByNtwID per network {ntwID}: {e}")
+        return []
+
+def get_SwitchDetails_by_Serial(serial):
+    """
+    Restituisce i dettagli completi di uno switch dato il serial.
+    """
+    try:
+        # Recupera i dati completi tramite API dirette Meraki
+        url = f"{URL}/devices/{serial}"
+        response = requests.get(url, headers=APIKEY)
+        if response.status_code == 200:
+            data = response.json()
+            return {
+                "serial": data.get("serial"),
+                "name": data.get("name"),
+                "model": data.get("model"),
+                "lanIp": data.get("lanIp"),
+                "networkId": data.get("networkId"),
+                "tags": data.get("tags", [])
+            }
+        else:
+            print(f"Errore API {serial}: {response.status_code}")
+            return None
+    except Exception as e:
+        print(f"Errore API_GetSwitchDetails per serial {serial}: {e}")
+        return None
+    
+def API_GetSwitchDetailsBySerial(serial):
+    """
+    Restituisce tutte le proprietà di uno switch dato il seriale.
+    Args:
+        serial (str): Serial dello switch Meraki    
+    Returns:
+        dict: Dizionario con tutte le proprietà dello switch, o None se errore
+    """
+    try:
+        url = f"{URL}/devices/{serial}"
+        response = requests.get(url, headers=APIKEY)
+        if response.status_code != 200:
+            print(f"Errore API_GetSwitchDetails(): HTTP {response.status_code} - {response.text}")
+            return None
+        return response.json()
+    except Exception as e:
+        print(f"Errore generico API_GetSwitchDetails per serial {serial}: {e}")
+        return None
+
+def API_GetSwFieldBySerial(serial,field):
+    """
+    Ritorna il nome di uno switch Meraki partendo dal seriale.
+    Ritorna None se non trovato o in caso di errore.
+    """
+    try:
+        url = f"{URL}/devices/{serial}"
+        response = requests.get(url, headers=APIKEY)
+        if response.status_code != 200:
+            print(f"Errore API_GetSwFieldBySerial(): HTTP {response.status_code} - {response.text}")
+            return None
+        data = response.json()
+        # Se il device esiste il nome è dentro il campo 'field'
+        return data.get(field, None)
+    except Exception as e:
+        print(f"Errore API_GetSwFieldBySerial(): {e}")
+        return None
+    
+## PORTS - GET
+
+def getDeviceSwitchPortsBySerial(serial):
+    dashboard = meraki.DashboardAPI(KEY)
+    ports = dashboard.switch.getDeviceSwitchPorts(serial)
+    return ports
+
+def API_GetSWPortBySerial(serial):
+    queryURL = URL + f"/devices/{serial}/switch/ports"
+    response = requests.get(queryURL, headers=APIKEY)
+    response.raise_for_status()
+    return response.json()
+
+def API_UpdateSwitchPort(sw_name,serial, port_id, payload,dashboard):
+## URL + f"/devices/{serial}/switch/ports/{portId}
+    """
+    Aggiorna la configurazione di una porta switch Meraki usando la libreria ufficiale.
+    :param serial: Serial dello switch
+    :param port_id: ID della porta
+    :param payload: dict con la configurazione da applicare
+    :return: dict con la risposta dell'API
+    """
+    #Attiva parte di logging
+    #logger.debug("START | switch=%s serial=%s port=%s", sw_name, serial, port_id)
+    #Sostituisco gli spazi in , per gestione corretta API
+    allowed_vlans = payload["allowedVlans"]
+    if allowed_vlans:
+        payload["allowedVlans"] = FuncFile.normalize_csv_port_vlan(allowed_vlans)
+    #Sostituisco gli spazi in , per gestione corretta API
+    active_vlans = payload["activeVlans"]
+    if active_vlans:
+        payload["activeVlans"] = FuncFile.normalize_csv_port_vlan(active_vlans)
+    # La libreria meraki accetta solo argomenti keyword,
+    # quindi filtriamo payload per lasciare solo valori non-None
+    filtered_payload = {k: v for k, v in payload.items() if v is not None}
+    try:
+        response = dashboard.switch.updateDeviceSwitchPort(
+            serial,
+            port_id,
+            **filtered_payload
+        )
+        logger.info("OK | switch=%s serial=%s port=%s", sw_name, serial, port_id)
+        return response
+    except Exception as e:
+        logger.error("FAIL | switch=%s serial=%s port=%s", sw_name, serial, port_id, str(e))
+        raise
+        # Puoi gestire logging o ritornare l'errore in modo strutturato
+        #return {"status": "error", "serial": serial, "port": port_id, "error": str(e)}
+
+## PROFILE - GET
+
+def API_GetPortProfileName(network_id, profile_id):
+    profiles = dashboard.switch.getNetworkSwitchPortProfiles(network_id)
+    # Filtra per ID del profilo
+    profile_name = None
+    for p in profiles:
+        if str(p["id"]) == profile_id:
+            profile_name = p["name"]
+            break
+    return profile_name

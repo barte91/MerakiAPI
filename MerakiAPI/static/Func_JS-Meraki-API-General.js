@@ -1,0 +1,271 @@
+// ****TUTTE LE FUNZIONI PER SEARCH ECC DI API MERAKI
+
+//Funzione SPECIFICA--Recupera tipo Network quando si cambia dal menù
+function fetchNetworks(orgID, type) {
+    fetch(`/api/get_networks/${orgID}?type=${type}`)
+        .then(response => response.json())
+        .then(data => {
+            const ntwSelect = document.getElementById('ntwID');
+            ntwSelect.innerHTML = "";
+            //Primo elemento vuoto
+            const EmptyOpt = document.createElement('option');
+            EmptyOpt.value = "";
+            EmptyOpt.textContent = "";
+            ntwSelect.appendChild(EmptyOpt);
+            data.forEach(network => {
+                const option = document.createElement('option');
+                option.value = network[0];
+                option.textContent = `${network[1]} (ID: ${network[0]})`;
+                ntwSelect.appendChild(option);
+            });
+        });
+}
+
+// Recuepra Generic by URL for 2 elements
+function DELETE_fetchGeneric(requestUrl, FieldOutput) {
+    //console.log('^^^^^^^^URL^^^^^',requestUrl)
+    fetch(requestUrl)
+        .then(response => response.json())
+        .then(data => {
+            const FieldSelect = document.getElementById(FieldOutput);
+            FieldSelect.innerHTML = "";
+            data.forEach(element => {
+                const option = document.createElement('option');
+                option.value = element[0];
+                option.textContent = `${element[1]} (ID: ${element[0]})`;
+                FieldSelect.appendChild(option);
+            });
+        });
+}
+
+// Recuepra Generic by URL for 2 elements
+function fetchGeneric(requestUrl, FieldOutput, primary_key, secondary_key, callback = null) {
+    //console.log('^^^^^^^^URL^^^^^', requestUrl)
+    fetch(requestUrl)
+        .then(response => response.json())
+        .then(data => {
+            const FieldSelect = document.getElementById(FieldOutput);
+            FieldSelect.innerHTML = "";
+            data.forEach(element => {
+                const option = document.createElement('option');
+                option.value = element[primary_key];
+                option.textContent = `${element[secondary_key]} (${primary_key}: ${element[primary_key]})`;
+                FieldSelect.appendChild(option);
+            });
+            //console.log('^^^^^^^^data^^^^^', data)
+            if (typeof callback === "function") {
+                callback(data);
+            }
+        });
+}
+
+// Recuepra Generic by URL for 2 elements
+function fetchGeneric_TEST(requestUrl, FieldOutput, primary_key, secondary_key) {
+    console.log('^^^^^^^^URL1^^^^^', requestUrl)
+    fetch(requestUrl)
+        .then(response => response.json())
+        .then(data1 => {
+            //console.log('Data ricevuta:', data1); // Debug per controllare il contenuto di data
+            const data = JSON.parse(data1);
+            if (Array.isArray(data)) {
+                const FieldSelect = document.getElementById(FieldOutput);
+                FieldSelect.innerHTML = "";
+                data.forEach(element => {
+                    const option = document.createElement('option');
+                    option.value = element[primary_key];
+                    option.textContent = `${element[secondary_key]} (${primary_key}: ${element[primary_key]})`;
+                    FieldSelect.appendChild(option);
+                });
+            } else {
+                console.error('I dati ricevuti non sono un array:', data);
+            }
+            console.log('^^^^^^^^data^^^^^', data)
+        });
+}
+
+// Funzione su campo TypeNetwork - OnChange (Nuova fetchGeneric(requestUrl, FieldOutput, primary_key, secondary_key) )
+function fetchGeneric_Inventory(FiledOutput, primary_key, secondary_key) {
+
+}
+
+
+// Funzione per cambiamento del network type - New - PIU LEGGERA e VELOCE
+function old_onNetworkTypeChange() {
+    const networkType = document.getElementById("networkType").value;
+    const orgID = document.getElementById("orgID").value;
+    const ntwSelect = document.getElementById("ntwID");
+
+    const swSelect = document.getElementById("SWSelect");
+    const deviceType = document.getElementById("deviceType").value;
+
+    // Pulisce select
+    ntwSelect.innerHTML = "";
+
+    if (swSelect) {
+        swSelect.innerHTML = "";
+    }
+
+    if (networkType === "SINGLE") {
+        // Se SINGLE, mostra lista network
+        fetch(`/api/get_networks/${orgID}?type=SINGLE`)
+            .then(resp => resp.json())
+            .then(data => {
+                data.forEach(ntw => {
+                    const option = document.createElement('option');
+                    option.value = ntw[0]; // ID
+                    option.textContent = ntw[1]; // Nome
+                    ntwSelect.appendChild(option);
+                });
+            });
+    } else {
+        // Se NON SINGLE, prendi tutte le network e subito tutti gli switch
+        fetch(`/api/get_networks/${orgID}?type=${networkType}`)
+            .then(resp => resp.json())
+            .then(ntwList => {
+                // Crea una lista di ID separati da virgola
+                const ntwIDs = ntwList.map(n => n[0]).join(",");
+                // Fetch switches direttamente
+                fetchGeneric(`/api/get_switches/${ntwIDs}?deviceType=${deviceType}`, "SWSelect", "serial", "name");
+                //fetchGeneric_Inventory()
+            });
+    }
+}
+
+// Funzione che viene caricata dal template MenuNtwType.html
+async function onNetworkTypeChange() {
+
+    const orgID = document.getElementById("orgID").value;
+    const networkType = document.getElementById("networkType").value;
+
+    const networks = await loadNetworks(orgID, networkType);
+
+    afterNetworksLoaded(networks);
+}
+
+
+// Funzione per cambiamento del network type - New - non è piu legata a SWITCH o AP - carica solo le Ntw
+async function loadNetworks(orgID, networkType, selectID = "ntwID") {
+
+    const ntwSelect = document.getElementById(selectID);
+
+    ntwSelect.innerHTML = '<option value="">Caricamento...</option>';
+
+    if (!orgID || !networkType) {
+        ntwSelect.innerHTML = '<option value="">Seleziona organizzazione e tipo</option>';
+        return [];
+    }
+
+    const response = await fetch(`/api/get_networks/${orgID}?type=${networkType}`);
+    const networks = await response.json();
+
+    ntwSelect.innerHTML = '<option value="">Seleziona una Network</option>';
+
+    networks.forEach(ntw => {
+        const option = document.createElement("option");
+        option.value = ntw[0];
+        option.textContent = `${ntw[1]} (${ntw[0]})`;
+        ntwSelect.appendChild(option);
+    });
+
+    return networks;
+}
+
+// Funzione che restituisce il JSON richiesto (requestUrl)
+function fetchGenericData(requestUrl, field_visual_output, field_modify_output) {
+    //console.log('^^^^^^^^URL-GEN-DATA^^^^^', requestUrl)
+    fetch(requestUrl) // Aggiorna endpoint per includere il numero
+        .then(response => response.json())
+        .then(data => {
+            const jsonContainer = document.getElementById(field_visual_output);
+            jsonContainer.innerHTML = ""; // Pulisce il contenuto precedente
+
+            const pre = document.createElement('pre');
+            pre.textContent = JSON.stringify(data, null, 4); // Formatta il JSON
+            jsonContainer.appendChild(pre);
+            document.getElementById(field_modify_output).value = JSON.stringify(data); // Aggiorna il campo JSON da inviare
+        })
+        .catch(err => console.error('Error fetching data:', err));
+}
+
+
+/*
+function POST_API_RadioProfile(requestUrl, field_modify_output) {
+    const value_field_modify_output = document.getElementById(field_modify_output).value;
+    const ntwID = document.getElementById('ntwID').value;  // Ottieni l'ID della rete
+    const json_data = JSON.parse(document.getElementById(field_modify_output).value);  // Assicurati che il campo JSON sia valorizzato
+    console.log('JSON-DATA', json_data)
+    // Effettua la richiesta POST
+    fetch(`${requestUrl}/${ntwID}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(json_data) // Usa il JSON modificato come body
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error("Errore nella creazione del profilo RF");
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Success:', data);
+            alert("Nuovo RF Profile creato con successo!");
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            alert("Si è verificato un errore nella creazione del RF Profile.");
+        });
+}
+*/
+
+
+function POST_API_General(requestUrl,ntwID, json_data) {
+    // Effettua la richiesta POST
+    fetch(requestUrl+'/'+ntwID, {  //`/api/post_rf_profiles/${ntwID}`
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(json_data) // Usa il JSON come body
+    })
+    .then(response => {
+        if (!response.ok) {
+           throw new Error("ERRORE-CREAZIONE");
+        }
+        return response.json();
+    })
+    .then(data => {
+        alert('OK-CREAZIONE-ELEMENTO --> SU RETE ID: ${ntwID}');
+    })
+    .catch((error) => {
+        alert('ERRORE-CREAZIONE-ELEMENTO --> SU RETE ID: ${ntwID}');
+    });
+ }
+
+/*
+function POST_API_Meraki(requestUrl, field_modify_output) {
+
+    const myHeaders = new Headers();
+    myHeaders.append("Content-Type", "application/json");
+    myHeaders.append("Accept", "application/json");
+    myHeaders.append("Authorization", "f25d79a1df42dff69f5337fa61c60c2b798aa404");
+
+    const requestOptions = {
+        method: "POST",
+        headers: myHeaders,
+        body: data,
+        redirect: "follow"
+    };
+
+    value_field_modify_output = document.getElementById(field_modify_output).value
+    const data = JSON.stringify({ value_field_modify_output})
+
+    fetch(requestUrl, requestOptions)
+        .then((response) => response.json())
+        .then((data) =>
+            console.log('POST-EFFETTUATO'))
+        .catch(err => console.error('Error POST data:', err));
+}
+*/
+

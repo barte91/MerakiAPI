@@ -1,0 +1,7 @@
+# Escludi credenziali
+.env
+# Certificati TLS / SSL
+Certificates/
+*.pem
+*.key
+*.crt

@@ -1,0 +1,185 @@
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>922034bc-3c5c-4a83-8b08-3fcc818ef824</ProjectGuid>
+    <ProjectHome>.</ProjectHome>
+    <StartupFile>MerakiAPIFlask.py</StartupFile>
+    <SearchPath>
+    </SearchPath>
+    <WorkingDirectory>.</WorkingDirectory>
+    <OutputPath>.</OutputPath>
+    <Name>MerakiAPI</Name>
+    <RootNamespace>MerakiAPI</RootNamespace>
+    <InterpreterId>MSBuild|env|$(MSBuildProjectFullPath)</InterpreterId>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)' == 'Release' ">
+    <DebugSymbols>true</DebugSymbols>
+    <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="config_sample.py" />
+    <Compile Include="Function\FuncFILE\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncFILE\Func_PY_FILE.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncLog\Func_PY_Log.py" />
+    <Compile Include="Function\FuncLog\__init__.py" />
+    <Compile Include="Function\FuncUSER\Func_PY_USER.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncDB\Func_PY_DB.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncDB\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncExcel\Func_PY_Excel.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncExcel\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncGLPI\Func_PY_GLPI.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncGLPI\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncJSON\Func_PY_JSON.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncJSON\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncMatrix\Func_PY_Matrix.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncMatrix\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncMeraki\Func_PY_Meraki.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncMeraki\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncOS\Func_PY_OS.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncOS\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncUSER\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncZabbix\Func_PY_Zabbix.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Function\FuncZabbix\__init__.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Func_AppRoute.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MerakiConfig\LMConfPortByName.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MerakiAPI.py" />
+    <Compile Include="Inventario.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="ChangeIP.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="MerakiAPIFlask.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="config.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="Tools.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="UpdatePorts.py" />
+  </ItemGroup>
+  <ItemGroup>
+    <Interpreter Include="env\">
+      <Id>env</Id>
+      <Version>3.11</Version>
+      <Description>env (Python 3.11 (64-bit))</Description>
+      <InterpreterPath>Scripts\python.exe</InterpreterPath>
+      <WindowsInterpreterPath>Scripts\pythonw.exe</WindowsInterpreterPath>
+      <PathEnvironmentVariable>PYTHONPATH</PathEnvironmentVariable>
+      <Architecture>X64</Architecture>
+    </Interpreter>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".editorconfig" />
+    <Content Include=".gitignore" />
+    <Content Include="apache-conf\httpd.conf" />
+    <Content Include="doc.txt" />
+    <Content Include="Dockerfile" />
+    <Content Include="Function\FuncGLPI\Old-Func.txt" />
+    <Content Include="requirements.txt" />
+    <Content Include="static\Func-JS-API-SSID.js" />
+    <Content Include="static\Func_JS-Catalyst-To-Meraki.js" />
+    <Content Include="static\Func_JS-GLPI-Inventario.js" />
+    <Content Include="static\Func_JS-HTML-Form.js" />
+    <Content Include="static\Func_JS-LogPanel.js" />
+    <Content Include="static\Func_JS-Meraki-API-General.js" />
+    <Content Include="static\LogPanel-Style.css" />
+    <Content Include="static\UNUSED\Func_JS-SSID.js" />
+    <Content Include="static\UNUSED\Func_JS-RadioProfile.js" />
+    <Content Include="static\MerakiFunciotn-Style.css" />
+    <Content Include="static\Main-Style.css" />
+    <Content Include="templates\API-VLAN-Profiles.html" />
+    <Content Include="templates\API-Zabbix.html" />
+    <Content Include="templates\LM-CatMeraki.html" />
+    <Content Include="templates\API-InventoryMeraki.html" />
+    <Content Include="templates\API-PortDown.html" />
+    <Content Include="templates\API-GLPI-InveManu.html" />
+    <Content Include="templates\API-SSID.html" />
+    <Content Include="templates\index.html" />
+    <Content Include="templates\API-RadioProfile.html" />
+    <Content Include="templates\MenuNtwType.html" />
+    <Content Include=".env" />
+    <Content Include="apache-conf\apache-appMeraki.conf" />
+    <Content Include="docker-compose.yml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Function\FuncGLPI\" />
+    <Folder Include="Function\FuncDB\" />
+    <Folder Include="Function\FuncExcel\" />
+    <Folder Include="Function\" />
+    <Folder Include="Function\FuncMatrix\" />
+    <Folder Include="Function\FuncMeraki\" />
+    <Folder Include="Function\FuncOS\" />
+    <Folder Include="Function\FuncJSON\" />
+    <Folder Include="Function\FuncUSER\" />
+    <Folder Include="Function\FuncFILE\" />
+    <Folder Include="certificates\" />
+    <Folder Include="apache-conf\" />
+    <Folder Include="Function\FuncZabbix\" />
+    <Folder Include="Function\FuncLog\" />
+    <Folder Include="MerakiConfig\" />
+    <Folder Include="static\" />
+    <Folder Include="static\UNUSED\" />
+    <Folder Include="templates\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
+  <!-- Uncomment the CoreCompile target to enable the Build command in
+       Visual Studio and specify your pre- and post-build commands in
+       the BeforeBuild and AfterBuild targets below. -->
+  <!--<Target Name="CoreCompile" />-->
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+</Project>

@@ -1,0 +1,44 @@
+services:
+  meraki-api:
+    build:
+      context: .
+    container_name: meraki-api
+    expose:
+      - "5000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./config.py:/app/config.py:ro
+    restart: unless-stopped
+    depends_on:
+      - redis
+    networks:
+      - meraki-network
+
+  redis: 
+    image: redis:7-alpine
+    container_name: meraki-redis
+    restart: unless-stopped
+    networks:
+      - meraki-network
+
+  apache:
+    image: httpd:2.4
+    container_name: meraki-apache
+    ports:
+      - "443:443"
+    volumes:
+      - ./apache-conf/apache-appMeraki.conf:/usr/local/apache2/conf/extra/meraki.conf:ro
+      - ./certificates:/certs:ro
+      - ./apache-conf/httpd.conf:/usr/local/apache2/conf/httpd.conf:ro
+    depends_on:
+      - meraki-api
+    restart: unless-stopped
+    networks:
+      - meraki-network
+
+networks:
+  meraki-network:
+    name: meraki-network
+    driver: bridge

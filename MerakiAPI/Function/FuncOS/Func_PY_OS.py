@@ -1,4 +1,5 @@
 from flask import jsonify
+from datetime import datetime
 import os,io,zipfile,csv
 from Function.FuncFILE import Func_PY_FILE as FuncFILE
 from Function.FuncZabbix import Func_PY_Zabbix as FuncZabbix
@@ -12,6 +13,27 @@ def getFileName(total_path):
         if os.path.isfile(os.path.join(total_path, path)):
             list_fn.append(path)
     return list_fn
+
+#Converte Orari UNIX in date Human readable
+def ConvertUnixToHumanTime(unix_timestamp):
+    return datetime.fromtimestamp(
+        int(unix_timestamp)
+    ).strftime("%d-%m-%Y %H:%M:%S")
+
+#Per convertire un oggetto JSON in CSV | Prende una lista di dizionari (che rappresentano i dati JSON) e li converte in formato CSV:
+def ConvertJsonToCSV(data,filename):
+    if not data:
+        return None  # Se la lista è vuota, restituisce None
+    with open(filename, "w", newline="", encoding="utf-8-sig") as csvfile:
+        fieldnames = data[0].keys()
+        writer = csv.DictWriter(
+            csvfile,
+            fieldnames=fieldnames,
+            extrasaction="ignore"
+        )
+        writer.writeheader()
+        writer.writerows(data)
+    return filename
 
 #Gestione ZIP File caricati (Per LM-Catalyst - to - Meraki)
 def handle_zip_upload(file):

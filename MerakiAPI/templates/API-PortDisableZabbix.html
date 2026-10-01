@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ANALISI PORTE DOWN CON ZABBIX</title>
+    <!-- Utilizza il percorso static per importare il tuo file CSS -->
+    <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='MerakiFunciotn-Style.css') }}">
+    <!-- Costante per Gerarchia -->
+    <script>const hierarchy = {{ hierarchy | tojson }};</script>
+    <!-- Utilizza il percorso static per importare il tuo file JS -->
+    <script src="{{ url_for('static', filename='Func_JS-Meraki-API-General.js') }}"></script>
+    <!--- <script src="{{ url_for('static', filename='Func_JS-HTML-Form.js') }}"></script> -->
+    <script src="{{ url_for('static', filename='Func_JS-Zabbix-API-General.js') }}"></script>
+</head>
+<body>
+    <h1>ANALISI PORTE DOWN CON ZABBIX</h1>
+    <form action="/api/API-PortDisableZabbix" method="POST">
+        <div>
+            <label for="bu">BU</label>
+            <select id="bu" name="bu">
+                {% for bu_name in zabbix_bu_filter %}
+                {% if bu_name in hierarchy %}
+                <option value="{{ bu_name }}">
+                    {{ bu_name }}
+                </option>
+                {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+        <div>
+            <label for="group_type">Tipo Location</label>
+            <select id="group_type" name="group_type">
+            </select>
+        </div>
+        <div>
+            <label for="location">Location</label>
+            <select id="location" name="location">
+            </select>
+        </div>
+        <div>
+            <label for="days">Giorni di storico (max:90)</label>
+            <input type="number"
+                   id="days"
+                   name="days"
+                   value="90"
+                   min="1"
+                   max="90"
+                   required>
+        </div>
+
+        <br>
+        <button type="submit" name="create_report" value="1"> Crea Report</button>
+        <button type="submit" name="export_csv" value="1"> Esporta CSV</button>
+    </form>
+    {% if report_result is not none %}
+        <h2>Risultato test Zabbix</h2>
+        <pre>{{ report_result }}</pre>
+    {% endif %}
+</body>
+</html>

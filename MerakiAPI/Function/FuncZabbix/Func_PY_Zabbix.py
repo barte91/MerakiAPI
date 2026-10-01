@@ -124,4 +124,232 @@ def map_meraki_to_zabbix(merHosts, zabHosts):
             }
     return mapping
 
+# FUNZIONI GENERICHE PER RECUPERO HOST E TEMPLATE ZABBIX
+
+#Funzione per unire HostID Zabbix a Name e Serial Meraki
+def zabbix_GetCriticalPortsTemplate():
+    params = {
+        "output": [
+            "templateid",
+            "host",
+            "name"
+        ],
+        "filter": {
+            "host": [
+                "BARTE-Meraki-SW-Monitoring-CriticalPorts-SNMPv3"
+            ]
+        }
+    }
+    return zabbix_SendAPI("template.get", params)
+
+def zabbix_GetPortAdminStatusItems(templateid):
+    params = {
+        "output": [
+            "itemid",
+            "hostid",
+            "name",
+            "key_",
+            "lastvalue",
+            "lastclock"
+        ],
+        "templateids": [
+            templateid
+        ],
+        "search": {
+            "key_": "net.if.adminstatus["
+        },
+        "searchByAny": False
+    }
+    return zabbix_SendAPI("item.get", params)
+
+def zabbix_GetPortAdminStatusItemsByHosts(hostids):
+
+    params = {
+        "output": [
+            "itemid",
+            "hostid",
+            "name",
+            "key_",
+            "lastvalue",
+            "lastclock"
+        ],
+        "hostids": hostids,
+        "search": {
+            "key_": "net.if.adminstatus["
+        },
+        "searchByAny": False
+    }
+
+    return zabbix_SendAPI("item.get", params)
+
+# Recupera HostID e ItemID per una specifica chiave Zabbix (zabbix_key) per un elenco di host (hostids)
+def zabbix_GetKeyItemsByHosts(hostids, zabbix_key):
+    params = {
+        "output": [
+            "itemid",
+            "hostid",
+            "name",
+            "key_",
+            "lastvalue",
+            "lastclock"
+        ],
+        "hostids": hostids,
+        "search": {
+            "key_": zabbix_key
+        },
+        "searchByAny": False
+    }
+
+    return zabbix_SendAPI("item.get", params)
+
+def zabbix_GetItemHistory(itemid, time_from):
+
+    params = {
+        "output": "extend",
+        "history": 3,
+        "itemids": [itemid],
+        "time_from": time_from,
+        "sortfield": "clock",
+        "sortorder": "ASC"
+    }
+
+    return zabbix_SendAPI("history.get", params)
+
+def zabbix_GetHostsByTemplate(templateid):
+    params = {
+        "output": [
+            "hostid",
+            "host",
+            "name"
+        ],
+        "templateids": [
+            templateid
+        ]
+    }
+    return zabbix_SendAPI("host.get", params)
+
+def zabbix_GetHostGroups():
+    params = {
+        "output": [
+            "groupid",
+            "name"
+        ],
+        "sortfield": "name",
+        "sortorder": "ASC"
+    }
+
+    return zabbix_SendAPI("hostgroup.get", params)
+
+def zabbix_GetHostsByGroup(groupid):
+
+    params = {
+        "output": [
+            "hostid",
+            "host",
+            "name",
+            "status"
+        ],
+        "groupids": [groupid],
+        "filter": {
+            "status": "0"
+        },
+        "tags": [
+            {
+                "tag": "devtype",
+                "value": "switch"
+            }
+        ],
+        "evaltype": 0,
+        "sortfield": "name",
+        "sortorder": "ASC"
+    }
+
+    return zabbix_SendAPI(
+        "host.get",
+        params
+    )
+
+# FUNZIONE CONVERTI ID IN NOMI ESPLICITI
+
+def ConvertLinkStatus(value):
+    status = {
+        "1": "UP",
+        "2": "DOWN"
+    }
+    return status.get(str(value), f"UNKNOWN ({value})")
+
+# FUNZIONE PER CREARE GERARCHIA HOSTGROUPS
+
+def BuildHostGroupHierarchy(groups):
+    hierarchy = {}
+    for group in groups:
+        name = group["name"]
+        groupid = group["groupid"]
+        parts = name.split("/")
+        # Consideriamo solo gruppi con almeno 2 livelli
+        if len(parts) < 1:
+            continue
+        bu = parts[0] #bu=BUSINESS UNIT (LM,TM....)
+        if bu not in hierarchy:
+            hierarchy[bu] = {
+                "groupid": None,
+                "types": {}
+            }
+        # BU
+        if len(parts) == 1:
+            hierarchy[bu]["groupid"] = groupid
+            continue
+        group_type = parts[1]
+        if group_type not in hierarchy[bu]["types"]:
+            hierarchy[bu]["types"][group_type] = {
+                "groupid": None,
+                "locations": {}
+            }
+        # Tipo
+        if len(parts) == 2:
+            hierarchy[bu]["types"][group_type]["groupid"] = groupid
+            continue
+        # Location
+        location = "/".join(parts[2:])
+        hierarchy[bu]["types"][group_type]["locations"][location] = {
+            "groupid": groupid
+        }
+    return hierarchy
+
+#Aggiungi voce "ALL" a tutte le selezioni per gerarchia HOSTGROUPS
+def AddAllToHostGroupHierarchy(hierarchy):
+    result = {
+        "ALL": {
+            "groupid": None,
+            "types": {}
+        }
+    }
+    for bu, bu_data in hierarchy.items():
+        result[bu] = {
+            "groupid": bu_data["groupid"],
+            "types": {
+                "ALL": {
+                    "groupid": None,
+                    "locations": {}
+                }
+            }
+        }
+        for group_type, type_data in bu_data["types"].items():
+
+            result[bu]["types"][group_type] = {
+                "groupid": type_data["groupid"],
+                "locations": {
+                    "ALL": {
+                        "groupid": None
+                    }
+                }
+            }
+            for location, location_data in type_data["locations"].items():
+
+                result[bu]["types"][group_type]["locations"][location] = {
+                    "groupid": location_data["groupid"]
+                }
+
+    return result
+
     

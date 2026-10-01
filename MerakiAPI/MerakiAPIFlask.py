@@ -2,9 +2,12 @@
 from dotenv import load_dotenv
 load_dotenv()
 
+import time
+
 from flask import Flask, jsonify, render_template, request, send_from_directory, send_file, Response, stream_with_context
 from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem
+from datetime import datetime
 import os,json,zipfile,io,time,queue,logging
 from config import URL,APIKEY, InveManu_nameFile
 from Inventario import *
@@ -727,6 +730,102 @@ def Zabbix_SendAPI():
     #    return FuncOS.handle_zip_upload(file)
     #else:
     return FuncZabbix.zabbix_AddMacro_to_Host()
+
+
+###### PAGINA - API-Port Disable ZABBIX
+@app.route('/api/API-PortDisableZabbix', methods=['GET', 'POST'])
+def APIPortDisableZabbix():
+    report_result = None
+    allDevices = []
+    #CREA GERARCHIA HOSTGROUPS - PER FILTRI 
+    hostgroups=FuncZabbix.zabbix_GetHostGroups()
+    hierarchy = FuncZabbix.BuildHostGroupHierarchy(hostgroups)
+    hierarchy_gui = FuncZabbix.AddAllToHostGroupHierarchy(hierarchy)
+    if request.method == 'POST':
+        selected_bu = request.form.get("bu")
+        selected_type = request.form.get("group_type")
+        selected_location = request.form.get("location")
+        days = int(request.form.get("days", 20))
+        print("==========================")
+        print("BU:", selected_bu)
+        print("TIPO:", selected_type)
+        print("LOCATION:", selected_location)
+        bu_data = hierarchy.get(selected_bu)    
+        if not bu_data:
+            print("BU NON TROVATA:", selected_bu)
+            hosts = []
+        else:
+            # BU + ALL
+            if selected_type == "ALL":
+                groupid = bu_data["groupid"]
+            # BU + Tipo + ALL
+            elif selected_location == "ALL":
+                groupid = bu_data["types"][selected_type]["groupid"]
+            # BU + Tipo + Location
+            else:
+                groupid = bu_data["types"][selected_type]["locations"][selected_location]["groupid"]
+        print("GROUPID SELEZIONATO:", groupid)
+
+        #template = FuncZabbix.zabbix_GetCriticalPortsTemplate()
+        #templateid = template[0]["templateid"]
+        #hosts = FuncZabbix.zabbix_GetHostsByTemplate(templateid)    
+        #for host in hosts:
+        #    print(f"HOSTID={host['hostid']}  HOST={host['host']}  NAME={host['name']}")
+        #print("==========================")
+        hosts = FuncZabbix.zabbix_GetHostsByGroup(groupid)
+        hostids = [host["hostid"] for host in hosts[:2]]
+        print("HOST SELEZIONATI:")
+        for host in hosts[:2]:
+            print(
+                f"HOSTID={host['hostid']} "
+                f"HOST={host['host']} "
+                f"NAME={host['name']}"
+            )
+        #print("HOSTID UTILIZZATI:", hostids)
+        zabbix_key="net.if.linkstatus["
+        items = FuncZabbix.zabbix_GetKeyItemsByHosts(hostids, zabbix_key)
+        #print("ITEM TROVATI:", len(items))
+        #Crea mappa HostID -> HostName per rendere più leggibile il report
+        host_names = {
+            host["hostid"]: host["name"]
+            for host in hosts
+        }
+        #Crea Time_FROM --> Cosi 20 giorni di storico
+        time_from = int(time.time()) - (days * 24 * 60 * 60)
+        report_result = []
+        for item in items:
+            history = FuncZabbix.zabbix_GetItemHistory(item["itemid"],time_from)
+            for record in history:
+                 record["itemid"] = item["itemid"]
+                 record["hostid"] = item["hostid"]
+                 record["hostname"] = host_names.get(item["hostid"], "UNKNOWN")
+                 record["name"] = item["name"]
+                 record["key_"] = item["key_"]
+                 record["datetime"] = FuncOS.ConvertUnixToHumanTime(record["clock"])
+                 record["status"] = FuncZabbix.ConvertLinkStatus(record["value"])
+                 report_result.append(record)
+        #report_result = FuncZabbix.zabbix_GetItemHistory(1572744, time_from) #1572744 è l'itemid del primo host della lista
+
+        for record in report_result:
+                record["datetime"] = FuncOS.ConvertUnixToHumanTime(record["clock"])
+                record["status"] = FuncZabbix.ConvertLinkStatus(record["value"])
+        if request.form.get("export_csv"):
+            filename= f"Zabbix-ItemHistory-{datetime.now().strftime('%d-%m-%Y_%H-%M')}.csv"
+            FuncOS.ConvertJsonToCSV(report_result, filename)
+            return send_file(filename, as_attachment=True, download_name=filename, mimetype="text/csv")
+    #print("=== HOST GROUP HIERARCHY ===")
+    #print(hierarchy_gui)
+    zabbix_bu_filter= ["LEROY MERLIN", "TECNOMAT", "GOLILLA", "NETPROJECT"]
+
+        #print("HISTORY:", report_result)
+        #print("HOSTS:", report_result)
+        #print("HOST IDS:", hostids)
+        #print("TEMPLATE:", template)
+        #print("TEMPLATE ID:", templateid)
+        #print("ITEMS:", report_result)
+    # Se la richiesta è GET, mostra l'elenco delle organizzazioni
+    organizations = FuncMeraki.getOrgID_Name()
+    return render_template('API-PortDisableZabbix.html', organizations=organizations, report_result=report_result, hierarchy=hierarchy_gui, zabbix_bu_filter=zabbix_bu_filter)
 
 
 @app.route('/api/test')

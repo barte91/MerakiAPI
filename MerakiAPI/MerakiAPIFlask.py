@@ -746,10 +746,10 @@ def APIPortDisableZabbix():
         selected_type = request.form.get("group_type")
         selected_location = request.form.get("location")
         days = int(request.form.get("days", 20))
-        print("==========================")
-        print("BU:", selected_bu)
-        print("TIPO:", selected_type)
-        print("LOCATION:", selected_location)
+        #print("==========================")
+        #print("BU:", selected_bu)
+        #print("TIPO:", selected_type)
+        #print("LOCATION:", selected_location)
         bu_data = hierarchy.get(selected_bu)    
         if not bu_data:
             print("BU NON TROVATA:", selected_bu)
@@ -764,7 +764,7 @@ def APIPortDisableZabbix():
             # BU + Tipo + Location
             else:
                 groupid = bu_data["types"][selected_type]["locations"][selected_location]["groupid"]
-        print("GROUPID SELEZIONATO:", groupid)
+        #print("GROUPID SELEZIONATO:", groupid)
 
         #template = FuncZabbix.zabbix_GetCriticalPortsTemplate()
         #templateid = template[0]["templateid"]
@@ -773,14 +773,15 @@ def APIPortDisableZabbix():
         #    print(f"HOSTID={host['hostid']}  HOST={host['host']}  NAME={host['name']}")
         #print("==========================")
         hosts = FuncZabbix.zabbix_GetHostsByGroup(groupid)
-        hostids = [host["hostid"] for host in hosts[:2]]
-        print("HOST SELEZIONATI:")
-        for host in hosts[:2]:
-            print(
-                f"HOSTID={host['hostid']} "
-                f"HOST={host['host']} "
-                f"NAME={host['name']}"
-            )
+        #hostids = [host["hostid"] for host in hosts[:2]]
+        hostids = [host["hostid"] for host in hosts]
+        #print("HOST SELEZIONATI:")
+        #for host in hosts[:2]:
+        #    print(
+        #        f"HOSTID={host['hostid']} "
+        #        f"HOST={host['host']} "
+        #        f"NAME={host['name']}"
+        #    )
         #print("HOSTID UTILIZZATI:", hostids)
         zabbix_key="net.if.linkstatus["
         items = FuncZabbix.zabbix_GetKeyItemsByHosts(hostids, zabbix_key)

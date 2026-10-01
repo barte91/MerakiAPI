@@ -9,7 +9,7 @@ from consolemenu import ConsoleMenu, SelectionMenu
 from consolemenu.items import FunctionItem
 from datetime import datetime
 import os,json,zipfile,io,time,queue,logging
-from config import URL,APIKEY, InveManu_nameFile
+from config import URL,APIKEY, InveManu_nameFile, ZABBIX_BU_FILTER
 from Inventario import *
 from UpdatePorts import *
 from ChangeIP import *
@@ -816,8 +816,7 @@ def APIPortDisableZabbix():
             return send_file(filename, as_attachment=True, download_name=filename, mimetype="text/csv")
     #print("=== HOST GROUP HIERARCHY ===")
     #print(hierarchy_gui)
-    zabbix_bu_filter= ["LEROY MERLIN", "TECNOMAT", "GOLILLA", "NETPROJECT"]
-
+    
         #print("HISTORY:", report_result)
         #print("HOSTS:", report_result)
         #print("HOST IDS:", hostids)
@@ -826,7 +825,7 @@ def APIPortDisableZabbix():
         #print("ITEMS:", report_result)
     # Se la richiesta è GET, mostra l'elenco delle organizzazioni
     organizations = FuncMeraki.getOrgID_Name()
-    return render_template('API-PortDisableZabbix.html', organizations=organizations, report_result=report_result, hierarchy=hierarchy_gui, zabbix_bu_filter=zabbix_bu_filter)
+    return render_template('API-PortDisableZabbix.html', organizations=organizations, report_result=report_result, hierarchy=hierarchy_gui, zabbix_bu_filter=ZABBIX_BU_FILTER)
 
 
 @app.route('/api/test')

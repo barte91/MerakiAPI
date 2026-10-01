@@ -2,7 +2,7 @@
 from dotenv import load_dotenv
 load_dotenv()
 
-import os
+import os, json
 
 #MERAKI
 URL = os.getenv("MERAKI_API_URL")
@@ -18,6 +18,7 @@ ZABHEADERS = {
     "Content-Type": "application/json-rpc"
 }
 
+ZABBIX_BU_FILTER= json.loads(os.getenv("ZABBIX_BU_FILTER", "[]"))
 
 xls_path_inv = os.getenv("xls_path_inv")
 xls_path_chgIP = os.getenv("xls_path_chgIP")

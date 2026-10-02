@@ -202,6 +202,22 @@ def zabbix_GetKeyItemsByHosts(hostids, zabbix_key):
 
     return zabbix_SendAPI("item.get", params)
 
+def zabbix_GetItemsHistory(itemids, time_from):
+
+    params = {
+        "output": "extend",
+        "history": 3,
+        "itemids": itemids,
+        "time_from": time_from,
+        "sortfield": "clock",
+        "sortorder": "ASC"
+    }
+
+    return zabbix_SendAPI(
+        "history.get",
+        params
+    )
+
 def zabbix_GetItemHistory(itemid, time_from):
 
     params = {

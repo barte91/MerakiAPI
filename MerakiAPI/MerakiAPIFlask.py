@@ -732,7 +732,7 @@ def Zabbix_SendAPI():
     return FuncZabbix.zabbix_AddMacro_to_Host()
 
 
-###### PAGINA - API-Port Disable ZABBIX
+###### PAGINA - API-Port Disable ZABBIX  ############################################
 @app.route('/api/API-PortDisableZabbix', methods=['GET', 'POST'])
 def APIPortDisableZabbix():
     report_result = None
@@ -793,23 +793,49 @@ def APIPortDisableZabbix():
         }
         #Crea Time_FROM --> Cosi 20 giorni di storico
         time_from = int(time.time()) - (days * 24 * 60 * 60)
+
+        #Crea mappa ItemID -> Item per rendere più leggibile il report
+        item_map = {
+            item["itemid"]: item
+            for item in items
+        }
+
+        #Crea lista di ItemID per recuperare lo storico
+        itemids = [item["itemid"] for item in items]
+        # 1 sola chiamta Zabbix_GetItemHistory per tutti gli itemid
+        history = FuncZabbix.zabbix_GetItemsHistory(itemids, time_from)
+
+        #CREA REPORT RISULTATI
         report_result = []
-        for item in items:
-            history = FuncZabbix.zabbix_GetItemHistory(item["itemid"],time_from)
-            for record in history:
-                 record["itemid"] = item["itemid"]
-                 record["hostid"] = item["hostid"]
-                 record["hostname"] = host_names.get(item["hostid"], "UNKNOWN")
-                 record["name"] = item["name"]
-                 record["key_"] = item["key_"]
-                 record["datetime"] = FuncOS.ConvertUnixToHumanTime(record["clock"])
-                 record["status"] = FuncZabbix.ConvertLinkStatus(record["value"])
-                 report_result.append(record)
+        for record in history:
+            item = item_map.get(record["itemid"])
+            if not item:
+                continue  # Salta se l'item non è trovato
+            record["hostid"] = item["hostid"]
+            record["hostname"] = host_names.get(item["hostid"],"UNKNOWN")
+            record["name"] = item["name"]
+            record["key_"] = item["key_"]
+            record["datetime"] = FuncOS.ConvertUnixToHumanTime(record["clock"])
+            record["status"] = FuncZabbix.ConvertLinkStatus(record["value"])
+            report_result.append(record)
+
+        # Ciclo OLD - Multiple chiamate
+        #for item in items:
+        #    history = FuncZabbix.zabbix_GetItemHistory(item["itemid"],time_from)
+        #    for record in history:
+        #         record["itemid"] = item["itemid"]
+        #         record["hostid"] = item["hostid"]
+        #         record["hostname"] = host_names.get(item["hostid"], "UNKNOWN")
+        #         record["name"] = item["name"]
+        #         record["key_"] = item["key_"]
+        #         record["datetime"] = FuncOS.ConvertUnixToHumanTime(record["clock"])
+        #         record["status"] = FuncZabbix.ConvertLinkStatus(record["value"])
+        #         report_result.append(record)
         #report_result = FuncZabbix.zabbix_GetItemHistory(1572744, time_from) #1572744 è l'itemid del primo host della lista
 
-        for record in report_result:
-                record["datetime"] = FuncOS.ConvertUnixToHumanTime(record["clock"])
-                record["status"] = FuncZabbix.ConvertLinkStatus(record["value"])
+        #for record in report_result:
+        #        record["datetime"] = FuncOS.ConvertUnixToHumanTime(record["clock"])
+        #        record["status"] = FuncZabbix.ConvertLinkStatus(record["value"])
         if request.form.get("export_csv"):
             filename= f"Zabbix-ItemHistory-{datetime.now().strftime('%d-%m-%Y_%H-%M')}.csv"
             FuncOS.ConvertJsonToCSV(report_result, filename)
